@@ -9,11 +9,33 @@ from io import BytesIO
 root =  customtkinter.CTk()
 root.geometry("800x300")
 root.resizable(False, False)
+root.iconbitmap(None)
+root.title("Book Scraper")
 
+selectedHost = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
-comicBase = "https://readallcomics.com/?story="
+comicBase = ""
+comicIndividualLink = ""
 session = HTMLSession()
                 
+
+
+"""
+SCRAPETITLES
+"""
+
+def selectHost(choice):
+      global selectedHost
+      selectedHost = choice
+
+      global comicBase
+
+
+      if choice == "readallcomics.com":
+            comicBase = "https://readallcomics.com/?story="
+
+      if choice == "readcomiconline.li": 
+            comicBase = "https://readcomiconline.li/AdvanceSearch?comicName="
 
 def getPages(title, session, oddChars): 
       comicList.place_forget()
@@ -25,23 +47,31 @@ def getPages(title, session, oddChars):
 def confirmDownload(button_name):
       # Empty Arrays and Frames
       comicIssueNames = []
+      unchangedComicName = button_name
       for widget in comicIssues.winfo_children():
           widget.destroy()
 
       # Get Issues
-      comicIndividualLink = "https://readallcomics.com/category/"
       headers = {'User-Agent': 'Mozilla/5.0'}
       comicName = button_name 
+
 
       for char in oddChars:
             comicName = comicName.replace(char, "-")
 
+      if selectedHost == "readallcomics.com":
+            comicIndividualLink = "https://readallcomics.com/category/"
+
+      if selectedHost == "readcomiconline.li": 
+            comicIndividualLink = "https://readcomiconline.li/Comic/"
+
       coverLink = comicIndividualLink + comicName
 
+      print(comicIndividualLink + comicName)
       comicIndividualRequest = session.get(comicIndividualLink + comicName, headers=headers)
 
-      print(comicName)
-      comicIssueNames = scrapeIssues(comicIndividualRequest) 
+      print(unchangedComicName)
+      comicIssueNames = scrapeIssues(comicIndividualRequest, selectedHost)
       for x in range(len(comicIssueNames)):
        issueButton = customtkinter.CTkButton(comicIssues, width=500, height=30, text=comicIssueNames[x],
                                               fg_color="#581845", command = lambda title=comicIssueNames[x]: threading.Thread(target=getPages, args=(title, session, oddChars)).start())
@@ -49,7 +79,7 @@ def confirmDownload(button_name):
 
 
       # Get Cover Display    
-      coverLink = scrapeCover(coverLink, session)
+      coverLink = scrapeCover(coverLink, session, selectedHost)
       coverResponse = requests.get(coverLink)
       cover = Image.open(BytesIO(coverResponse.content))
       coverImage = customtkinter.CTkImage(light_image=cover, dark_image=cover,size=(166, 256))
@@ -61,16 +91,26 @@ def confirmDownload(button_name):
       comicList.place_forget()
       coverImageLabel.place(x=610, y=40)
       returnToList.place(x=700, y=5)
-      comicIssues.place(x=0, y=35)  
+      comicIssues.place(x=0, y=35) 
+
 
    
 
 def searchProcess():
     # Empty Arrays and Assign Variables
     comicTitles = []
+    searchComicURL = ""
+
+    print(selectedHost)
+
     requestedComic = searchBar.get("0.0", "end")
-    searchComicURL = comicBase + requestedComic + "&s=&type=comic"
-    searchComicURL = searchComicURL.replace("\n", "").replace(" ", "")
+    if selectedHost == "readallcomics.com":
+      searchComicURL = comicBase + requestedComic + "&s=&type=comic"
+      searchComicURL = searchComicURL.replace("\n", "").replace(" ", "")
+      print(searchComicURL)
+    elif selectedHost == "readcomiconline.li":
+         searchComicURL = comicBase + requestedComic
+         searchComicURL = searchComicURL.replace("\n", "").replace(" ", "")
 
     for widget in comicList.winfo_children():
            widget.destroy()
@@ -78,7 +118,7 @@ def searchProcess():
     # Get Comics
     searchComicRequest = session.get(searchComicURL,
                                        headers={'User-Agent': 'Mozilla/5.0'})
-    comicTitles = scrapeTitles(searchComicRequest)
+    comicTitles = scrapeTitles(searchComicRequest, selectedHost, requestedComic)
     
     for x in range(len(comicTitles)):
            comicButton = customtkinter.CTkButton(comicList, width=500, height=30, text=comicTitles[x], 
@@ -86,8 +126,8 @@ def searchProcess():
            comicButton.pack()
 
 
-searchBar = customtkinter.CTkTextbox(master=root, width=670, height=30)
-searchBar.place(x=15, y=5)
+searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
+searchBar.place(x=180, y=5)
 searchBar.bind('<Return>', lambda event: "break")
  
 
@@ -107,7 +147,10 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                        command=lambda: (comicList.place(x=0, y=35), returnToList.place_forget(),
                                                         comicIssues.place_forget(), searchButton.place(x=700, y=5), coverImageLabel.place_forget()))
 
-
+optionMenu = customtkinter.CTkOptionMenu(root, values=["readcomiconline.li", "readallcomics.com"], 
+                                         fg_color="#581845", button_color="#581845", command=selectHost)
+optionMenu.place(x=20, y=5)
+                                        
 
 
 root.mainloop() 
