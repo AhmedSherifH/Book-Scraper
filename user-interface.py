@@ -6,6 +6,7 @@ import threading
 from PIL import Image
 from io import BytesIO
 
+
 root =  customtkinter.CTk()
 root.geometry("800x300")
 root.resizable(False, False)
@@ -17,12 +18,9 @@ oddChars = [" ", ":", "/","?", "(", ")"]
 comicBase = ""
 comicIndividualLink = ""
 session = HTMLSession()
+
                 
 
-
-"""
-SCRAPETITLES
-"""
 
 def selectHost(choice):
       global selectedHost
@@ -37,12 +35,13 @@ def selectHost(choice):
       if choice == "readcomiconline.li": 
             comicBase = "https://readcomiconline.li/AdvanceSearch?comicName="
 
-def getPages(title, session, oddChars): 
+def getPages(title, session, oddChars, selectedHost, issueHref): 
       comicList.place_forget()
-      returnToList.place_forget()
       searchButton.place_forget()
       
-      scrapePages(title, session, oddChars)
+      scrapePages(title, session, oddChars, selectedHost, issueHref)
+
+
 
 def confirmDownload(button_name):
       # Empty Arrays and Frames
@@ -53,7 +52,8 @@ def confirmDownload(button_name):
 
       # Get Issues
       headers = {'User-Agent': 'Mozilla/5.0'}
-      comicName = button_name 
+      comicName = button_name
+      issueHref = '' 
 
 
       for char in oddChars:
@@ -73,9 +73,12 @@ def confirmDownload(button_name):
       print(unchangedComicName)
       comicIssueNames = scrapeIssues(comicIndividualRequest, selectedHost)
       for x in range(len(comicIssueNames)):
-       issueButton = customtkinter.CTkButton(comicIssues, width=500, height=30, text=comicIssueNames[x],
-                                              fg_color="#581845", command = lambda title=comicIssueNames[x]: threading.Thread(target=getPages, args=(title, session, oddChars)).start())
-       issueButton.pack()
+       if "/Comic/" in comicIssueNames[x]:
+            issueHref = comicIssueNames[x]
+       else:      
+            issueButton = customtkinter.CTkButton(comicIssues, width=500, height=30, text=comicIssueNames[x],
+                                                      fg_color="#581845", command = lambda title=comicIssueNames[x]: threading.Thread(target=getPages, args=(title, session, oddChars, selectedHost, issueHref)).start())
+            issueButton.pack()
 
 
       # Get Cover Display    
@@ -94,7 +97,7 @@ def confirmDownload(button_name):
       comicIssues.place(x=0, y=35) 
 
 
-   
+     
 
 def searchProcess():
     # Empty Arrays and Assign Variables
@@ -118,6 +121,8 @@ def searchProcess():
     # Get Comics
     searchComicRequest = session.get(searchComicURL,
                                        headers={'User-Agent': 'Mozilla/5.0'})
+ 
+    
     comicTitles = scrapeTitles(searchComicRequest, selectedHost, requestedComic)
     
     for x in range(len(comicTitles)):

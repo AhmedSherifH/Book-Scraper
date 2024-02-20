@@ -3,8 +3,8 @@ from tkinter import filedialog
 
 
 headers = {'User-Agent': 'Mozilla/5.0'}
+issueHref = ''
 
-# /html/body/center[3]/div/p/img
 
 def scrapeCover(comicLink, session, selectedHost): 
 
@@ -58,7 +58,6 @@ def scrapeTitles(url, selectedHost, requestedComic):
 
 
 def scrapeIssues(url, selectedHost):    
-
     comicIssues = []
     if selectedHost == "readallcomics.com":
         parsedIssues = url.html.xpath("/html/body/center[3]/div/div[2]/ul/li")
@@ -72,8 +71,9 @@ def scrapeIssues(url, selectedHost):
         print(issues)
 
         for issue in issues:
-
             comicIssue = issue.attrs['href']  
+            issueHref = comicIssue
+            comicIssues.append(comicIssue)
             comicIssue = comicIssue.replace('/Comic/', '')  
             comicIssue = comicIssue.split('?')[0]  
             comicIssues.append(comicIssue)
@@ -85,31 +85,53 @@ def scrapeIssues(url, selectedHost):
           
 
 
-def scrapePages(issueName, session, oddChars):
+def scrapePages(issueName, session, oddChars, selectedHost, issueHrefComic):
+     
      pageNum = 0 
+     directory = filedialog.askdirectory()
 
      for char in oddChars:
             issueName = issueName.replace(char, "-")
+            
+     if selectedHost == "readallcomics.com":
+            issueBase = "https://readallcomics.com/"
+            issueLink = (issueBase + issueName).lower()
 
-     issueBase = "https://readallcomics.com/"
-     issueLink = (issueBase + issueName).lower()
+            print(issueLink)
+            
+            issueRequest = session.get(issueLink, headers=headers)
+            images = issueRequest.html.xpath('.//img')
+            
+            for image in enumerate(images):
+                pageNum += 1     
 
-     print(issueLink)
-    
-     issueRequest = session.get(issueLink, headers=headers)
-     images = issueRequest.html.xpath('.//img')
-     
-     for image in enumerate(images):
-        pageNum += 1     
+            for idx, image in enumerate(images):
+                src = image.attrs['src']
+                pageResponse = requests.get(src)
 
+                with open(f"{directory}/#{idx + 1}.jpg", 'wb') as f:
+                    f.write(pageResponse.content)
+            
+            print(f"{pageNum} page(s)")
 
+     elif selectedHost == "readcomiconline.li":
+         issueBase = "https://readcomiconline.li"
 
-     directory = filedialog.askdirectory()
-     for idx, image in enumerate(images):
-        src = image.attrs['src']
-        pageResponse = requests.get(src)
+         issueLink = (f"{issueBase}{issueHrefComic}&s=&readType=1").lower()
+         print(issueLink)
+         issueRequest = session.get(issueLink, headers=headers)
+         images = issueRequest.html.xpath('/html/body/div[1]/div[4]/div[5]/p[1]')
+         """  
+         images = issueRequest.html.xpath('.//img')
+         for image in enumerate(images):
+                pageNum += 1     
 
-        with open(f"{directory}/#{idx + 1}.jpg", 'wb') as f:
-            f.write(pageResponse.content)
-        
-     print(f"{pageNum} page(s)")
+         for idx, image in enumerate(images):
+                src = image.attrs['src']
+                 #   pageResponse = requests.get(src)
+         #       print(src)
+
+                #with open(f"{directory}/#{idx + 1}.jpg", 'wb') as f:
+                 #       f.write(pageResponse.content)
+             
+         """
