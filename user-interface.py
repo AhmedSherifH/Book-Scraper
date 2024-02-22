@@ -45,7 +45,7 @@ def getPages(title, session, selectedHost, issueNameDownload):
       searchButton.place_forget()
       
       print(issueNameDownload)
-      scrapePages(title, session, selectedHost, issueNameDownload, downloads)
+      scrapePages(title, session, selectedHost, issueNameDownload, downloads, numberofDownloadsIndicator)
 
 
       
@@ -138,10 +138,8 @@ searchButton.place(x=700, y=5)
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
 numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text=f"Downloading: ")
-numberofDownloadsIndicator.place(x=0, y=300)
 
 downloads = customtkinter.CTkLabel(master=root, text="")
-downloads.place(x=85, y=300)
 
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 

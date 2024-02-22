@@ -61,13 +61,15 @@ def scrapeIssues(url, selectedHost):
    
 
           
-def scrapePages(issueLink, session, selectedHost, issueNameDownload,  downloads):
+def scrapePages(issueLink, session, selectedHost, issueNameDownload, downloads, numberofDownloadsIndicator):
      
      pageNum = 0 
      directory = filedialog.askdirectory()
     
      if directory != '':
         comicDownloads.append(issueNameDownload)
+        downloads.place(x=85, y=300)
+        numberofDownloadsIndicator.place(x=0, y=300)
         downloads.configure(text=", ".join(comicDownloads))
 
         if selectedHost == "readallcomics.com":
@@ -89,3 +91,8 @@ def scrapePages(issueLink, session, selectedHost, issueNameDownload,  downloads)
 
         comicDownloads.remove(issueNameDownload)
         downloads.configure(text=",".join(comicDownloads))
+        if len(comicDownloads) == 0 :
+            downloads.place_forget()
+            numberofDownloadsIndicator.place_forget()
+
+        
