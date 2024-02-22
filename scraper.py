@@ -22,12 +22,7 @@ def scrapeCover(comicLink, session, selectedHost):
         return coverImage
             
 
-    if selectedHost == "readcomiconline.li":
-        coverImage = imageRequest.html.xpath('//img')
-        print(f"{selectedHost}{coverImage[1].attrs['src']} ---- > IMAGE")
-        coverImage =  f"https://{selectedHost}{coverImage[1].attrs['src']}"
-        return coverImage
-        
+
 def scrapeTitles(url, selectedHost, requestedComic):
 
         requestedComic = requestedComic.replace(" ", "-")
