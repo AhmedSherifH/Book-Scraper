@@ -5,6 +5,8 @@ from scraper import *
 import threading
 from PIL import Image
 from io import BytesIO
+from tkinter import messagebox
+
 
 
 root =  customtkinter.CTk()
@@ -16,6 +18,7 @@ root.title("Book Scraper")
 selectedHost = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 comicBase = ""
+optionMenuValues = ["Select a Host", "readallcomics.com"] 
 comicIndividualLink = ""
 session = HTMLSession()
 
@@ -28,9 +31,11 @@ def selectHost(choice):
 
       global comicBase
 
-
-      if choice == "readallcomics.com":
-            comicBase = "https://readallcomics.com/?story="
+      if choice != "Select a Host":
+       optionMenuValues.pop(0)
+       optionMenu.configure(values=optionMenuValues)
+       if choice == "readallcomics.com":
+                  comicBase = "https://readallcomics.com/?story="
 
  
 
@@ -63,11 +68,15 @@ def confirmDownload(href):
 
 
       # Get Cover Display    
-      coverLink = scrapeCover(coverLink, session, selectedHost)
-      coverResponse = requests.get(coverLink)
-      cover = Image.open(BytesIO(coverResponse.content))
-      coverImage = customtkinter.CTkImage(light_image=cover, dark_image=cover,size=(166, 256))
-      coverImageLabel.configure(image=coverImage)
+      try:
+            coverLink = scrapeCover(coverLink, session, selectedHost)
+            coverResponse = requests.get(coverLink)
+            cover = Image.open(BytesIO(coverResponse.content))
+            coverImage = customtkinter.CTkImage(light_image=cover, dark_image=cover,size=(166, 256))
+            coverImageLabel.configure(image=coverImage)
+      except:
+            messagebox.showerror("Error", "Couldn't load cover image.")
+
 
 
       # Manage Placement of Buttons
@@ -131,7 +140,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                        command=lambda: (comicList.place(x=0, y=35), returnToList.place_forget(),
                                                         comicIssues.place_forget(), searchButton.place(x=700, y=5), coverImageLabel.place_forget()))
 
-optionMenu = customtkinter.CTkOptionMenu(root, values=["", "readallcomics.com"], 
+optionMenu = customtkinter.CTkOptionMenu(root, values=optionMenuValues, 
                                          fg_color="#581845", button_color="#581845", command=selectHost)
 optionMenu.place(x=20, y=5)
                                         
