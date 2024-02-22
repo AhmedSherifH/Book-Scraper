@@ -10,7 +10,7 @@ from tkinter import messagebox
 
 
 root =  customtkinter.CTk()
-root.geometry("800x300")
+root.geometry("800x350")
 root.resizable(False, False)
 root.iconbitmap(None)
 root.title("Book Scraper")
@@ -23,6 +23,7 @@ comicIndividualLink = ""
 session = HTMLSession()
 
                 
+
 
 
 def selectHost(choice):
@@ -39,11 +40,16 @@ def selectHost(choice):
 
  
 
-def getPages(title, session, selectedHost): 
+def getPages(title, session, selectedHost, issueNameDownload): 
       comicList.place_forget()
       searchButton.place_forget()
       
-      scrapePages(title, session, selectedHost)
+      print(issueNameDownload)
+      scrapePages(title, session, selectedHost, issueNameDownload, downloads)
+
+
+      
+
 
 
 
@@ -62,12 +68,13 @@ def confirmDownload(href):
       comicIssueNames = scrapeIssues(comicIndividualRequest, selectedHost)
       for issueName in comicIssueNames:
 
+            
             issueButton = customtkinter.CTkButton(comicIssues, width=500, height=30, text=issueName,
-                                                      fg_color="#581845", command = lambda title=comicIssueNames[issueName]: threading.Thread(target=getPages, args=(title, session, selectedHost)).start())
+                                                      fg_color="#581845", command = lambda title=comicIssueNames[issueName], issueNameDownload=issueName: threading.Thread(target=getPages, args=(title, session, selectedHost, issueNameDownload)).start())
             issueButton.pack()
 
 
-      # Get Cover Display    
+      # Get Cover Display, If it throws an error: Ignore cover completely  
       try:
             coverLink = scrapeCover(coverLink, session, selectedHost)
             coverResponse = requests.get(coverLink)
@@ -94,13 +101,10 @@ def searchProcess():
     comicTitles = {}
     searchComicURL = ""
 
-    print(selectedHost)
-
     requestedComic = searchBar.get("0.0", "end")
     if selectedHost == "readallcomics.com":
       searchComicURL = comicBase + requestedComic + "&s=&type=comic"
       searchComicURL = searchComicURL.replace("\n", "").replace(" ", "")
-      print(searchComicURL)
 
     for widget in comicList.winfo_children():
            widget.destroy()
@@ -113,7 +117,6 @@ def searchProcess():
     comicTitles = scrapeTitles(searchComicRequest, selectedHost, requestedComic)
     
     for title in comicTitles:
-           print(f'---> HREF {comicTitles[title]}')
            comicButton = customtkinter.CTkButton(comicList, width=500, height=30, text=title, 
                                                  fg_color="#581845", command=lambda title=comicTitles[title]: confirmDownload(title))
            comicButton.pack()
@@ -134,6 +137,12 @@ searchButton.place(x=700, y=5)
 
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
+numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text=f"Downloading: ")
+numberofDownloadsIndicator.place(x=0, y=300)
+
+downloads = customtkinter.CTkLabel(master=root, text="")
+downloads.place(x=85, y=300)
+
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
                                        fg_color="#581845", text="Back",
@@ -143,7 +152,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
 optionMenu = customtkinter.CTkOptionMenu(root, values=optionMenuValues, 
                                          fg_color="#581845", button_color="#581845", command=selectHost)
 optionMenu.place(x=20, y=5)
-                                        
+                                   
 
 
 root.mainloop() 

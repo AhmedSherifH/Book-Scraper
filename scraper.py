@@ -5,6 +5,7 @@ import re
 
 headers = {'User-Agent': 'Mozilla/5.0'}
 issueHref = ''
+comicDownloads = []
 
 
 def scrapeCover(comicLink, session, selectedHost): 
@@ -60,26 +61,31 @@ def scrapeIssues(url, selectedHost):
    
 
           
-def scrapePages(issueName, session, selectedHost):
+def scrapePages(issueLink, session, selectedHost, issueNameDownload,  downloads):
      
      pageNum = 0 
      directory = filedialog.askdirectory()
+    
+     if directory != '':
+        comicDownloads.append(issueNameDownload)
+        downloads.configure(text=", ".join(comicDownloads))
 
+        if selectedHost == "readallcomics.com":
+                
+                issueRequest = session.get(issueLink, headers=headers)
+                images = issueRequest.html.xpath('.//img')  
+                
+                for image in enumerate(images):
+                    pageNum += 1     
 
-     if selectedHost == "readallcomics.com":
-            
-            issueRequest = session.get(issueName, headers=headers)
-            images = issueRequest.html.xpath('.//img')  
-            
-            for image in enumerate(images):
-                pageNum += 1     
+                for idx, image in enumerate(images):
+                    src = image.attrs['src']
+                    pageResponse = requests.get(src)
 
-            for idx, image in enumerate(images):
-                src = image.attrs['src']
-                pageResponse = requests.get(src)
+                    with open(f"{directory}/#{idx + 1}.jpg", 'wb') as f:
+                        f.write(pageResponse.content)
+                
+                print(f"{pageNum} page(s)")
 
-                with open(f"{directory}/#{idx + 1}.jpg", 'wb') as f:
-                    f.write(pageResponse.content)
-            
-            print(f"{pageNum} page(s)")
-
+        comicDownloads.remove(issueNameDownload)
+        downloads.configure(text=",".join(comicDownloads))
