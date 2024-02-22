@@ -32,52 +32,33 @@ def selectHost(choice):
       if choice == "readallcomics.com":
             comicBase = "https://readallcomics.com/?story="
 
-      if choice == "readcomiconline.li": 
-            comicBase = "https://readcomiconline.li/AdvanceSearch?comicName="
+ 
 
-def getPages(title, session, oddChars, selectedHost, issueHref): 
+def getPages(title, session, selectedHost): 
       comicList.place_forget()
       searchButton.place_forget()
       
-      scrapePages(title, session, oddChars, selectedHost, issueHref)
+      scrapePages(title, session, selectedHost)
 
 
 
-def confirmDownload(button_name):
+def confirmDownload(href):
       # Empty Arrays and Frames
-      comicIssueNames = []
-      unchangedComicName = button_name
+      comicIssueNames = {}
       for widget in comicIssues.winfo_children():
           widget.destroy()
 
       # Get Issues
       headers = {'User-Agent': 'Mozilla/5.0'}
-      comicName = button_name
-      issueHref = '' 
 
+      coverLink = href 
+      comicIndividualRequest = session.get(href, headers=headers)
 
-      for char in oddChars:
-            comicName = comicName.replace(char, "-")
-
-      if selectedHost == "readallcomics.com":
-            comicIndividualLink = "https://readallcomics.com/category/"
-
-      if selectedHost == "readcomiconline.li": 
-            comicIndividualLink = "https://readcomiconline.li/Comic/"
-
-      coverLink = comicIndividualLink + comicName
-
-      print(comicIndividualLink + comicName)
-      comicIndividualRequest = session.get(comicIndividualLink + comicName, headers=headers)
-
-      print(unchangedComicName)
       comicIssueNames = scrapeIssues(comicIndividualRequest, selectedHost)
-      for x in range(len(comicIssueNames)):
-       if "/Comic/" in comicIssueNames[x]:
-            issueHref = comicIssueNames[x]
-       else:      
-            issueButton = customtkinter.CTkButton(comicIssues, width=500, height=30, text=comicIssueNames[x],
-                                                      fg_color="#581845", command = lambda title=comicIssueNames[x]: threading.Thread(target=getPages, args=(title, session, oddChars, selectedHost, issueHref)).start())
+      for issueName in comicIssueNames:
+
+            issueButton = customtkinter.CTkButton(comicIssues, width=500, height=30, text=issueName,
+                                                      fg_color="#581845", command = lambda title=comicIssueNames[issueName]: threading.Thread(target=getPages, args=(title, session, selectedHost)).start())
             issueButton.pack()
 
 
@@ -101,7 +82,7 @@ def confirmDownload(button_name):
 
 def searchProcess():
     # Empty Arrays and Assign Variables
-    comicTitles = []
+    comicTitles = {}
     searchComicURL = ""
 
     print(selectedHost)
@@ -111,9 +92,6 @@ def searchProcess():
       searchComicURL = comicBase + requestedComic + "&s=&type=comic"
       searchComicURL = searchComicURL.replace("\n", "").replace(" ", "")
       print(searchComicURL)
-    elif selectedHost == "readcomiconline.li":
-         searchComicURL = comicBase + requestedComic
-         searchComicURL = searchComicURL.replace("\n", "").replace(" ", "")
 
     for widget in comicList.winfo_children():
            widget.destroy()
@@ -125,9 +103,10 @@ def searchProcess():
     
     comicTitles = scrapeTitles(searchComicRequest, selectedHost, requestedComic)
     
-    for x in range(len(comicTitles)):
-           comicButton = customtkinter.CTkButton(comicList, width=500, height=30, text=comicTitles[x], 
-                                                 fg_color="#581845", command=lambda title=comicTitles[x]: confirmDownload(title))
+    for title in comicTitles:
+           print(f'---> HREF {comicTitles[title]}')
+           comicButton = customtkinter.CTkButton(comicList, width=500, height=30, text=title, 
+                                                 fg_color="#581845", command=lambda title=comicTitles[title]: confirmDownload(title))
            comicButton.pack()
 
 
@@ -152,7 +131,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                        command=lambda: (comicList.place(x=0, y=35), returnToList.place_forget(),
                                                         comicIssues.place_forget(), searchButton.place(x=700, y=5), coverImageLabel.place_forget()))
 
-optionMenu = customtkinter.CTkOptionMenu(root, values=["readcomiconline.li", "readallcomics.com"], 
+optionMenu = customtkinter.CTkOptionMenu(root, values=["", "readallcomics.com"], 
                                          fg_color="#581845", button_color="#581845", command=selectHost)
 optionMenu.place(x=20, y=5)
                                         
