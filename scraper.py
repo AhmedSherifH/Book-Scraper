@@ -1,6 +1,5 @@
 import requests
 from tkinter import filedialog
-import re
 
 
 headers = {'User-Agent': 'Mozilla/5.0'}
@@ -41,7 +40,6 @@ def scrapeTitles(url, selectedHost, requestedComic):
 
         
 
-
 def scrapeIssues(url, selectedHost):    
     comicIssues = {}
     if selectedHost == "readallcomics.com":
@@ -59,11 +57,13 @@ def scrapeIssues(url, selectedHost):
 def scrapePages(issueLink, session, selectedHost, issueNameDownload, downloads, numberofDownloadsIndicator):
      
      pageNum = 0 
-     directory = filedialog.askdirectory()
+
+     
+     chosenDir = filedialog.askdirectory()
     
-     if directory != '':
+     if chosenDir != '':
         comicDownloads.append(issueNameDownload)
-        downloads.place(x=85, y=300)
+        downloads.place(x=83, y=300)
         numberofDownloadsIndicator.place(x=0, y=300)
         downloads.configure(text=", ".join(comicDownloads))
 
@@ -79,7 +79,7 @@ def scrapePages(issueLink, session, selectedHost, issueNameDownload, downloads, 
                     src = image.attrs['src']
                     pageResponse = requests.get(src)
 
-                    with open(f"{directory}/#{idx + 1}.jpg", 'wb') as f:
+                    with open(f"{chosenDir}/#{idx + 1}.jpg", 'wb') as f:
                         f.write(pageResponse.content)
                 
                 print(f"{pageNum} page(s)")

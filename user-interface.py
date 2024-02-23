@@ -6,6 +6,8 @@ import threading
 from PIL import Image
 from io import BytesIO
 from tkinter import messagebox
+from tkinter import filedialog
+
 
 
 
@@ -14,16 +16,15 @@ root.geometry("800x350")
 root.resizable(False, False)
 root.iconbitmap(None)
 root.title("Book Scraper")
+# font=customtkinter.CTkFont(family="<family name>", size=<size in px>, <optional keyword arguments>))
+labelFont = customtkinter.CTkFont(family='Helvetica', size=12, weight='bold')
 
 selectedHost = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 comicBase = ""
 optionMenuValues = ["Select a Host", "readallcomics.com"] 
-comicIndividualLink = ""
+comicIssueNames = {}
 session = HTMLSession()
-
-                
-
 
 
 def selectHost(choice):
@@ -48,12 +49,11 @@ def getPages(title, session, selectedHost, issueNameDownload):
       scrapePages(title, session, selectedHost, issueNameDownload, downloads, numberofDownloadsIndicator)
 
 
+def getAllChapters():
+      pass
       
 
-
-
-
-def confirmDownload(href):
+def displayChapters(href):
       # Empty Arrays and Frames
       comicIssueNames = {}
       for widget in comicIssues.winfo_children():
@@ -64,13 +64,13 @@ def confirmDownload(href):
 
       coverLink = href 
       comicIndividualRequest = session.get(href, headers=headers)
-
+  
       comicIssueNames = scrapeIssues(comicIndividualRequest, selectedHost)
       for issueName in comicIssueNames:
-
-            
             issueButton = customtkinter.CTkButton(comicIssues, width=500, height=30, text=issueName,
-                                                      fg_color="#581845", command = lambda title=comicIssueNames[issueName], issueNameDownload=issueName: threading.Thread(target=getPages, args=(title, session, selectedHost, issueNameDownload)).start())
+                                                      fg_color="#581845", command = lambda title=comicIssueNames[issueName], issueNameDownload=issueName: 
+                                                      threading.Thread(target=getPages, args=(title, session, selectedHost, 
+                                                      issueNameDownload)).start())
             issueButton.pack()
 
 
@@ -87,6 +87,7 @@ def confirmDownload(href):
 
 
       # Manage Placement of Buttons
+      downloadallIssues.place(x=608, y=300)
       searchButton.place_forget()
       comicList.place_forget()
       coverImageLabel.place(x=610, y=40)
@@ -118,7 +119,7 @@ def searchProcess():
     
     for title in comicTitles:
            comicButton = customtkinter.CTkButton(comicList, width=500, height=30, text=title, 
-                                                 fg_color="#581845", command=lambda title=comicTitles[title]: confirmDownload(title))
+                                                 fg_color="#581845", command=lambda title=comicTitles[title]: displayChapters(title))
            comicButton.pack()
 
 
@@ -135,17 +136,22 @@ searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_colo
 searchButton.place(x=700, y=5)
 
 
+downloadallIssues = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, height=10, fg_color="#581845", command=getAllChapters)
+
+
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
-numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text=f"Downloading: ")
-
-downloads = customtkinter.CTkLabel(master=root, text="")
+numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text=f"Downloading: ", font=labelFont)
+downloads = customtkinter.CTkLabel(master=root, text="", font=labelFont)
 
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
                                        fg_color="#581845", text="Back",
                                        command=lambda: (comicList.place(x=0, y=35), returnToList.place_forget(),
-                                                        comicIssues.place_forget(), searchButton.place(x=700, y=5), coverImageLabel.place_forget()))
+                                                        comicIssues.place_forget(), searchButton.place(x=700, y=5), 
+                                                        coverImageLabel.place_forget(),
+                                                        downloadallIssues.place_forget()))
+                                                        
 
 optionMenu = customtkinter.CTkOptionMenu(root, values=optionMenuValues, 
                                          fg_color="#581845", button_color="#581845", command=selectHost)
