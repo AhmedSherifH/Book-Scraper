@@ -41,19 +41,19 @@ def selectHost(choice):
 
  
 
-def getPages(title, session, selectedHost, issueNameDownload): 
+def getPages(title, session, selectedHost, bookName): 
       comicList.place_forget()
       searchButton.place_forget()
       
-      print(issueNameDownload)
-      scrapePages(title, session, selectedHost, issueNameDownload, downloads, numberofDownloadsIndicator)
+      print(bookName)
+      scrapePages(title, session, selectedHost, bookName, downloads, numberofDownloadsIndicator)
 
 
 def getAllChapters():
       pass
       
 
-def displayChapters(href):
+def displayChapters(href, bookName):
       # Empty Arrays and Frames
       comicIssueNames = {}
       for widget in comicIssues.winfo_children():
@@ -68,9 +68,9 @@ def displayChapters(href):
       comicIssueNames = scrapeIssues(comicIndividualRequest, selectedHost)
       for issueName in comicIssueNames:
             issueButton = customtkinter.CTkButton(comicIssues, width=500, height=30, text=issueName,
-                                                      fg_color="#581845", command = lambda title=comicIssueNames[issueName], issueNameDownload=issueName: 
+                                                      fg_color="#581845", command = lambda title=comicIssueNames[issueName], bookName=bookName: 
                                                       threading.Thread(target=getPages, args=(title, session, selectedHost, 
-                                                      issueNameDownload)).start())
+                                                      bookName)).start())
             issueButton.pack()
 
 
@@ -86,10 +86,12 @@ def displayChapters(href):
 
 
 
-      # Manage Placement of Buttons
+      # Manage Placement of Widgets
       downloadallIssues.place(x=608, y=300)
       searchButton.place_forget()
       comicList.place_forget()
+      downloads.place_forget()
+      numberofDownloadsIndicator.place_forget()
       coverImageLabel.place(x=610, y=40)
       returnToList.place(x=700, y=5)
       comicIssues.place(x=0, y=35) 
@@ -119,7 +121,8 @@ def searchProcess():
     
     for title in comicTitles:
            comicButton = customtkinter.CTkButton(comicList, width=500, height=30, text=title, 
-                                                 fg_color="#581845", command=lambda title=comicTitles[title]: displayChapters(title))
+                                                 fg_color="#581845", command=lambda href=comicTitles[title], bookName = title: 
+                                                 displayChapters(href, bookName))
            comicButton.pack()
 
 
@@ -138,11 +141,13 @@ searchButton.place(x=700, y=5)
 
 downloadallIssues = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, height=10, fg_color="#581845", command=getAllChapters)
 
-
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
 numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text=f"Downloading: ", font=labelFont)
 downloads = customtkinter.CTkLabel(master=root, text="", font=labelFont)
+
+#downloads.place(x=83, y=300)
+#numberofDownloadsIndicator.place(x=0, y=300)
 
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
@@ -150,7 +155,10 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                        command=lambda: (comicList.place(x=0, y=35), returnToList.place_forget(),
                                                         comicIssues.place_forget(), searchButton.place(x=700, y=5), 
                                                         coverImageLabel.place_forget(),
-                                                        downloadallIssues.place_forget()))
+                                                        downloadallIssues.place_forget(), 
+                                                        downloads.place(x=83, y=300),
+                                                        numberofDownloadsIndicator.place(x=0, y=300)
+                                                        ))
                                                         
 
 optionMenu = customtkinter.CTkOptionMenu(root, values=optionMenuValues, 

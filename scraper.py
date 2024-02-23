@@ -54,22 +54,18 @@ def scrapeIssues(url, selectedHost):
    
 
           
-def scrapePages(issueLink, session, selectedHost, issueNameDownload, downloads, numberofDownloadsIndicator):
+def scrapePages(chapterLink, session, selectedHost, bookName, downloads, numberofDownloadsIndicator):
      
      pageNum = 0 
-
-     
      chosenDir = filedialog.askdirectory()
     
      if chosenDir != '':
-        comicDownloads.append(issueNameDownload)
-        downloads.place(x=83, y=300)
-        numberofDownloadsIndicator.place(x=0, y=300)
+        comicDownloads.append(bookName)
         downloads.configure(text=", ".join(comicDownloads))
 
         if selectedHost == "readallcomics.com":
                 
-                issueRequest = session.get(issueLink, headers=headers)
+                issueRequest = session.get(chapterLink, headers=headers)
                 images = issueRequest.html.xpath('.//img')  
                 
                 for image in enumerate(images):
@@ -84,10 +80,11 @@ def scrapePages(issueLink, session, selectedHost, issueNameDownload, downloads, 
                 
                 print(f"{pageNum} page(s)")
 
-        comicDownloads.remove(issueNameDownload)
+        comicDownloads.remove(bookName)
         downloads.configure(text=",".join(comicDownloads))
-        if len(comicDownloads) == 0 :
-            downloads.place_forget()
-            numberofDownloadsIndicator.place_forget()
+
+
+ 
+  
 
         
