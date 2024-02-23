@@ -54,35 +54,39 @@ def scrapeIssues(url, selectedHost):
    
 
           
-def scrapePages(chapterLink, session, selectedHost, bookName, downloads, numberofDownloadsIndicator):
+def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassDownload, directory):
      
      pageNum = 0 
-     chosenDir = filedialog.askdirectory()
-    
-     if chosenDir != '':
-        comicDownloads.append(bookName)
-        downloads.configure(text=", ".join(comicDownloads))
-
-        if selectedHost == "readallcomics.com":
-                
+     if isMassDownload == False:
+        chosenDir = filedialog.askdirectory()
+     else:
+        chosenDir = directory
+     if chosenDir != '': 
+            comicDownloads.append(bookName)
+            downloads.configure(text=", ".join(list(set(comicDownloads))))
+            if selectedHost == "readallcomics.com":
+                       
                 issueRequest = session.get(chapterLink, headers=headers)
                 images = issueRequest.html.xpath('.//img')  
-                
+                    
                 for image in enumerate(images):
-                    pageNum += 1     
+                        pageNum += 1     
 
                 for idx, image in enumerate(images):
-                    src = image.attrs['src']
-                    pageResponse = requests.get(src)
+                        src = image.attrs['src']
+                        pageResponse = requests.get(src)
 
-                    with open(f"{chosenDir}/#{idx + 1}.jpg", 'wb') as f:
-                        f.write(pageResponse.content)
-                
+                        print(f"{chosenDir}/#{idx + 1}.jpg")
+                        with open(f"{chosenDir}/#{idx + 1}.jpg", 'wb') as f:
+                            f.write(pageResponse.content)
+                    
                 print(f"{pageNum} page(s)")
+            comicDownloads.remove(bookName)
+            downloads.configure(text=",".join(list(set(comicDownloads))))
 
-        comicDownloads.remove(bookName)
-        downloads.configure(text=",".join(comicDownloads))
-
+     
+            
+           
 
  
   
