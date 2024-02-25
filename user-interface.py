@@ -21,7 +21,7 @@ labelFont = customtkinter.CTkFont(family='Helvetica', size=12, weight='bold')
 selectedHost = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
-optionMenuValues = ["Select a Host", "readallcomics.com"] 
+optionMenuValues = ["Select a Host", "readallcomics.com", "mangakakalot.com"] 
 bookChapterNames = {}
 globalBookName = ''
 session = HTMLSession()
@@ -38,7 +38,9 @@ def selectHost(choice):
        optionMenu.configure(values=optionMenuValues)
        if choice == "readallcomics.com":
                   hostBase = "https://readallcomics.com/?story="
-
+       if choice == "mangakakalot.com":
+                  hostBase = "https://mangakakalot.com/search/story/"
+      
  
 
 def getPages(title, session, selectedHost, bookName, isMassDownload, directory): 
@@ -46,7 +48,7 @@ def getPages(title, session, selectedHost, bookName, isMassDownload, directory):
       searchButton.place_forget()
       
       print(bookName)
-      scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory)
+      scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator)
 
 
 def getAllChapters():
@@ -90,11 +92,11 @@ def displayChapters(href, bookName):
   
       bookChapterNames = scrapeIssues(bookIndividualRequest, selectedHost)
       for chapterName in bookChapterNames:
-            issueButton = customtkinter.CTkButton(bookChapters, width=500, height=30, text=chapterName,
+            chapterButton = customtkinter.CTkButton(bookChapters, width=500, height=30, text=chapterName,
                                                       fg_color="#581845", command = lambda title=bookChapterNames[chapterName], bookName=bookName: 
                                                       threading.Thread(target=getPages, args=(title, session, selectedHost, 
                                                       bookName, isMassDownload, directory)).start())
-            issueButton.pack()
+            chapterButton.pack()
 
 
       # Get Cover Display, If it throws an error: Ignore cover completely     
@@ -109,7 +111,8 @@ def displayChapters(href, bookName):
 
 
       # Manage Placement of Widgets
-      downloadallIssues.place(x=608, y=300)
+      downloadallChapters.place(x=608, y
+                        =300)
       searchButton.place_forget()
       bookList.place_forget()
       downloads.place_forget()
@@ -126,26 +129,29 @@ def searchProcess():
     bookTitles = {}
     searchBookURL = ""
 
-    requestedBook = searchBar.get("0.0", "end")
+    requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
     if selectedHost == "readallcomics.com":
-      searchBookURL = hostBase + requestedBook + "&s=&type=comic"
-      searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")
+          searchBookURL = hostBase + requestedBook + "&s=&type=comic"
+          searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
+    if selectedHost == "mangakakalot.com":
+          searchBookURL = hostBase + requestedBook
+          print(searchBookURL)
 
     for widget in bookList.winfo_children():
            widget.destroy()
     
-    # Get Comics
+    # Get Books
     searchBookRequest = session.get(searchBookURL,
-                                       headers={'User-Agent': 'Mozilla/5.0'})
+                                    headers={'User-Agent': 'Mozilla/5.0'})
  
     
     bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
     
     for title in bookTitles:
-           comicButton = customtkinter.CTkButton(bookList, width=500, height=30, text=title, 
+           bookButton = customtkinter.CTkButton(bookList, width=500, height=30, text=title, 
                                                  fg_color="#581845", command=lambda href=bookTitles[title], bookName = title: 
-                                                 displayChapters(href, bookName))
-           comicButton.pack()
+                                                 (displayChapters(href, bookName), downloads.place_forget(), numberofDownloadsIndicator.place_forget()))
+           bookButton.pack()
 
 
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
@@ -161,15 +167,12 @@ searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_colo
 searchButton.place(x=700, y=5)
 
 
-downloadallIssues = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, height=10, fg_color="#581845", command=getAllChapters)
-
-coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
-
-numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text=f"Downloading: ", font=labelFont)
+numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text="", font=labelFont)
 downloads = customtkinter.CTkLabel(master=root, text="", font=labelFont)
 
-#downloads.place(x=83, y=300)
-#numberofDownloadsIndicator.place(x=0, y=300)
+downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, height=10, fg_color="#581845", command=getAllChapters)
+
+coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
@@ -177,7 +180,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                        command=lambda: (bookList.place(x=0, y=35), returnToList.place_forget(),
                                                         bookChapters.place_forget(), searchButton.place(x=700, y=5), 
                                                         coverImageLabel.place_forget(),
-                                                        downloadallIssues.place_forget(), 
+                                                        downloadallChapters.place_forget(), 
                                                         downloads.place(x=83, y=300),
                                                         numberofDownloadsIndicator.place(x=0, y=300)
                                                         ))
