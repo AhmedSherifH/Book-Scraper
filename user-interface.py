@@ -97,7 +97,7 @@ def displayChapters(href, bookName):
             issueButton.pack()
 
 
-      # Get Cover Display, If it throws an error: Ignore cover completely  
+      # Get Cover Display, If it throws an error: Ignore cover completely     
       try:
             coverLink = scrapeCover(coverLink, session, selectedHost)
             coverResponse = requests.get(coverLink)
@@ -123,27 +123,27 @@ def displayChapters(href, bookName):
 
 def searchProcess():
     # Empty Arrays and Assign Variables
-    comicTitles = {}
-    searchComicURL = ""
+    bookTitles = {}
+    searchBookURL = ""
 
-    requestedComic = searchBar.get("0.0", "end")
+    requestedBook = searchBar.get("0.0", "end")
     if selectedHost == "readallcomics.com":
-      searchComicURL = hostBase + requestedComic + "&s=&type=comic"
-      searchComicURL = searchComicURL.replace("\n", "").replace(" ", "")
+      searchBookURL = hostBase + requestedBook + "&s=&type=comic"
+      searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")
 
     for widget in bookList.winfo_children():
            widget.destroy()
     
     # Get Comics
-    searchComicRequest = session.get(searchComicURL,
+    searchBookRequest = session.get(searchBookURL,
                                        headers={'User-Agent': 'Mozilla/5.0'})
  
     
-    comicTitles = scrapeTitles(searchComicRequest, selectedHost, requestedComic)
+    bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
     
-    for title in comicTitles:
+    for title in bookTitles:
            comicButton = customtkinter.CTkButton(bookList, width=500, height=30, text=title, 
-                                                 fg_color="#581845", command=lambda href=comicTitles[title], bookName = title: 
+                                                 fg_color="#581845", command=lambda href=bookTitles[title], bookName = title: 
                                                  displayChapters(href, bookName))
            comicButton.pack()
 

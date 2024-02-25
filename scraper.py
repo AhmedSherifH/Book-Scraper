@@ -4,14 +4,14 @@ from tkinter import filedialog
 
 headers = {'User-Agent': 'Mozilla/5.0'}
 issueHref = ''
-comicDownloads = []
+bookDownloads = []
 
 
-def scrapeCover(comicLink, session, selectedHost): 
+def scrapeCover(bookLink, session, selectedHost): 
 
     coverImage = ""
-    imageRequest = session.get(comicLink, headers=headers)
-    print(comicLink)
+    imageRequest = session.get(bookLink, headers=headers)
+    print(bookLink)
     print(imageRequest)
 
     if selectedHost == "readallcomics.com":
@@ -22,33 +22,33 @@ def scrapeCover(comicLink, session, selectedHost):
             
 
 
-def scrapeTitles(url, selectedHost, requestedComic):
+def scrapeTitles(url, selectedHost, requestedBook):
 
-        requestedComic = requestedComic.replace(" ", "-")
+        requestedBook = requestedBook.replace(" ", "-")
         
-        comicTitles = {}
+        bookTitles = {}
         if selectedHost == "readallcomics.com":
             parsedTitles = url.html.xpath("/html/body/div[2]/div/div/ul/li/a")
             for child in parsedTitles:
              
              titleHref = child.attrs['href']
              titleName = child.text
-             comicTitles[titleName] = titleHref
+             bookTitles[titleName] = titleHref
 
-            print(comicTitles)
-            return comicTitles
+            print(bookTitles)
+            return bookTitles
 
         
 
 def scrapeIssues(url, selectedHost):    
-    comicIssues = {}
+    bookChapters = {}
     if selectedHost == "readallcomics.com":
         parsedIssues = url.html.xpath("/html/body/center[3]/div/div[2]/ul/li/a")
         for child in parsedIssues:
-            issueName = child.text
-            issueHref =  child.attrs['href']
-            comicIssues[issueName] = issueHref
-        return comicIssues
+            chapterName = child.text
+            chapterHref =  child.attrs['href']
+            bookChapters[chapterName] = chapterHref
+        return bookChapters
     
     
    
@@ -62,8 +62,8 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
      else:
         chosenDir = directory
      if chosenDir != '': 
-            comicDownloads.append(bookName)
-            downloads.configure(text=", ".join(list(set(comicDownloads))))
+            bookDownloads.append(bookName)
+            downloads.configure(text=", ".join(list(set(bookDownloads))))
             if selectedHost == "readallcomics.com":
                        
                 issueRequest = session.get(chapterLink, headers=headers)
@@ -81,8 +81,8 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
                             f.write(pageResponse.content)
                     
                 print(f"{pageNum} page(s)")
-            comicDownloads.remove(bookName)
-            downloads.configure(text=",".join(list(set(comicDownloads))))
+            bookDownloads.remove(bookName)
+            downloads.configure(text=",".join(list(set(bookDownloads))))
 
      
             
