@@ -21,7 +21,7 @@ labelFont = customtkinter.CTkFont(family='Helvetica', size=12, weight='bold')
 selectedHost = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
-optionMenuValues = ["Select a Host", "readallcomics.com", "mangakakalot.com"] 
+optionMenuValues = ["Select a Host", "readallcomics.com", "mangakomi.io"] 
 bookChapterNames = {}
 globalBookName = ''
 session = HTMLSession()
@@ -38,8 +38,8 @@ def selectHost(choice):
        optionMenu.configure(values=optionMenuValues)
        if choice == "readallcomics.com":
                   hostBase = "https://readallcomics.com/?story="
-       if choice == "mangakakalot.com":
-                  hostBase = "https://mangakakalot.com/search/story/"
+       if choice == "mangakomi.io":
+                  hostBase = "https://mangakomi.io/?s={}&post_type=wp-manga"
       
  
 
@@ -129,12 +129,13 @@ def searchProcess():
     bookTitles = {}
     searchBookURL = ""
 
-    requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
     if selectedHost == "readallcomics.com":
+          requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
           searchBookURL = hostBase + requestedBook + "&s=&type=comic"
           searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-    if selectedHost == "mangakakalot.com":
-          searchBookURL = hostBase + requestedBook
+    if selectedHost == "mangakomi.io":
+          requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
+          searchBookURL = hostBase.format(requestedBook)
           print(searchBookURL)
 
     for widget in bookList.winfo_children():

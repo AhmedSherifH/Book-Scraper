@@ -24,13 +24,12 @@ def scrapeCover(bookLink, session, selectedHost):
             coverImage = image.attrs['src']
         return coverImage
     
-    if selectedHost == "mangakakalot.com":  
-        images = imageRequest.html.xpath('//img[@class="img-loading"]')
-        for image in images: 
-            alt = image.attrs.get('alt', 'No alt attribute')
-            if image.attrs['alt'] == alt:
-                coverImage = image.attrs['src']
+    if selectedHost == "mangakomi.io":  
+        images = imageRequest.html.xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div/div[3]/div[1]/a/img')
+        img_tag = images[0]  # Access the first element of the list
+        coverImage = img_tag.attrs['data-src']
         return coverImage
+       
             
 
 
@@ -49,11 +48,13 @@ def scrapeTitles(url, selectedHost, requestedBook):
             print(bookTitles)
             return bookTitles
         
-        if selectedHost == "mangakakalot.com":
-            divs = url.html.find('.story_item')
-            for div in divs:
-                titleHref = div.find('.story_name a', first=True).attrs['href']
-                titleName = div.find('.story_name a', first=True).text
+        if selectedHost == "mangakomi.io":
+            links = url.html.find('.post-title a')
+
+            # Extract href attributes and titles
+            for link in links:
+                titleHref = link.attrs['href']
+                titleName = link.text
                 bookTitles[titleName] = titleHref
 
             return bookTitles
@@ -71,14 +72,15 @@ def scrapeIssues(url, selectedHost):
             bookChapters[chapterName] = chapterHref
         return bookChapters
     
-    if selectedHost == "mangakakalot.com":
-        parsedChapters = url.html.find('.chapter-name')
-        for chapter in parsedChapters:
-            chapterName = chapter.text
-            chapterHref = chapter.attrs['href']
-            bookChapters[chapterName] = chapterHref 
+    if selectedHost == "mangakomi.io":
+  
+      chapters = url.html.find('li.wp-manga-chapter')
+      for chapter in chapters:
+        href = chapter.find('a', first=True).attrs['href']
+        title = chapter.find('a', first=True).text
+        bookChapters[title] = href
         
-        return bookChapters
+      return bookChapters
 
 
         
@@ -95,6 +97,8 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
         chosenDir = directory
      try:
         if chosenDir != '':
+            print(chapterLink)
+            print(f'SELECTED HOST {selectedHost}')
             bookDownloads.append(bookName)
             downloading.configure(text="Downloading: ")
             downloads.configure(text=", ".join(list(set(bookDownloads))))
@@ -115,6 +119,14 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
                             f.write(pageResponse.content)
                     
                 print(f"{pageNum} page(s)")
+
+            if selectedHost == "mangakakalot.com":
+                print("SOOOOOOOOOOLO")
+              #  imageRequest = session.get(chapterLink, headders=headers)
+               # images = imageRequest.html.xpath('//div[@class="container-chapter-reader"]//img')
+               # for image in images:
+                #    print(image.get('src'))
+
             bookDownloads.remove(bookName)
             downloads.configure(text=", ".join(list(set(bookDownloads))))
      except:
