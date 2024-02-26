@@ -120,12 +120,33 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
                     
                 print(f"{pageNum} page(s)")
 
-            if selectedHost == "mangakakalot.com":
-                print("SOOOOOOOOOOLO")
-              #  imageRequest = session.get(chapterLink, headders=headers)
-               # images = imageRequest.html.xpath('//div[@class="container-chapter-reader"]//img')
-               # for image in images:
-                #    print(image.get('src'))
+            if selectedHost == "mangakomi.io":
+                issueRequest = session.get(chapterLink, headers=headers)
+                images = issueRequest.html.xpath('//img')  
+                
+                if selectedHost == "mangakomi.io":
+                    num = 0
+                    issueRequest = session.get(chapterLink, headers=headers)
+                    images = issueRequest.html.xpath('//img')  
+                                
+                    for image in images:
+                        num += 1 
+                        if 'data-src' in image.attrs:
+                         src = image.attrs.get('data-src')
+                         src = src.strip()
+                         if 'cdn' in src:
+                             print(f"#{num}: {src}")
+                             pageResponse = requests.get(src) 
+
+                             with open(f"{chosenDir}/#{num}.jpg", 'wb') as f:
+                                 f.write(pageResponse.content)
+                        
+                        
+
+
+
+
+
 
             bookDownloads.remove(bookName)
             downloads.configure(text=", ".join(list(set(bookDownloads))))

@@ -34,7 +34,10 @@ def selectHost(choice):
       global hostBase
 
       if choice != "Select a Host":
-       optionMenuValues.pop(0)
+       try:
+            optionMenuValues.remove("Select a Host")
+       except:
+            print("Option Not Found!")
        optionMenu.configure(values=optionMenuValues)
        if choice == "readallcomics.com":
                   hostBase = "https://readallcomics.com/?story="
@@ -123,7 +126,6 @@ def displayChapters(href, bookName):
 
 
      
-
 def searchProcess():
     # Empty Arrays and Assign Variables
     bookTitles = {}
