@@ -26,7 +26,7 @@ def scrapeCover(bookLink, session, selectedHost):
     
     if selectedHost == "mangakomi.io":  
         images = imageRequest.html.xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div/div[3]/div[1]/a/img')
-        img_tag = images[0]  # Access the first element of the list
+        img_tag = images[0] 
         coverImage = img_tag.attrs['data-src']
         return coverImage
        
@@ -130,23 +130,16 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
                     images = issueRequest.html.xpath('//img')  
                                 
                     for image in images:
-                        num += 1 
                         if 'data-src' in image.attrs:
                          src = image.attrs.get('data-src')
                          src = src.strip()
                          if 'cdn' in src:
+                             num += 1 
                              print(f"#{num}: {src}")
                              pageResponse = requests.get(src) 
 
                              with open(f"{chosenDir}/#{num}.jpg", 'wb') as f:
                                  f.write(pageResponse.content)
-                        
-                        
-
-
-
-
-
 
             bookDownloads.remove(bookName)
             downloads.configure(text=", ".join(list(set(bookDownloads))))

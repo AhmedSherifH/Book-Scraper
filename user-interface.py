@@ -15,13 +15,15 @@ root.geometry("800x350")
 root.resizable(False, False)
 root.iconbitmap(None)
 root.title("Book Scraper")
-# font=customtkinter.CTkFont(family="<family name>", size=<size in px>, <optional keyword arguments>))
+
 labelFont = customtkinter.CTkFont(family='Helvetica', size=12, weight='bold')
 
 selectedHost = ""
+selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
-optionMenuValues = ["Select a Host", "readallcomics.com", "mangakomi.io"] 
+hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io"] 
+formatValues = ["Select a Format", ".jpg", ".cbz"]
 bookChapterNames = {}
 globalBookName = ''
 session = HTMLSession()
@@ -35,15 +37,26 @@ def selectHost(choice):
 
       if choice != "Select a Host":
        try:
-            optionMenuValues.remove("Select a Host")
+            hostValues.remove("Select a Host")
        except:
             print("Option Not Found!")
-       optionMenu.configure(values=optionMenuValues)
+       hostSelector.configure(values=hostValues)
        if choice == "readallcomics.com":
                   hostBase = "https://readallcomics.com/?story="
        if choice == "mangakomi.io":
                   hostBase = "https://mangakomi.io/?s={}&post_type=wp-manga"
       
+def selectFormat(choice):
+      global selectedFormat
+
+      if choice != "Select a Format":
+       try:
+            formatValues.remove("Select a Format")
+            selectedFormat = choice
+       except:
+            print("Option Not Found!")
+       formatSelector.configure(values=formatValues)
+       
  
 
 def getPages(title, session, selectedHost, bookName, isMassDownload, directory): 
@@ -72,7 +85,7 @@ def getAllChapters():
             directory = f"{baseDirectory}/#{folderNum}"
             threading.Thread(target=getPages, args=(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory)).start()
             folderNum = folderNum - 1
-      
+            
 
 def displayChapters(href, bookName):
       global bookChapterNames
@@ -114,8 +127,8 @@ def displayChapters(href, bookName):
 
 
       # Manage Placement of Widgets
-      downloadallChapters.place(x=608, y
-                        =300)
+      downloadallChapters.place(x=608, y=300)
+      formatSelector.place(x=455, y=300)
       searchButton.place_forget()
       bookList.place_forget()
       downloads.place_forget()
@@ -173,9 +186,9 @@ searchButton.place(x=700, y=5)
 numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text="", font=labelFont)
 downloads = customtkinter.CTkLabel(master=root, text="", font=labelFont)
 
-downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, height=10, fg_color="#581845", command=getAllChapters)
+downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, fg_color="#581845", command=getAllChapters)
 
-coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
+coverImageLabel = customtkinter.CTkLabel(root, text="", image=None, font=labelFont)
 
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
@@ -183,18 +196,21 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                        command=lambda: (bookList.place(x=0, y=35), returnToList.place_forget(),
                                                         bookChapters.place_forget(), searchButton.place(x=700, y=5), 
                                                         coverImageLabel.place_forget(),
-                                                        downloadallChapters.place_forget(), 
+                                                        downloadallChapters.place_forget(),
+                                                        formatSelector.place_forget(), 
                                                         downloads.place(x=83, y=300),
                                                         numberofDownloadsIndicator.place(x=0, y=300)
                                                         ))
                                                         
 
-optionMenu = customtkinter.CTkOptionMenu(root, values=optionMenuValues, 
-                                         fg_color="#581845", button_color="#581845", command=selectHost)
-optionMenu.place(x=20, y=5)
+hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, 
+                                           fg_color="#581845", button_color="#581845", command=selectHost)
+hostSelector.place(x=20, y=5)
                                    
 
-
+formatSelector = customtkinter.CTkOptionMenu(root, values=formatValues, 
+                                             fg_color="#581845", button_color="#581845", command=selectFormat)
+                                         
 root.mainloop() 
 
 
