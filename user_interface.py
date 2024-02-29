@@ -36,10 +36,9 @@ def selectHost(choice):
       global hostBase
 
       if choice != "Select a Host":
-       try:
+       if "Select a Host" in hostValues:
             hostValues.remove("Select a Host")
-       except:
-            print("Option Not Found!")
+      
        hostSelector.configure(values=hostValues)
        if choice == "readallcomics.com":
                   hostBase = "https://readallcomics.com/?story="
@@ -50,21 +49,19 @@ def selectFormat(choice):
       global selectedFormat
 
       if choice != "Select a Format":
-       try:
-            formatValues.remove("Select a Format")
+            if "Select a Format" in formatValues:
+                  formatValues.remove("Select a Format")
             selectedFormat = choice
-       except:
-            print("Option Not Found!")
-       formatSelector.configure(values=formatValues)
+            formatSelector.configure(values=formatValues)
        
  
 
-def getPages(title, session, selectedHost, bookName, isMassDownload, directory): 
+def getPages(title, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification): 
       bookList.place_forget()
       searchButton.place_forget()
-      
+
       print(bookName)
-      scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator)
+      scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator, selectedFormat, numberofLoops, cbzVerification)
 
 
 def getAllChapters():
@@ -72,21 +69,31 @@ def getAllChapters():
       global globalBookName   
 
       isMassDownload = True
-      directory = ''
       baseDirectory = filedialog.askdirectory()
+      directory = ''
       folderNum = 0
+      cbzVerification = 0
 
-      for Chapter in bookChapterNames:
-            folderNum = folderNum + 1
-            directory = f"{baseDirectory}/#{folderNum}"
-            Path(directory).mkdir(parents=True, exist_ok=True)
 
-      for bookChapter in bookChapterNames:
-            directory = f"{baseDirectory}/#{folderNum}"
-            threading.Thread(target=getPages, args=(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory)).start()
-            folderNum = folderNum - 1
-            
+      if selectedFormat != ".cbz":
+            numberofLoops = 0
+            cbzVerification = 0
+            for Chapter in bookChapterNames:
+                  folderNum = folderNum + 1
+                  directory = f"{baseDirectory}/#{folderNum}"
+                  Path(directory).mkdir(parents=True, exist_ok=True)
 
+            for bookChapter in bookChapterNames:
+                  directory = f"{baseDirectory}/#{folderNum}"
+                  threading.Thread(target=getPages, args=(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory, numberofLoops, cbzVerification)).start()
+                  folderNum = folderNum - 1
+      else:
+            numberofLoops = len(bookChapterNames)
+            for bookChapter in bookChapterNames:
+                  cbzVerification = cbzVerification + 1 
+                  getPages(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, baseDirectory, numberofLoops, cbzVerification)
+                   
+                  
 def displayChapters(href, bookName):
       global bookChapterNames
       global globalBookName
@@ -105,13 +112,15 @@ def displayChapters(href, bookName):
       isMassDownload = False
       directory = ''
       bookIndividualRequest = session.get(href, headers=headers)
+      numberofLoops = 0
+      cbzVerification = 0
   
       bookChapterNames = scrapeIssues(bookIndividualRequest, selectedHost)
       for chapterName in bookChapterNames:
             chapterButton = customtkinter.CTkButton(bookChapters, width=500, height=30, text=chapterName,
                                                       fg_color="#581845", command = lambda title=bookChapterNames[chapterName], bookName=bookName: 
                                                       threading.Thread(target=getPages, args=(title, session, selectedHost, 
-                                                      bookName, isMassDownload, directory)).start())
+                                                      bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start())
             chapterButton.pack()
 
 

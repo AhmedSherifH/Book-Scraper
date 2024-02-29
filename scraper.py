@@ -2,12 +2,14 @@ import requests
 from tkinter import filedialog
 from pathlib import Path
 from tkinter import messagebox
+from format_manager import *
 
 
 
 headers = {'User-Agent': 'Mozilla/5.0'}
 issueHref = ''
 bookDownloads = []
+cbzChapters = []
 
 
 def scrapeCover(bookLink, session, selectedHost): 
@@ -88,9 +90,11 @@ def scrapeIssues(url, selectedHost):
    
 
           
-def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassDownload, directory, downloading):
+def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassDownload, directory, downloading, format, numberofLoops, cbzVerification):
      
      pageNum = 0 
+     imageContents = []
+     global cbzChapters
      if isMassDownload == False:
         chosenDir = filedialog.askdirectory()
      else:
@@ -107,25 +111,20 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
                 issueRequest = session.get(chapterLink, headers=headers)
                 images = issueRequest.html.xpath('.//img')  
                     
-                for image in enumerate(images):
-                        pageNum += 1     
-
-                for idx, image in enumerate(images):
+                for pageNum, image in enumerate(images, 1):
+                        if pageNum == 1:
+                            continue
                         src = image.attrs['src']
                         pageResponse = requests.get(src)
+                        print(f"{chosenDir}/#{pageNum}.jpg")
+                        imageContents.append(pageResponse.content)
 
-                        print(f"{chosenDir}/#{idx + 1}.jpg")
-                        with open(f"{chosenDir}/#{idx + 1}.jpg", 'wb') as f:
-                            f.write(pageResponse.content)
-                    
-                print(f"{pageNum} page(s)")
 
             if selectedHost == "mangakomi.io":
                 issueRequest = session.get(chapterLink, headers=headers)
                 images = issueRequest.html.xpath('//img')  
                 
                 if selectedHost == "mangakomi.io":
-                    num = 0
                     issueRequest = session.get(chapterLink, headers=headers)
                     images = issueRequest.html.xpath('//img')  
                                 
@@ -134,12 +133,27 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
                          src = image.attrs.get('data-src')
                          src = src.strip()
                          if 'cdn' in src:
-                             num += 1 
-                             print(f"#{num}: {src}")
+                             pageNum += 1 
+                             print(f"#{pageNum}: {src}")            
                              pageResponse = requests.get(src) 
+                             imageContents.append(pageResponse.content)
 
-                             with open(f"{chosenDir}/#{num}.jpg", 'wb') as f:
-                                 f.write(pageResponse.content)
+            if format == ".cbz":
+                for page in imageContents:
+                    cbzChapters.append(page)
+
+                if cbzVerification == numberofLoops:
+                    createCbz(cbzChapters, f"{chosenDir}/{bookName}.cbz")
+                    if len(cbzChapters) > 0:
+                        cbzChapters = []
+ 
+
+            if format == ".jpg":
+                createJpg(imageContents, chosenDir)
+
+
+
+                        
 
             bookDownloads.remove(bookName)
             downloads.configure(text=", ".join(list(set(bookDownloads))))
