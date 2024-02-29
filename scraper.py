@@ -63,7 +63,7 @@ def scrapeTitles(url, selectedHost, requestedBook):
             
         
 
-def scrapeIssues(url, selectedHost):    
+def scrapeChapters(url, selectedHost):    
     bookChapters = {}
 
     if selectedHost == "readallcomics.com":

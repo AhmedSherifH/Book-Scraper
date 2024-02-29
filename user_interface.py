@@ -57,8 +57,8 @@ def selectFormat(choice):
  
 
 def getPages(title, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification): 
-      bookList.place_forget()
-      searchButton.place_forget()
+    #  bookList.place_forget()
+    #  searchButton.place_forget()
 
       print(bookName)
       scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator, selectedFormat, numberofLoops, cbzVerification)
@@ -105,9 +105,9 @@ def displayChapters(href, bookName):
       for widget in bookChapters.winfo_children():
           widget.destroy()
 
-      # Get Issues
-      headers = {'User-Agent': 'Mozilla/5.0'}
 
+      # Assigns Variables
+      headers = {'User-Agent': 'Mozilla/5.0'}
       coverLink = href 
       isMassDownload = False
       directory = ''
@@ -115,7 +115,8 @@ def displayChapters(href, bookName):
       numberofLoops = 0
       cbzVerification = 0
   
-      bookChapterNames = scrapeIssues(bookIndividualRequest, selectedHost)
+      # Get all Chapters in a book
+      bookChapterNames = scrapeChapters(bookIndividualRequest, selectedHost)
       for chapterName in bookChapterNames:
             chapterButton = customtkinter.CTkButton(bookChapters, width=500, height=30, text=chapterName,
                                                       fg_color="#581845", command = lambda title=bookChapterNames[chapterName], bookName=bookName: 
@@ -152,7 +153,10 @@ def searchProcess():
     # Empty Arrays and Assign Variables
     bookTitles = {}
     searchBookURL = ""
-
+    searchBookRequest = session.get(searchBookURL,
+                                    headers={'User-Agent': 'Mozilla/5.0'})
+ 
+   # Set searchBookURL according to the selected host, and get the text entered in the search bar
     if selectedHost == "readallcomics.com":
           requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
           searchBookURL = hostBase + requestedBook + "&s=&type=comic"
@@ -165,13 +169,8 @@ def searchProcess():
     for widget in bookList.winfo_children():
            widget.destroy()
     
-    # Get Books
-    searchBookRequest = session.get(searchBookURL,
-                                    headers={'User-Agent': 'Mozilla/5.0'})
- 
-    
+    # Get all books that were found in the search
     bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
-    
     for title in bookTitles:
            bookButton = customtkinter.CTkButton(bookList, width=500, height=30, text=title, 
                                                  fg_color="#581845", command=lambda href=bookTitles[title], bookName = title: 
@@ -179,6 +178,8 @@ def searchProcess():
            bookButton.pack()
 
 
+
+# Manage placement of widgets 
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
 searchBar.place(x=180, y=5)
 searchBar.bind('<Return>', lambda event: "break")
@@ -195,7 +196,8 @@ searchButton.place(x=700, y=5)
 numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text="", font=labelFont)
 downloads = customtkinter.CTkLabel(master=root, text="", font=labelFont)
 
-downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, fg_color="#581845", command=getAllChapters)
+      
+downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, fg_color="#581845", command=lambda: threading.Thread(target=getAllChapters).start())
 
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None, font=labelFont)
 
