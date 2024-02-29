@@ -31,10 +31,10 @@ session = HTMLSession()
 
 def selectHost(choice):
       global selectedHost
-      selectedHost = choice
-
       global hostBase
-
+      selectedHost = choice
+      
+      # Remove "Select a Host" after selecting a website, and assign hostBase to the correct value
       if choice != "Select a Host":
        if "Select a Host" in hostValues:
             hostValues.remove("Select a Host")
@@ -47,7 +47,8 @@ def selectHost(choice):
       
 def selectFormat(choice):
       global selectedFormat
-
+      
+      # Remove "Select a Format" after selecting a format, and assign selectedFormat to the correct value
       if choice != "Select a Format":
             if "Select a Format" in formatValues:
                   formatValues.remove("Select a Format")
@@ -57,9 +58,7 @@ def selectFormat(choice):
  
 
 def getPages(title, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification): 
-    #  bookList.place_forget()
-    #  searchButton.place_forget()
-
+      # Get all pages inside a chapter
       print(bookName)
       scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator, selectedFormat, numberofLoops, cbzVerification)
 
@@ -68,13 +67,15 @@ def getAllChapters():
       global bookChapterNames
       global globalBookName   
 
+      # Assign Variables
       isMassDownload = True
       baseDirectory = filedialog.askdirectory()
       directory = ''
       folderNum = 0
       cbzVerification = 0
 
-
+      # This option is mainly for .png and .jpg. The number of folders made equals the number of chapters inside a book.
+      # The folder name is decided by the number of the chapter
       if selectedFormat != ".cbz":
             numberofLoops = 0
             cbzVerification = 0
@@ -87,6 +88,7 @@ def getAllChapters():
                   directory = f"{baseDirectory}/#{folderNum}"
                   threading.Thread(target=getPages, args=(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory, numberofLoops, cbzVerification)).start()
                   folderNum = folderNum - 1
+      # A .cbz file is only made after cbzVerification = numberofLoops, where numberofLoops equals the number of chapters found in a book
       else:
             numberofLoops = len(bookChapterNames)
             for bookChapter in bookChapterNames:
