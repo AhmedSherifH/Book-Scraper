@@ -99,7 +99,7 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
      else:
         chosenDir = directory
      try:
-        if chosenDir != '':
+        if chosenDir != '' and chosenDir is not None:
             print(chapterLink)
             print(f'SELECTED HOST {selectedHost}')
             bookDownloads.append(bookName)

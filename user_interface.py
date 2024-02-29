@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 root =  customtkinter.CTk()
-root.geometry("800x350")
+root.geometry("800x400")
 root.resizable(False, False)
 root.iconbitmap(None)
 root.title("Book Scraper")
@@ -60,7 +60,10 @@ def selectFormat(choice):
 def getPages(title, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification): 
       # Get all pages inside a chapter
       print(bookName)
-      scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator, selectedFormat, numberofLoops, cbzVerification)
+      if selectedFormat not in [".jpg", ".cbz", ".zip"]:
+            messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
+      else: 
+            scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator, selectedFormat, numberofLoops, cbzVerification)
 
 
 def getAllChapters():
@@ -94,6 +97,9 @@ def getAllChapters():
             for bookChapter in bookChapterNames:
                   compressedVerification = compressedVerification + 1 
                   getPages(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, baseDirectory, numberofLoops, compressedVerification)
+      
+      if selectedFormat not in [".jpg", ".cbz", ".zip"]:
+            messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
                    
                   
 def displayChapters(href, bookName):
@@ -140,7 +146,7 @@ def displayChapters(href, bookName):
 
       # Manage Placement of Widgets
       downloadallChapters.place(x=608, y=300)
-      formatSelector.place(x=455, y=300)
+      formatSelector.place(x=624, y=330)
       searchButton.place_forget()
       bookList.place_forget()
       downloads.place_forget()
@@ -223,8 +229,8 @@ hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#5
 hostSelector.place(x=20, y=5)
                                    
 
-formatSelector = customtkinter.CTkOptionMenu(root, values=formatValues, 
-                                             fg_color="#581845", button_color="#581845", command=selectFormat)
+formatSelector = customtkinter.CTkOptionMenu(root, values=formatValues, fg_color="#581845",
+                                              button_color="#581845", command=selectFormat, anchor="center")
                                          
 root.mainloop() 
 
