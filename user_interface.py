@@ -8,6 +8,7 @@ from io import BytesIO
 from tkinter import messagebox
 from tkinter import filedialog
 from pathlib import Path
+import json
 
 
 root =  customtkinter.CTk()
@@ -143,7 +144,7 @@ def displayChapters(href, bookName):
       except:
             messagebox.showerror("Error", "Couldn't load cover image.")
 
-
+      saveBook(href, coverLink, bookName)
       # Manage Placement of Widgets
       downloadallChapters.place(x=608, y=300)
       formatSelector.place(x=624, y=330)
@@ -189,6 +190,22 @@ def searchProcess():
 
     except: 
       messagebox.showerror("Error", "Please select a host from the dropdown menu.")
+
+
+def saveBook(bookLink, bookCover, bookName):
+      with open("last_viewed.json", "r") as json_file:
+            data = json.load(json_file)
+
+      new_book = {
+          "bookLink": bookLink,
+          "bookCover": bookCover,
+          "bookName": bookName}
+      
+      data["books"].append(new_book)
+
+      # Write the updated data back to the JSON file
+      with open("last_viewed.json", "w") as json_file:
+            json.dump(data, json_file, indent=4)
 
 # Manage placement of widgets 
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
