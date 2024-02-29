@@ -23,7 +23,7 @@ selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
 hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io"] 
-formatValues = ["Select a Format", ".jpg", ".cbz"]
+formatValues = ["Select a Format", ".jpg", ".cbz", ".zip"]
 bookChapterNames = {}
 globalBookName = ''
 session = HTMLSession()
@@ -72,13 +72,13 @@ def getAllChapters():
       baseDirectory = filedialog.askdirectory()
       directory = ''
       folderNum = 0
-      cbzVerification = 0
+      compressedVerification = 0
 
       # This option is mainly for .png and .jpg. The number of folders made equals the number of chapters inside a book.
       # The folder name is decided by the number of the chapter
-      if selectedFormat != ".cbz":
+      if selectedFormat in [".jpg"]:
             numberofLoops = 0
-            cbzVerification = 0
+            compressedVerification = 0
             for Chapter in bookChapterNames:
                   folderNum = folderNum + 1
                   directory = f"{baseDirectory}/#{folderNum}"
@@ -86,14 +86,14 @@ def getAllChapters():
 
             for bookChapter in bookChapterNames:
                   directory = f"{baseDirectory}/#{folderNum}"
-                  threading.Thread(target=getPages, args=(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory, numberofLoops, cbzVerification)).start()
+                  threading.Thread(target=getPages, args=(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory, numberofLoops, compressedVerification)).start()
                   folderNum = folderNum - 1
-      # A .cbz file is only made after cbzVerification = numberofLoops, where numberofLoops equals the number of chapters found in a book
-      else:
+      # A .cbz file is only made after compressedVerification = numberofLoops, where numberofLoops equals the number of chapters found in a book
+      elif selectedFormat in [".zip", ".cbz"]:
             numberofLoops = len(bookChapterNames)
             for bookChapter in bookChapterNames:
-                  cbzVerification = cbzVerification + 1 
-                  getPages(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, baseDirectory, numberofLoops, cbzVerification)
+                  compressedVerification = compressedVerification + 1 
+                  getPages(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, baseDirectory, numberofLoops, compressedVerification)
                    
                   
 def displayChapters(href, bookName):
@@ -155,31 +155,34 @@ def searchProcess():
     # Empty Arrays and Assign Variables
     bookTitles = {}
     searchBookURL = ""
-    searchBookRequest = session.get(searchBookURL,
-                                    headers={'User-Agent': 'Mozilla/5.0'})
- 
-   # Set searchBookURL according to the selected host, and get the text entered in the search bar
-    if selectedHost == "readallcomics.com":
-          requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
-          searchBookURL = hostBase + requestedBook + "&s=&type=comic"
-          searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-    if selectedHost == "mangakomi.io":
-          requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
-          searchBookURL = hostBase.format(requestedBook)
-          print(searchBookURL)
 
-    for widget in bookList.winfo_children():
-           widget.destroy()
-    
-    # Get all books that were found in the search
-    bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
-    for title in bookTitles:
-           bookButton = customtkinter.CTkButton(bookList, width=500, height=30, text=title, 
-                                                 fg_color="#581845", command=lambda href=bookTitles[title], bookName = title: 
-                                                 (displayChapters(href, bookName), downloads.place_forget(), numberofDownloadsIndicator.place_forget()))
-           bookButton.pack()
+    try:
+      # Set searchBookURL according to the selected host, and get the text entered in the search bar
+      if selectedHost == "readallcomics.com":
+            requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
+            searchBookURL = hostBase + requestedBook + "&s=&type=comic"
+            searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
+      if selectedHost == "mangakomi.io":
+            requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
+            searchBookURL = hostBase.format(requestedBook)
+            print(searchBookURL)
 
+      searchBookRequest = session.get(searchBookURL,
+                                          headers={'User-Agent': 'Mozilla/5.0'})
+      
+      for widget in bookList.winfo_children():
+            widget.destroy()
+      
+      # Get all books that were found in the search
+      bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
+      for title in bookTitles:
+            bookButton = customtkinter.CTkButton(bookList, width=500, height=30, text=title, 
+                                                      fg_color="#581845", command=lambda href=bookTitles[title], bookName = title: 
+                                                      (displayChapters(href, bookName), downloads.place_forget(), numberofDownloadsIndicator.place_forget()))
+            bookButton.pack()
 
+    except: 
+      messagebox.showerror("Error", "Please select a host from the dropdown menu.")
 
 # Manage placement of widgets 
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
@@ -216,8 +219,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         ))
                                                         
 
-hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, 
-                                           fg_color="#581845", button_color="#581845", command=selectHost)
+hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
 hostSelector.place(x=20, y=5)
                                    
 

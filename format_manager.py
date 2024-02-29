@@ -5,6 +5,11 @@ def createCbz(imageContent, outputCbz):
         for pageNum, imageContent in enumerate(imageContent, 1):
             cbz_file.writestr(f'{pageNum}.jpg', imageContent)
 
+def createZip(imageContent, outputZip):
+    with zipfile.ZipFile(outputZip, 'w') as zipFile:
+        for pageNum, imageContent in enumerate(imageContent, 1):
+            zipFile.writestr(f'{pageNum}.jpg', imageContent)
+
 def createJpg(imageContent, chosenDir):
     for pageNum, image in enumerate(imageContent, 1):
         print(pageNum)

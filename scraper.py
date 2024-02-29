@@ -9,7 +9,7 @@ from format_manager import *
 headers = {'User-Agent': 'Mozilla/5.0'}
 issueHref = ''
 bookDownloads = []
-cbzChapters = []
+compressedChapters = []
 
 
 def scrapeCover(bookLink, session, selectedHost): 
@@ -53,7 +53,6 @@ def scrapeTitles(url, selectedHost, requestedBook):
         if selectedHost == "mangakomi.io":
             links = url.html.find('.post-title a')
 
-            # Extract href attributes and titles
             for link in links:
                 titleHref = link.attrs['href']
                 titleName = link.text
@@ -94,7 +93,7 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
      
      pageNum = 0 
      imageContents = []
-     global cbzChapters
+     global compressedChapters
      if isMassDownload == False:
         chosenDir = filedialog.askdirectory()
      else:
@@ -140,20 +139,26 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
 
             if format == ".cbz":
                 for page in imageContents:
-                    cbzChapters.append(page)
+                    compressedChapters.append(page)
 
                 if cbzVerification == numberofLoops:
-                    createCbz(cbzChapters, f"{chosenDir}/{bookName}.cbz")
-                    if len(cbzChapters) > 0:
-                        cbzChapters = []
+                    createCbz(compressedChapters, f"{chosenDir}/{bookName}.cbz")
+                    if len(compressedChapters) > 0:
+                        compressedChapters = []
  
+            if format == ".zip":
+                for page in imageContents:
+                    compressedChapters.append(page)
 
+                if cbzVerification == numberofLoops:
+                    createCbz(compressedChapters, f"{chosenDir}/{bookName}.zip")
+                    if len(compressedChapters) > 0:
+                        compressedChapters = []
+ 
             if format == ".jpg":
                 createJpg(imageContents, chosenDir)
 
 
-
-                        
 
             bookDownloads.remove(bookName)
             downloads.configure(text=", ".join(list(set(bookDownloads))))
