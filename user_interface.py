@@ -30,6 +30,7 @@ globalBookName = ''
 session = HTMLSession()
 
 
+
 def selectHost(choice):
       global selectedHost
       global hostBase
@@ -55,6 +56,10 @@ def selectFormat(choice):
                   formatValues.remove("Select a Format")
             selectedFormat = choice
             formatSelector.configure(values=formatValues)
+            if selectedFormat == ".zip":
+                  compressionMethodMenu.place(x=624, y=360)
+            else:
+                  compressionMethodMenu.place_forget()
        
  
 
@@ -64,7 +69,8 @@ def getPages(title, session, selectedHost, bookName, isMassDownload, directory, 
       if selectedFormat not in [".jpg", ".cbz", ".zip"]:
             messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
       else: 
-            scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator, selectedFormat, numberofLoops, cbzVerification)
+            zipCompressionMethod = compressionMethodMenu.get()
+            scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
 
 
 def getAllChapters():
@@ -148,6 +154,8 @@ def displayChapters(href, bookName):
       # Manage Placement of Widgets
       downloadallChapters.place(x=608, y=300)
       formatSelector.place(x=624, y=330)
+      if selectedFormat == ".zip":
+            compressionMethodMenu.place(x=624, y=360)
       searchButton.place_forget()
       bookList.place_forget()
       downloads.place_forget()
@@ -237,6 +245,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         coverImageLabel.place_forget(),
                                                         downloadallChapters.place_forget(),
                                                         formatSelector.place_forget(), 
+                                                        compressionMethodMenu.place_forget(),
                                                         downloads.place(x=83, y=300),
                                                         numberofDownloadsIndicator.place(x=0, y=300)
                                                         ))
@@ -248,7 +257,32 @@ hostSelector.place(x=20, y=5)
 
 formatSelector = customtkinter.CTkOptionMenu(root, values=formatValues, fg_color="#581845",
                                               button_color="#581845", command=selectFormat, anchor="center")
+compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZIP2", "LZMA", "Deflate"], button_color="#581845",
+                                                    fg_color="#581845", anchor="center")
                                          
+
+
+
+"""
+lastViewedBooks = customtkinter.CTkScrollableFrame(root, width=770, height=250, fg_color="#242424")
+lastViewedBooks.place(x=0, y=35)
+      
+
+def loadLastViewed():
+            with open("last_viewed.json", 'r') as file:
+              data = json.load(file)
+            coverLink = data['books'][0]['bookCover']
+            print(coverLink)
+            lastViewedCoverLabel = customtkinter.CTkLabel(lastViewedBooks, text="", image=None, font=labelFont)
+            coverResponse = requests.get(coverLink)
+            cover = Image.open(BytesIO(coverResponse.content))
+            coverImage = customtkinter.CTkImage(light_image=cover, dark_image=cover,size=(166 , 256))
+            lastViewedCoverLabel.configure(image=coverImage)
+            lastViewedCoverLabel.place(x=610, y=40)
+
+loadLastViewed()
+"""
+
 root.mainloop() 
 
 

@@ -89,7 +89,7 @@ def scrapeChapters(url, selectedHost):
    
 
           
-def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassDownload, directory, downloading, format, numberofLoops, cbzVerification):
+def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassDownload, directory, downloading, format, numberofLoops, cbzVerification, zipCompression):
      
      pageNum = 0 
      imageContents = []
@@ -151,7 +151,7 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
                     compressedChapters.append(page)
 
                 if cbzVerification == numberofLoops:
-                    createCbz(compressedChapters, f"{chosenDir}/{bookName}.zip")
+                    createCbz(compressedChapters, f"{chosenDir}/{bookName}.zip", zipCompression)
                     if len(compressedChapters) > 0:
                         compressedChapters = []
  
