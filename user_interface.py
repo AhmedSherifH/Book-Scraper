@@ -14,7 +14,7 @@ import json
 root =  customtkinter.CTk()
 root.geometry("800x400")
 root.resizable(False, False)
-root.iconbitmap(None)
+root.iconbitmap('visual/bookscraper-ico.ico')
 root.title("Book Scraper")
 
 labelFont = customtkinter.CTkFont(family='Helvetica', size=12, weight='bold')
@@ -251,7 +251,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         ))
                                                         
 
-hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
+hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", dropdown_hover_color="#581845", button_color="#581845", command=selectHost)
 hostSelector.place(x=20, y=5)
                                    
 
