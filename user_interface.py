@@ -8,14 +8,14 @@ from io import BytesIO
 from tkinter import messagebox
 from tkinter import filedialog
 from pathlib import Path
-import json
 
 
 root =  customtkinter.CTk()
 root.geometry("800x400")
 root.resizable(False, False)
-root.iconbitmap(None)
+root.iconbitmap("visual/bookscraper-icon.ico")
 root.title("Book Scraper")
+
 
 labelFont = customtkinter.CTkFont(family='Helvetica', size=12, weight='bold')
 
