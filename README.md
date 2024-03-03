@@ -1,7 +1,13 @@
 
 # Book Scraper
 
-Book Scraper is a free and open source program to download comics from a variety of different websites. 
+<p align="center">
+  <img src="visual\bookscraper-splash1.png" width="350" alt="Book-Scraper Splash">
+</p>
+
+Book Scraper is a **free and open source** program made with Python to download comics from a variety of different websites. 
+
+
 ![App Screenshot](https://github.com/AhmedSherifH/Book-Scraper/assets/69525619/36a5b47f-e78e-4b77-8b82-b0ba6785eeb2)
 
 
