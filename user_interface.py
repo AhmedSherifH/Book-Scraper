@@ -150,7 +150,6 @@ def displayChapters(href, bookName):
       except:
             messagebox.showerror("Error", "Couldn't load cover image.")
 
-      saveBook(href, coverLink, bookName)
       # Manage Placement of Widgets
       downloadallChapters.place(x=608, y=300)
       formatSelector.place(x=624, y=330)
@@ -168,6 +167,7 @@ def displayChapters(href, bookName):
      
 def searchProcess():
     # Empty Arrays and Assign Variables
+    bookList.place(x=0, y=35)  
     bookTitles = {}
     searchBookURL = ""
 
@@ -200,21 +200,6 @@ def searchProcess():
       messagebox.showerror("Error", "Please select a host from the dropdown menu.")
 
 
-def saveBook(bookLink, bookCover, bookName):
-      with open("last_viewed.json", "r") as json_file:
-            data = json.load(json_file)
-
-      new_book = {
-          "bookLink": bookLink,
-          "bookCover": bookCover,
-          "bookName": bookName}
-      
-      data["books"].append(new_book)
-
-      # Write the updated data back to the JSON file
-      with open("last_viewed.json", "w") as json_file:
-            json.dump(data, json_file, indent=4)
-
 # Manage placement of widgets 
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
 searchBar.place(x=180, y=5)
@@ -222,8 +207,7 @@ searchBar.bind('<Return>', lambda event: "break")
  
 
 bookList = customtkinter.CTkScrollableFrame(root, width=770, height=250, fg_color="#242424")
-bookList.place(x=0, y=35)  
-bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=250, fg_color="#242424")
+bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
 
 searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=searchProcess)
 searchButton.place(x=700, y=5)
@@ -262,26 +246,6 @@ compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZI
                                          
 
 
-
-"""
-lastViewedBooks = customtkinter.CTkScrollableFrame(root, width=770, height=250, fg_color="#242424")
-lastViewedBooks.place(x=0, y=35)
-      
-
-def loadLastViewed():
-            with open("last_viewed.json", 'r') as file:
-              data = json.load(file)
-            coverLink = data['books'][0]['bookCover']
-            print(coverLink)
-            lastViewedCoverLabel = customtkinter.CTkLabel(lastViewedBooks, text="", image=None, font=labelFont)
-            coverResponse = requests.get(coverLink)
-            cover = Image.open(BytesIO(coverResponse.content))
-            coverImage = customtkinter.CTkImage(light_image=cover, dark_image=cover,size=(166 , 256))
-            lastViewedCoverLabel.configure(image=coverImage)
-            lastViewedCoverLabel.place(x=610, y=40)
-
-loadLastViewed()
-"""
 
 root.mainloop() 
 
