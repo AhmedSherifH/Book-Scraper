@@ -197,7 +197,7 @@ def searchProcess():
       # Get all books that were found in the search
       bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
       for title in bookTitles:
-            bookButton = customtkinter.CTkButton(bookList, width=500, height=30, text=title, 
+            bookButton = customtkinter.CTkButton(bookList, width=780, height=30, text=title, 
                                                       fg_color="#581845", command=lambda href=bookTitles[title], bookName = title: 
                                                       (displayChapters(href, bookName), downloads.place_forget(), numberofDownloadsIndicator.place_forget()))
             bookButton.pack()
@@ -212,7 +212,7 @@ searchBar.place(x=180, y=5)
 searchBar.bind('<Return>', lambda event: "break")
  
 
-bookList = customtkinter.CTkScrollableFrame(root, width=770, height=250, fg_color="#242424")
+bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424")
 bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
 
 searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=searchProcess)
@@ -236,8 +236,8 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         downloadallChapters.place_forget(),
                                                         formatSelector.place_forget(), 
                                                         compressionMethodMenu.place_forget(),
-                                                        downloads.place(x=83, y=300),
-                                                        numberofDownloadsIndicator.place(x=0, y=300)
+                                                        downloads.place(x=83, y=350),
+                                                        numberofDownloadsIndicator.place(x=0, y=350)
                                                         ))
                                                         
 
