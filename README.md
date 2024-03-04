@@ -9,9 +9,9 @@ Book Scraper is a **free and open source** program made with Python to download 
 
 
 <p align="left">
-  <img src="https://github.com/AhmedSherifH/Book-Scraper/assets/69525619/1c3eb985-253c-4d13-9f5e-df76d651d993" width="300" alt="Book-Scraper Splash">
-  <img src="https://github.com/AhmedSherifH/Book-Scraper/assets/69525619/ee9c28f8-3f29-4598-9e11-bdffdd664c18" width="300" alt="Book-Scraper Splash">
-  <img src="https://github.com/AhmedSherifH/Book-Scraper/assets/69525619/a0582b1b-8845-4642-90d1-229f0761109a" width="300" alt="Book-Scraper Splash">
+  <img src="https://github.com/AhmedSherifH/Book-Scraper/assets/69525619/1c3eb985-253c-4d13-9f5e-df76d651d993" width="250" alt="Book-Scraper Splash">
+  <img src="https://github.com/AhmedSherifH/Book-Scraper/assets/69525619/ee9c28f8-3f29-4598-9e11-bdffdd664c18" width="250" alt="Book-Scraper Splash">
+  <img src="https://github.com/AhmedSherifH/Book-Scraper/assets/69525619/a0582b1b-8845-4642-90d1-229f0761109a" width="250" alt="Book-Scraper Splash">
 </p>
 
 
