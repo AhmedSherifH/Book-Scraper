@@ -14,12 +14,10 @@ compressedChapters = []
 
 def scrapeCover(bookLink, session, selectedHost): 
 
-    print(bookLink)
     coverImage = ""
     imageRequest = session.get(bookLink, headers=headers)
-    print(bookLink)
-    print(imageRequest)
 
+   # Get coverImage from the website source code, xpath differs across different websites
     if selectedHost == "readallcomics.com":
         images = imageRequest.html.xpath('/html/body/center[3]/div/p/img')
         for image in images:
@@ -44,19 +42,17 @@ def scrapeCover(bookLink, session, selectedHost):
 
 
 def scrapeTitles(url, selectedHost, requestedBook):
-
-        requestedBook = requestedBook.replace(" ", "-")
         
+        requestedBook = requestedBook.replace(" ", "-")
         bookTitles = {}
+
+   # Retrieve all book titles that contain the same words as those entered by the user
         if selectedHost == "readallcomics.com":
             parsedTitles = url.html.xpath("/html/body/div[2]/div/div/ul/li/a")
             for child in parsedTitles:
              titleHref = child.attrs['href']
              titleName = child.text
              bookTitles[titleName] = titleHref
-
-            print(bookTitles)
-            return bookTitles
         
         if selectedHost == "mangakomi.io":
             links = url.html.find('.post-title a')
@@ -64,36 +60,32 @@ def scrapeTitles(url, selectedHost, requestedBook):
                 titleHref = link.attrs['href']
                 titleName = link.text
                 bookTitles[titleName] = titleHref
-            return bookTitles
-        
+
+        # While searching for titles in mangafire.to, several chapter links are included so any link with the word 'chapter' in it gets filtered as we only want to get book titles
         if selectedHost == "mangafire.to":
             div = url.html.find('div.original.card-lg', first=True)
             if div:
                 hrefs = div.find('a')
                 for href in hrefs:
-                    if 'chapter' in href.attrs['href']:
-                        pass
-                    else:
-                        if href.text == "":
-                            pass
-                        else:
+                    if 'chapter' not in href.attrs['href']:
+                        if href.text not in [""]:
                             titleHref = href.attrs['href']
                             titleName = href.text
                             bookTitles[titleName] = titleHref
-                return bookTitles
+        return bookTitles
 
 
 
 def scrapeChapters(url, selectedHost):    
     bookChapters = {}
 
+  # Get all chapters within a book
     if selectedHost == "readallcomics.com":
         parsedChapters = url.html.xpath("/html/body/center[3]/div/div[2]/ul/li/a")
         for child in parsedChapters:
             chapterName = child.text
             chapterHref =  child.attrs['href']
             bookChapters[chapterName] = chapterHref
-        return bookChapters
     
     if selectedHost == "mangakomi.io":
       chapters = url.html.find('li.wp-manga-chapter')
@@ -118,14 +110,15 @@ def scrapeChapters(url, selectedHost):
 
         
     
-   
-
           
 def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassDownload, directory, downloading, format, numberofLoops, cbzVerification, zipCompression):
+     
      
      pageNum = 0 
      imageContents = []
      global compressedChapters
+
+  # If isMassDownload is True, we don't ask for the directory because the user has already chosen the directory in user_interface.py
      if isMassDownload == False:
         chosenDir = filedialog.askdirectory()
      else:
@@ -189,8 +182,6 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
  
             if format == ".jpg":
                 createJpg(imageContents, chosenDir)
-
-
 
             bookDownloads.remove(bookName)
             downloads.configure(text=", ".join(list(set(bookDownloads))))
