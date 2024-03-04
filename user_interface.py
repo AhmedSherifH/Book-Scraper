@@ -23,7 +23,7 @@ selectedHost = ""
 selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
-hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io"] 
+hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io", "mangafire.to"] 
 formatValues = ["Select a Format", ".jpg", ".cbz", ".zip"]
 bookChapterNames = {}
 globalBookName = ''
@@ -46,6 +46,8 @@ def selectHost(choice):
                   hostBase = "https://readallcomics.com/?story="
        if choice == "mangakomi.io":
                   hostBase = "https://mangakomi.io/?s={}&post_type=wp-manga"
+       if choice == "mangafire.to":
+                  hostBase = "https://mangafire.to/filter?keyword={}"
       
 def selectFormat(choice):
       global selectedFormat
@@ -122,6 +124,8 @@ def displayChapters(href, bookName):
 
 
       # Assigns Variables
+      if selectedHost == "mangafire.to":
+            href = "https://mangafire.to/{}".format(href)
       headers = {'User-Agent': 'Mozilla/5.0'}
       coverLink = href 
       isMassDownload = False
@@ -130,6 +134,7 @@ def displayChapters(href, bookName):
       numberofLoops = 0
       cbzVerification = 0
   
+
       # Get all Chapters in a book
       bookChapterNames = scrapeChapters(bookIndividualRequest, selectedHost)
       for chapterName in bookChapterNames:
@@ -177,10 +182,11 @@ def searchProcess():
             requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
             searchBookURL = hostBase + requestedBook + "&s=&type=comic"
             searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-      if selectedHost == "mangakomi.io":
+      if selectedHost in ["mangakomi.io", "mangafire.to"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
             print(searchBookURL)
+
 
       searchBookRequest = session.get(searchBookURL,
                                           headers={'User-Agent': 'Mozilla/5.0'})

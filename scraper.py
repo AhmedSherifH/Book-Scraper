@@ -31,7 +31,15 @@ def scrapeCover(bookLink, session, selectedHost):
         img_tag = images[0] 
         coverImage = img_tag.attrs['data-src']
         return coverImage
-       
+    
+    if selectedHost == "mangafire.to":
+        div = imageRequest.html.find('div.poster', first=True)
+        if div:
+            img = div.find('img', first=True)
+            if img:
+                coverImage = img.attrs.get('src')
+                return coverImage
+        
             
 
 
@@ -52,15 +60,29 @@ def scrapeTitles(url, selectedHost, requestedBook):
         
         if selectedHost == "mangakomi.io":
             links = url.html.find('.post-title a')
-
             for link in links:
                 titleHref = link.attrs['href']
                 titleName = link.text
                 bookTitles[titleName] = titleHref
-
             return bookTitles
-            
         
+        if selectedHost == "mangafire.to":
+            div = url.html.find('div.original.card-lg', first=True)
+            if div:
+                hrefs = div.find('a')
+                for href in hrefs:
+                    if 'chapter' in href.attrs['href']:
+                        pass
+                    else:
+                        if href.text == "":
+                            pass
+                        else:
+                            titleHref = href.attrs['href']
+                            titleName = href.text
+                            bookTitles[titleName] = titleHref
+                return bookTitles
+
+
 
 def scrapeChapters(url, selectedHost):    
     bookChapters = {}
@@ -74,14 +96,24 @@ def scrapeChapters(url, selectedHost):
         return bookChapters
     
     if selectedHost == "mangakomi.io":
-  
       chapters = url.html.find('li.wp-manga-chapter')
       for chapter in chapters:
         href = chapter.find('a', first=True).attrs['href']
         title = chapter.find('a', first=True).text
         bookChapters[title] = href
-        
-      return bookChapters
+
+    if selectedHost == "mangafire.to":
+        div = url.html.find('div.list-body', first=True)
+        if div:
+            elements = div.find('li.item')  
+            for element in elements:
+                a_tag = element.find('a', first=True)
+                if a_tag:
+                    href = a_tag.attrs.get('href')
+                    title = a_tag.find('span', first=True).text.strip()
+                    bookChapters[title] = href
+
+    return bookChapters
 
 
         
