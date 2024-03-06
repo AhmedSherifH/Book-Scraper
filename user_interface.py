@@ -8,9 +8,13 @@ from io import BytesIO
 from tkinter import messagebox
 from tkinter import filedialog
 from pathlib import Path
+import signal
+import os
+
 
 
 root =  customtkinter.CTk()
+root.protocol("WM_DELETE_WINDOW", lambda: os.kill(os.getpid(), signal.SIGTERM))
 root.geometry("800x400")
 root.resizable(False, False)
 root.iconbitmap("visual/bookscraper-icon.ico")
