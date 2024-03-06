@@ -23,7 +23,7 @@ selectedHost = ""
 selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
-hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io", "mangafire.to"] 
+hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io", "mangaread.org"] 
 formatValues = ["Select a Format", ".jpg", ".cbz", ".zip"]
 bookChapterNames = {}
 globalBookName = ''
@@ -46,8 +46,8 @@ def selectHost(choice):
                   hostBase = "https://readallcomics.com/?story="
        if choice == "mangakomi.io":
                   hostBase = "https://mangakomi.io/?s={}&post_type=wp-manga"
-       if choice == "mangafire.to":
-                  hostBase = "https://mangafire.to/filter?keyword={}"
+       if choice == "mangaread.org":
+                  hostBase = "https://www.mangaread.org/?s={}&post_type=wp-manga"
       
 def selectFormat(choice):
       global selectedFormat
@@ -124,8 +124,6 @@ def displayChapters(href, bookName):
 
 
       # Assigns Variables
-      if selectedHost == "mangafire.to":
-            href = "https://mangafire.to/{}".format(href)
       headers = {'User-Agent': 'Mozilla/5.0'}
       coverLink = href 
       isMassDownload = False
@@ -182,7 +180,7 @@ def searchProcess():
             requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
             searchBookURL = hostBase + requestedBook + "&s=&type=comic"
             searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-      if selectedHost in ["mangakomi.io", "mangafire.to"]:
+      if selectedHost in ["mangakomi.io", "mangaread.org"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
             print(searchBookURL)
