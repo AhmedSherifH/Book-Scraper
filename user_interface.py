@@ -27,6 +27,7 @@ hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io", "mangaread.o
 formatValues = ["Select a Format", ".jpg", ".cbz", ".zip"]
 bookChapterNames = {}
 globalBookName = ''
+headers = {'User-Agent': 'Mozilla/5.0'}
 session = HTMLSession()
 
 
@@ -124,7 +125,6 @@ def displayChapters(href, bookName):
 
 
       # Assigns Variables
-      headers = {'User-Agent': 'Mozilla/5.0'}
       coverLink = href 
       isMassDownload = False
       directory = ''
@@ -213,7 +213,7 @@ searchBar.bind('<Return>', lambda event: "break")
 bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424")
 bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
 
-searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=searchProcess)
+searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=lambda: threading.Thread(target=searchProcess).start())
 searchButton.place(x=700, y=5)
 
 
