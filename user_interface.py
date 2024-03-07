@@ -12,6 +12,8 @@ import signal
 import os
 import json
 
+FOREGROUND_COLOR = '#530D64'
+HOVER_COLOR = '#6E1186'
 
 root =  customtkinter.CTk()
 root.protocol("WM_DELETE_WINDOW", lambda: os.kill(os.getpid(), signal.SIGTERM))
@@ -144,7 +146,7 @@ def displayChapters(href, bookName):
       bookChapterNames = scrapeChapters(bookIndividualRequest, selectedHost)
       for chapterName in bookChapterNames:
             chapterButton = customtkinter.CTkButton(bookChapters, width=500, height=30, text=chapterName,
-                                                      fg_color="#581845", command = lambda title=bookChapterNames[chapterName], bookName=bookName: 
+                                                      fg_color=FOREGROUND_COLOR, command = lambda title=bookChapterNames[chapterName], bookName=bookName: 
                                                       threading.Thread(target=getPages, args=(title, session, selectedHost, 
                                                       bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start())
             chapterButton.pack()
@@ -206,7 +208,7 @@ def searchProcess():
       bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
       for title in bookTitles:
             bookButton = customtkinter.CTkButton(bookList, width=780, height=30, text=title, 
-                                                      fg_color="#581845", command=lambda href=bookTitles[title], bookName = title: 
+                                                      fg_color=FOREGROUND_COLOR,hover_color=HOVER_COLOR, command=lambda href=bookTitles[title], bookName = title: 
                                                       (displayChapters(href, bookName), downloads.place_forget(), numberofDownloadsIndicator.place_forget()))
             bookButton.pack()
 
@@ -263,10 +265,12 @@ searchBar.place(x=180, y=5)
 searchBar.bind('<Return>', lambda event: "break")
  
 
-bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424")
-bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
+bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424",scrollbar_button_color=FOREGROUND_COLOR,scrollbar_button_hover_color=HOVER_COLOR)
+bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424",scrollbar_button_color=FOREGROUND_COLOR,scrollbar_button_hover_color=HOVER_COLOR)
 
-searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=lambda: threading.Thread(target=searchProcess).start())
+
+searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color=FOREGROUND_COLOR,hover_color=HOVER_COLOR, text="Search", command==lambda: threading.Thread(target=searchProcess).start())
+
 searchButton.place(x=700, y=5)
 
 
@@ -274,13 +278,13 @@ numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text="")
 downloads = customtkinter.CTkLabel(master=root, text="")
 
       
-downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, fg_color="#581845", command=lambda: threading.Thread(target=getAllChapters).start())
+downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, fg_color=FOREGROUND_COLOR,hover_color=HOVER_COLOR, command=lambda: threading.Thread(target=getAllChapters).start())
 
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
-                                       fg_color="#581845", text="Back",
+                                       fg_color=FOREGROUND_COLOR,hover_color=HOVER_COLOR, text="Back",
                                        command=lambda: (bookList.place(x=0, y=35), returnToList.place_forget(),
                                                         bookChapters.place_forget(), searchButton.place(x=700, y=5), 
                                                         coverImageLabel.place_forget(),
@@ -292,14 +296,14 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         ))
                                                         
 
-hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
+hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color=FOREGROUND_COLOR, button_color=FOREGROUND_COLOR,dropdown_hover_color=HOVER_COLOR, command=selectHost)
 hostSelector.place(x=20, y=5)
                                    
 
-formatSelector = customtkinter.CTkOptionMenu(root, values=formatValues, fg_color="#581845",
-                                              button_color="#581845", command=selectFormat, anchor="center")
-compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZIP2", "LZMA", "Deflate"], button_color="#581845",
-                                                    fg_color="#581845", anchor="center")
+formatSelector = customtkinter.CTkOptionMenu(root, values=formatValues, fg_color=FOREGROUND_COLOR,
+                                              button_color=FOREGROUND_COLOR,dropdown_hover_color=HOVER_COLOR, command=selectFormat, anchor="center")
+compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZIP2", "LZMA", "Deflate"], button_color=FOREGROUND_COLOR,
+                                                    fg_color=FOREGROUND_COLOR,dropdown_hover_color=HOVER_COLOR, anchor="center")
                                          
 
 
