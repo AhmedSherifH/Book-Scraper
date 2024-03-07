@@ -8,28 +8,36 @@ from io import BytesIO
 from tkinter import messagebox
 from tkinter import filedialog
 from pathlib import Path
+import signal
+import os
+import json
 
 FOREGROUND_COLOR = '#530D64'
 HOVER_COLOR = '#6E1186'
 
 root =  customtkinter.CTk()
+root.protocol("WM_DELETE_WINDOW", lambda: os.kill(os.getpid(), signal.SIGTERM))
 root.geometry("800x400")
 root.resizable(False, False)
 root.iconbitmap("visual/bookscraper-icon.ico")
 root.title("Book Scraper")
 
 
-labelFont = customtkinter.CTkFont(family='Helvetica', size=12, weight='bold')
+
+
 
 selectedHost = ""
 selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
-hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io", "mangafire.to"] 
+hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io", "mangaread.org"] 
 formatValues = ["Select a Format", ".jpg", ".cbz", ".zip"]
 bookChapterNames = {}
 globalBookName = ''
+headers = {'User-Agent': 'Mozilla/5.0'}
 session = HTMLSession()
+jsonPath = Path('./history.json')
+
 
 
 
@@ -48,8 +56,8 @@ def selectHost(choice):
                   hostBase = "https://readallcomics.com/?story="
        if choice == "mangakomi.io":
                   hostBase = "https://mangakomi.io/?s={}&post_type=wp-manga"
-       if choice == "mangafire.to":
-                  hostBase = "https://mangafire.to/filter?keyword={}"
+       if choice == "mangaread.org":
+                  hostBase = "https://www.mangaread.org/?s={}&post_type=wp-manga"
       
 def selectFormat(choice):
       global selectedFormat
@@ -117,7 +125,7 @@ def displayChapters(href, bookName):
       global bookChapterNames
       global globalBookName
 
-
+      saveBook(href, bookName)
       # Empty Arrays and Frames
       bookChapterNames = {}
       globalBookName = bookName
@@ -126,9 +134,6 @@ def displayChapters(href, bookName):
 
 
       # Assigns Variables
-      if selectedHost == "mangafire.to":
-            href = "https://mangafire.to/{}".format(href)
-      headers = {'User-Agent': 'Mozilla/5.0'}
       coverLink = href 
       isMassDownload = False
       directory = ''
@@ -174,6 +179,9 @@ def displayChapters(href, bookName):
      
 def searchProcess():
     # Empty Arrays and Assign Variables
+    historyList.place_forget()
+    historyDescription.place_forget()
+    historyText.place_forget()
     bookList.place(x=0, y=35)  
     bookTitles = {}
     searchBookURL = ""
@@ -184,7 +192,7 @@ def searchProcess():
             requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
             searchBookURL = hostBase + requestedBook + "&s=&type=comic"
             searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-      if selectedHost in ["mangakomi.io", "mangafire.to"]:
+      if selectedHost in ["mangakomi.io", "mangaread.org"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
             print(searchBookURL)
@@ -208,6 +216,49 @@ def searchProcess():
       messagebox.showerror("Error", "Please select a host from the dropdown menu.")
 
 
+
+historyList = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
+historyText = customtkinter.CTkLabel(root, 
+                                     text="History",
+                                     font=('bold', 30),
+                                     anchor="center")
+
+historyDescription = customtkinter.CTkLabel(root,
+                                            text="This page will display all books that you have recently visited.",
+                                            font=('bold', 15),
+                                            wraplength=250)
+historyDescription.place(x=5, y=90)                                     
+historyText.place(x=70,y=50)
+def displayHistory():
+      historyList.place(x=200, y=35)  
+      bookNames = []
+      if not jsonPath.exists():
+            jsonPath.touch()
+            base = {"books": []}
+            with open(jsonPath, 'w') as jsonFile:
+                  json.dump(base, jsonFile, indent=4)  
+      else:
+            with open("history.json", "r") as jsonFile:
+                  data = json.load(jsonFile)
+            bookNames = [book['bookName'] for book in data['books']]
+            for bookName in bookNames:
+                  bookNameButton = customtkinter.CTkButton(historyList, width=500, height=30, text=bookName, fg_color="#581845")
+                  bookNameButton.pack()
+
+
+def saveBook(bookLink, bookName):
+      with open("history.json", "r") as jsonFile:
+         data = json.load(jsonFile)
+
+      newBook = { "bookLink": bookLink, "bookName": bookName}
+      data["books"].append(newBook)
+
+      # Write the updated data back to the JSON file
+      with open("history.json", "w") as jsonFile:
+            json.dump(data, jsonFile, indent=4)
+
+
+displayHistory()
 # Manage placement of widgets 
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
 searchBar.place(x=180, y=5)
@@ -217,17 +268,19 @@ searchBar.bind('<Return>', lambda event: "break")
 bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424",scrollbar_button_color=FOREGROUND_COLOR,scrollbar_button_hover_color=HOVER_COLOR)
 bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424",scrollbar_button_color=FOREGROUND_COLOR,scrollbar_button_hover_color=HOVER_COLOR)
 
-searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color=FOREGROUND_COLOR,hover_color=HOVER_COLOR, text="Search", command=searchProcess)
+
+searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color=FOREGROUND_COLOR,hover_color=HOVER_COLOR, text="Search", command==lambda: threading.Thread(target=searchProcess).start())
+
 searchButton.place(x=700, y=5)
 
 
-numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text="", font=labelFont)
-downloads = customtkinter.CTkLabel(master=root, text="", font=labelFont)
+numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text="")
+downloads = customtkinter.CTkLabel(master=root, text="")
 
       
 downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, fg_color=FOREGROUND_COLOR,hover_color=HOVER_COLOR, command=lambda: threading.Thread(target=getAllChapters).start())
 
-coverImageLabel = customtkinter.CTkLabel(root, text="", image=None, font=labelFont)
+coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
