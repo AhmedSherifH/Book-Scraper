@@ -75,7 +75,6 @@ def selectFormat(choice):
 
 def getPages(title, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification): 
       # Get all pages inside a chapter
-      print(bookName)
       if selectedFormat not in [".jpg", ".cbz", ".zip"]:
             messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
       else: 
@@ -119,11 +118,17 @@ def getAllChapters():
             messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
                    
                   
-def displayChapters(href, bookName):
+def displayChapters(href, bookName, isHistory):
       global bookChapterNames
       global globalBookName
 
-      saveBook(href, bookName)
+      if not isHistory:
+            returnToList.place(x=700, y=5)
+            saveBook(href, bookName)
+      else:
+            returnToHistory.place(x=700, y=5)
+      
+      print(f"Displaying Chapters --> {href}, {bookName}")
       # Empty Arrays and Frames
       bookChapterNames = {}
       globalBookName = bookName
@@ -168,9 +173,11 @@ def displayChapters(href, bookName):
       searchButton.place_forget()
       bookList.place_forget()
       downloads.place_forget()
+      historyDescription.place_forget()
+      historyList.place_forget()
+      historyText.place_forget()
       numberofDownloadsIndicator.place_forget()
       coverImageLabel.place(x=610, y=40)
-      returnToList.place(x=700, y=5)
       bookChapters.place(x=0, y=35) 
 
 
@@ -193,7 +200,6 @@ def searchProcess():
       if selectedHost in ["mangakomi.io", "mangaread.org"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
-            print(searchBookURL)
 
 
       searchBookRequest = session.get(searchBookURL,
@@ -206,8 +212,8 @@ def searchProcess():
       bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
       for title in bookTitles:
             bookButton = customtkinter.CTkButton(bookList, width=780, height=30, text=title, 
-                                                      fg_color="#581845", command=lambda href=bookTitles[title], bookName = title: 
-                                                      (displayChapters(href, bookName), downloads.place_forget(), numberofDownloadsIndicator.place_forget()))
+                                                      fg_color="#581845", command=lambda href=bookTitles[title], bookName = title, isHistory=False: 
+                                                      (displayChapters(href, bookName, isHistory), downloads.place_forget(), numberofDownloadsIndicator.place_forget()))
             bookButton.pack()
 
     except: 
@@ -227,28 +233,48 @@ historyDescription = customtkinter.CTkLabel(root,
                                             wraplength=250)
 historyDescription.place(x=5, y=90)                                     
 historyText.place(x=70,y=50)
-def displayHistory():
-      historyList.place(x=200, y=35)  
-      bookNames = []
-      if not jsonPath.exists():
-            jsonPath.touch()
-            base = {"books": []}
-            with open(jsonPath, 'w') as jsonFile:
-                  json.dump(base, jsonFile, indent=4)  
-      else:
-            with open("history.json", "r") as jsonFile:
-                  data = json.load(jsonFile)
-            bookNames = [book['bookName'] for book in data['books']]
-            for bookName in bookNames:
-                  bookNameButton = customtkinter.CTkButton(historyList, width=500, height=30, text=bookName, fg_color="#581845")
-                  bookNameButton.pack()
+historyList.place(x=200, y=35)  
 
+
+
+
+def displayHistory():
+    historyList.place(x=200, y=35)  
+    
+    # Check if the history file exists
+    if not jsonPath.exists():
+        jsonPath.touch()
+        base = {"books": []}
+        with open(jsonPath, 'w') as jsonFile:
+            json.dump(base, jsonFile, indent=4)  
+    else:
+        with open(jsonPath, "r") as jsonFile:
+            data = json.load(jsonFile)
+        
+        for book in data['books']:
+            bookLink = book.get('bookLink')  
+            bookName = book.get('bookName')  
+            historyHost = book.get('selectedHost')
+            
+            if bookLink and bookName:
+                bookNameButton = customtkinter.CTkButton(historyList, 
+                                                         width=500, 
+                                                         height=30, 
+                                                         text=bookName, 
+                                                         fg_color="#581845", 
+                                                         command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
+                                                         (selectHost(historyHost), displayChapters(href, name, isHistory)))
+                
+            
+                bookNameButton.pack()
+            else:
+                print("Error: Incomplete data for a book in history.")
 
 def saveBook(bookLink, bookName):
       with open("history.json", "r") as jsonFile:
          data = json.load(jsonFile)
 
-      newBook = { "bookLink": bookLink, "bookName": bookName}
+      newBook = { "bookLink": bookLink, "bookName": bookName, "selectedHost": selectedHost}
       data["books"].append(newBook)
 
       # Write the updated data back to the JSON file
@@ -290,7 +316,23 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         downloads.place(x=83, y=350),
                                                         numberofDownloadsIndicator.place(x=0, y=350)
                                                         ))
-                                                        
+
+returnToHistory = customtkinter.CTkButton(root, width=70, height=30, 
+                                          fg_color="#581845", text="Back",
+                                          command=lambda: (returnToHistory.place_forget(),
+                                                           bookChapters.place_forget(), 
+                                                           coverImageLabel.place_forget(),
+                                                           downloadallChapters.place_forget(),
+                                                           formatSelector.place_forget(), 
+                                                           compressionMethodMenu.place_forget(),
+                                                           searchButton.place(x=700, y=5),
+                                                           downloads.place(x=83, y=350),                                                           
+                                                           historyText.place(x=70, y=50),
+                                                           historyDescription.place(x=5, y=90),
+                                                           historyList.place(x=200, y=30)
+                                                           ))
+
+               
 
 hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
 hostSelector.place(x=20, y=5)
