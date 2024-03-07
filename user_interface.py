@@ -10,7 +10,7 @@ from tkinter import filedialog
 from pathlib import Path
 import signal
 import os
-
+import json
 
 
 root =  customtkinter.CTk()
@@ -21,7 +21,8 @@ root.iconbitmap("visual/bookscraper-icon.ico")
 root.title("Book Scraper")
 
 
-labelFont = customtkinter.CTkFont(family='Helvetica', size=12, weight='bold')
+
+
 
 selectedHost = ""
 selectedFormat = ""
@@ -33,6 +34,8 @@ bookChapterNames = {}
 globalBookName = ''
 headers = {'User-Agent': 'Mozilla/5.0'}
 session = HTMLSession()
+jsonPath = Path('./history.json')
+
 
 
 
@@ -120,7 +123,7 @@ def displayChapters(href, bookName):
       global bookChapterNames
       global globalBookName
 
-
+      saveBook(href, bookName)
       # Empty Arrays and Frames
       bookChapterNames = {}
       globalBookName = bookName
@@ -174,6 +177,9 @@ def displayChapters(href, bookName):
      
 def searchProcess():
     # Empty Arrays and Assign Variables
+    historyList.place_forget()
+    historyDescription.place_forget()
+    historyText.place_forget()
     bookList.place(x=0, y=35)  
     bookTitles = {}
     searchBookURL = ""
@@ -208,6 +214,49 @@ def searchProcess():
       messagebox.showerror("Error", "Please select a host from the dropdown menu.")
 
 
+
+historyList = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
+historyText = customtkinter.CTkLabel(root, 
+                                     text="History",
+                                     font=('bold', 30),
+                                     anchor="center")
+
+historyDescription = customtkinter.CTkLabel(root,
+                                            text="This page will display all books that you have recently visited.",
+                                            font=('bold', 15),
+                                            wraplength=250)
+historyDescription.place(x=5, y=90)                                     
+historyText.place(x=70,y=50)
+def displayHistory():
+      historyList.place(x=200, y=35)  
+      bookNames = []
+      if not jsonPath.exists():
+            jsonPath.touch()
+            base = {"books": []}
+            with open(jsonPath, 'w') as jsonFile:
+                  json.dump(base, jsonFile, indent=4)  
+      else:
+            with open("history.json", "r") as jsonFile:
+                  data = json.load(jsonFile)
+            bookNames = [book['bookName'] for book in data['books']]
+            for bookName in bookNames:
+                  bookNameButton = customtkinter.CTkButton(historyList, width=500, height=30, text=bookName, fg_color="#581845")
+                  bookNameButton.pack()
+
+
+def saveBook(bookLink, bookName):
+      with open("history.json", "r") as jsonFile:
+         data = json.load(jsonFile)
+
+      newBook = { "bookLink": bookLink, "bookName": bookName}
+      data["books"].append(newBook)
+
+      # Write the updated data back to the JSON file
+      with open("history.json", "w") as jsonFile:
+            json.dump(data, jsonFile, indent=4)
+
+
+displayHistory()
 # Manage placement of widgets 
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
 searchBar.place(x=180, y=5)
@@ -221,13 +270,13 @@ searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_colo
 searchButton.place(x=700, y=5)
 
 
-numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text="", font=labelFont)
-downloads = customtkinter.CTkLabel(master=root, text="", font=labelFont)
+numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text="")
+downloads = customtkinter.CTkLabel(master=root, text="")
 
       
 downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, fg_color="#581845", command=lambda: threading.Thread(target=getAllChapters).start())
 
-coverImageLabel = customtkinter.CTkLabel(root, text="", image=None, font=labelFont)
+coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
