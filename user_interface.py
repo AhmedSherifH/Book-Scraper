@@ -175,7 +175,6 @@ def displayChapters(href, bookName, isHistory):
       searchButton.place_forget()
       bookList.place_forget()
       downloads.place_forget()
-      historyDescription.place_forget()
       historyList.place_forget()
       historyText.place_forget()
       numberofDownloadsIndicator.place_forget()
@@ -187,7 +186,6 @@ def displayChapters(href, bookName, isHistory):
 def searchProcess():
     # Empty Arrays and Assign Variables
     historyList.place_forget()
-    historyDescription.place_forget()
     historyText.place_forget()
     bookList.place(x=0, y=35)  
     bookTitles = {}
@@ -223,25 +221,33 @@ def searchProcess():
 
 
 
-historyList = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
+historyList = customtkinter.CTkScrollableFrame(root, width=770, height=340, fg_color="#242424")
 historyText = customtkinter.CTkLabel(root, 
-                                     text="History",
-                                     font=('bold', 30),
+                                     text="History:",
+                                     font=('bold', 25),
                                      anchor="center")
 
-historyDescription = customtkinter.CTkLabel(root,
-                                            text="This page will display all books that you have recently visited.",
-                                            font=('bold', 15),
-                                            wraplength=250)
-historyDescription.place(x=5, y=90)                                     
-historyText.place(x=70,y=50)
+historyText.place(x=20,y=50)
 historyList.place(x=200, y=35)  
 
+returnToHistory = customtkinter.CTkButton(root, width=70, height=30, 
+                                          fg_color="#581845", text="Back",
+                                          command=lambda: (returnToHistory.place_forget(),
+                                                           bookChapters.place_forget(), 
+                                                           coverImageLabel.place_forget(),
+                                                           downloadallChapters.place_forget(),
+                                                           formatSelector.place_forget(), 
+                                                           compressionMethodMenu.place_forget(),
+                                                           searchButton.place(x=700, y=5),
+                                                           downloads.place(x=83, y=350),                                                           
+                                                           historyText.place(x=70, y=50),
+                                                           historyList.place(x=200, y=30)
+                                                           ))
 
-
+               
 
 def displayHistory():
-    historyList.place(x=200, y=35)  
+    historyList.place(x=0, y=40)  
     
     # Check if the history file exists
     if not jsonPath.exists():
@@ -252,25 +258,32 @@ def displayHistory():
     else:
         with open(jsonPath, "r") as jsonFile:
             data = json.load(jsonFile)
-        
-        for book in reversed(data['books']):
-            bookLink = book.get('bookLink')  
-            bookName = book.get('bookName')  
-            historyHost = book.get('selectedHost')
-            
-            if bookLink and bookName:
-                bookNameButton = customtkinter.CTkButton(historyList, 
-                                                         width=500, 
-                                                         height=30, 
-                                                         text=bookName, 
-                                                         fg_color="#581845", 
-                                                         command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
-                                                         (selectHost(historyHost), displayChapters(href, name, isHistory)))
-                
-            
-                bookNameButton.pack()
-            else:
-                print("Error: Incomplete data for a book in history.")
+        if data['books']:        
+            for book in reversed(data['books']):
+                  bookLink = book.get('bookLink')  
+                  bookName = book.get('bookName')  
+                  historyHost = book.get('selectedHost')
+                  
+                  if bookLink and bookName:
+                     bookNameButton = customtkinter.CTkButton(historyList, 
+                                                            width=500, 
+                                                            height=30, 
+                                                            text=bookName, 
+                                                            fg_color="#581845", 
+                                                            command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
+                                                            (selectHost(historyHost), displayChapters(href, name, isHistory)))
+                  
+                     bookNameButton.pack()
+        else:
+            emptyJsonButton = customtkinter.CTkButton(historyList, 
+                                                      width=500, 
+                                                      height=30, 
+                                                      text="Select a host from the top left and start searching for books!", 
+                                                      fg_color="#581845")
+            emptyJsonButton.pack()
+                                                      
+                                                            
+      
 
 def saveBook(bookLink, bookName):
       with open("history.json", "r") as jsonFile:
@@ -318,23 +331,6 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         downloads.place(x=83, y=350),
                                                         numberofDownloadsIndicator.place(x=0, y=350)
                                                         ))
-
-returnToHistory = customtkinter.CTkButton(root, width=70, height=30, 
-                                          fg_color="#581845", text="Back",
-                                          command=lambda: (returnToHistory.place_forget(),
-                                                           bookChapters.place_forget(), 
-                                                           coverImageLabel.place_forget(),
-                                                           downloadallChapters.place_forget(),
-                                                           formatSelector.place_forget(), 
-                                                           compressionMethodMenu.place_forget(),
-                                                           searchButton.place(x=700, y=5),
-                                                           downloads.place(x=83, y=350),                                                           
-                                                           historyText.place(x=70, y=50),
-                                                           historyDescription.place(x=5, y=90),
-                                                           historyList.place(x=200, y=30)
-                                                           ))
-
-               
 
 hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
 hostSelector.place(x=20, y=5)
