@@ -29,7 +29,7 @@ selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
 hostValues = ["Select a Host", "readallcomics.com", "comicextra.me" , "mangakomi.io", "mangaread.org"] 
-formatValues = ["Select a Format", ".jpg", ".cbz", ".zip"]
+formatValues = ["Select a Format", ".jpg", ".cbz", ".zip", ".pdf"]
 bookChapterNames = {}
 globalBookName = ''
 headers = {'User-Agent': 'Mozilla/5.0'}
@@ -77,7 +77,7 @@ def selectFormat(choice):
 
 def getPages(title, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification): 
       # Get all pages inside a chapter
-      if selectedFormat not in [".jpg", ".cbz", ".zip"]:
+      if selectedFormat not in [".jpg", ".cbz", ".zip", ".pdf"]:
             messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
       else: 
             zipCompressionMethod = compressionMethodMenu.get()
@@ -110,13 +110,13 @@ def getAllChapters():
                   threading.Thread(target=getPages, args=(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory, numberofLoops, compressedVerification)).start()
                   folderNum = folderNum - 1
       # A .cbz file is only made after compressedVerification = numberofLoops, where numberofLoops equals the number of chapters found in a book
-      elif selectedFormat in [".zip", ".cbz"]:
+      elif selectedFormat in [".zip", ".cbz", ".pdf"]:
             numberofLoops = len(bookChapterNames)
             for bookChapter in bookChapterNames:
                   compressedVerification = compressedVerification + 1 
                   getPages(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, baseDirectory, numberofLoops, compressedVerification)
       
-      if selectedFormat not in [".jpg", ".cbz", ".zip"]:
+      if selectedFormat not in [".jpg", ".cbz", ".zip", ".pdf"]:
             messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
                    
                   
@@ -135,7 +135,7 @@ def displayChapters(href, bookName, isHistory):
       bookChapterNames = {}
       globalBookName = bookName
       for widget in bookChapters.winfo_children():
-          widget.destroy()
+        widget.destroy()
 
 
       # Assigns Variables
@@ -213,11 +213,15 @@ def searchProcess():
       for title in bookTitles:
             bookButton = customtkinter.CTkButton(bookList, width=780, height=30, text=title, 
                                                       fg_color="#581845", command=lambda href=bookTitles[title], bookName = title, isHistory=False: 
-                                                      (displayChapters(href, bookName, isHistory), downloads.place_forget(), numberofDownloadsIndicator.place_forget()))
+                                                      (bookList.place_forget(), 
+                                                       threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start(), 
+                                                       downloads.place_forget(), 
+                                                       numberofDownloadsIndicator.place_forget()))
             bookButton.pack()
 
+      bookList.place(x=0, y=35)
     except: 
-      messagebox.showerror("Error", "Please select a host from the dropdown menu.")
+       messagebox.showerror("Error", "Please select a host from the dropdown menu.")
 
 
 
@@ -228,7 +232,6 @@ historyText = customtkinter.CTkLabel(root,
                                      anchor="center")
 
 historyText.place(x=20,y=50)
-historyList.place(x=200, y=35)  
 
 returnToHistory = customtkinter.CTkButton(root, width=70, height=30, 
                                           fg_color="#581845", text="Back",
@@ -240,8 +243,8 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            compressionMethodMenu.place_forget(),
                                                            searchButton.place(x=700, y=5),
                                                            downloads.place(x=83, y=350),                                                           
-                                                           historyText.place(x=70, y=50),
-                                                           historyList.place(x=200, y=30)
+                                                           historyText.place(x=20, y=50),
+                                                           historyList.place(x=0, y=40)
                                                            ))
 
                
@@ -271,7 +274,9 @@ def displayHistory():
                                                             text=bookName, 
                                                             fg_color="#581845", 
                                                             command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
-                                                            (selectHost(historyHost), displayChapters(href, name, isHistory)))
+                                                            (selectHost(historyHost), historyList.place_forget(),
+                                                             threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start()))
+
                   
                      bookNameButton.pack()
         else:
@@ -307,7 +312,16 @@ searchBar.bind('<Return>', lambda event: "break")
 bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424")
 bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
 
-searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=lambda: threading.Thread(target=searchProcess).start())
+
+def searchProcessCheck():
+      if selectedHost not in ["readallcomics.com", "comicextra.me" , "mangakomi.io", "mangaread.org"]  :
+            messagebox.showerror("Error", "Please select a host from the dropdown menu.")
+      else: 
+            bookList.place_forget()
+            threading.Thread(target=searchProcess).start()
+
+
+searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=searchProcessCheck)
 searchButton.place(x=700, y=5)
 
 
