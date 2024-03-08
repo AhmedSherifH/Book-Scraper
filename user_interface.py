@@ -39,6 +39,7 @@ jsonPath = Path('./history.json')
 
 
 
+
 def selectHost(choice):
       global selectedHost
       global hostBase
@@ -135,8 +136,10 @@ def displayChapters(href, bookName, isHistory):
       bookChapterNames = {}
       globalBookName = bookName
       for widget in bookChapters.winfo_children():
-        widget.destroy()
-
+        try:
+            widget.destroy()
+        except:
+            pass
 
       # Assigns Variables
       coverLink = href 
@@ -158,11 +161,11 @@ def displayChapters(href, bookName, isHistory):
 
 
       # Get Cover Display, If it throws an error: Ignore cover completely     
-      try:
+      try:   
             coverLink = scrapeCover(coverLink, session, selectedHost)
             coverResponse = requests.get(coverLink)
             cover = Image.open(BytesIO(coverResponse.content))
-            coverImage = customtkinter.CTkImage(light_image=cover, dark_image=cover,size=(166, 256))
+            coverImage = customtkinter.CTkImage(light_image=cover, dark_image=cover,size= (166, 256))
             coverImageLabel.configure(image=coverImage)
       except:
             messagebox.showerror("Error", "Couldn't load cover image.")
@@ -183,11 +186,11 @@ def displayChapters(href, bookName, isHistory):
 
 
      
+
 def searchProcess():
     # Empty Arrays and Assign Variables
     historyList.place_forget()
     historyText.place_forget()
-    bookList.place(x=0, y=35)  
     bookTitles = {}
     searchBookURL = ""
 
@@ -206,7 +209,10 @@ def searchProcess():
                                           headers={'User-Agent': 'Mozilla/5.0'})
       
       for widget in bookList.winfo_children():
-            widget.destroy()
+            try:
+                  widget.destroy()
+            except:
+                  pass
       
       # Get all books that were found in the search
       bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
