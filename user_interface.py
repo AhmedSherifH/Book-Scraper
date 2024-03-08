@@ -5,7 +5,7 @@ from scraper import *
 import threading
 from PIL import Image
 from io import BytesIO
-from tkinter import messagebox
+from tkinter import PhotoImage, messagebox
 from tkinter import filedialog
 from pathlib import Path
 import signal
@@ -22,6 +22,10 @@ root.title("Book Scraper")
 
 
 
+downloadButtonIcon = customtkinter.CTkImage(light_image=Image.open("./resources/download.png"),
+                                            dark_image=Image.open("./resources/download.png"))
+historyLabelIcon = customtkinter.CTkImage(light_image=Image.open("./resources/history.png"),
+                                          dark_image=Image.open("./resources/history.png"))
 
 
 selectedHost = ""
@@ -82,7 +86,7 @@ def getPages(title, session, selectedHost, bookName, isMassDownload, directory, 
             messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
       else: 
             zipCompressionMethod = compressionMethodMenu.get()
-            scrapePages(title, session, selectedHost, bookName, downloads, isMassDownload, directory, numberofDownloadsIndicator, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
+            scrapePages(title, session, selectedHost, bookName, isMassDownload, directory, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
 
 
 def getAllChapters():
@@ -177,10 +181,8 @@ def displayChapters(href, bookName, isHistory):
             compressionMethodMenu.place(x=624, y=360)
       searchButton.place_forget()
       bookList.place_forget()
-      downloads.place_forget()
       historyList.place_forget()
       historyText.place_forget()
-      numberofDownloadsIndicator.place_forget()
       coverImageLabel.place(x=610, y=40)
       bookChapters.place(x=0, y=35) 
 
@@ -220,9 +222,7 @@ def searchProcess():
             bookButton = customtkinter.CTkButton(bookList, width=780, height=30, text=title, 
                                                       fg_color="#581845", command=lambda href=bookTitles[title], bookName = title, isHistory=False: 
                                                       (bookList.place_forget(), 
-                                                       threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start(), 
-                                                       downloads.place_forget(), 
-                                                       numberofDownloadsIndicator.place_forget()))
+                                                       threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start()))
             bookButton.pack()
 
       bookList.place(x=0, y=35)
@@ -233,6 +233,7 @@ def searchProcess():
 
 historyList = customtkinter.CTkScrollableFrame(root, width=770, height=340, fg_color="#242424")
 historyText = customtkinter.CTkLabel(root, 
+                                     image=historyLabelIcon,
                                      text="History:",
                                      font=('bold', 25),
                                      anchor="center")
@@ -248,12 +249,12 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            formatSelector.place_forget(), 
                                                            compressionMethodMenu.place_forget(),
                                                            searchButton.place(x=700, y=5),
-                                                           downloads.place(x=83, y=350),                                                           
                                                            historyText.place(x=20, y=50),
                                                            historyList.place(x=0, y=40)
                                                            ))
 
                
+
 
 def displayHistory():
     historyList.place(x=0, y=40)  
@@ -309,6 +310,7 @@ def saveBook(bookLink, bookName):
 
 
 displayHistory()
+
 # Manage placement of widgets 
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
 searchBar.place(x=180, y=5)
@@ -331,11 +333,9 @@ searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_colo
 searchButton.place(x=700, y=5)
 
 
-numberofDownloadsIndicator = customtkinter.CTkLabel(master=root, text="")
-downloads = customtkinter.CTkLabel(master=root, text="")
 
       
-downloadallChapters = customtkinter.CTkButton(master=root, text="Download All Chapters", width=170, fg_color="#581845", command=lambda: threading.Thread(target=getAllChapters).start())
+downloadallChapters = customtkinter.CTkButton(master=root, image=downloadButtonIcon, text="Download All Chapters", width=170, fg_color="#581845", command=lambda: threading.Thread(target=getAllChapters).start())
 
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
@@ -347,10 +347,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         coverImageLabel.place_forget(),
                                                         downloadallChapters.place_forget(),
                                                         formatSelector.place_forget(), 
-                                                        compressionMethodMenu.place_forget(),
-                                                        downloads.place(x=83, y=350),
-                                                        numberofDownloadsIndicator.place(x=0, y=350)
-                                                        ))
+                                                        compressionMethodMenu.place_forget()))
 
 hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
 hostSelector.place(x=20, y=5)

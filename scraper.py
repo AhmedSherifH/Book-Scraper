@@ -128,7 +128,7 @@ def scrapeChapters(url, selectedHost):
         
     
           
-def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassDownload, directory, downloading, format, numberofLoops, cbzVerification, zipCompression):
+def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, format, numberofLoops, cbzVerification, zipCompression):
      pageNum = 0 
      imageContents = []
      global compressedChapters
@@ -144,8 +144,6 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
             print(chapterLink)
             print(f'SELECTED HOST {selectedHost}')
             bookDownloads.append(bookName)
-            downloading.configure(text="Downloading: ")
-            downloads.configure(text=", ".join(list(set(bookDownloads))))
 
             if selectedHost == "readallcomics.com":                       
                 images = chapterRequest.html.xpath('.//img')                     
@@ -213,12 +211,10 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
                 createJpg(imageContents, chosenDir)
 
             bookDownloads.remove(bookName)
-            downloads.configure(text=", ".join(list(set(bookDownloads))))
      except:
         messagebox.showerror("Error", "There was a problem while downloading. Make sure your directory path is correct.")
 
-     if len(bookDownloads) == 0:
-        downloading.configure(text="")
+
     
      
             
