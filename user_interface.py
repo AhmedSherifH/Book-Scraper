@@ -28,7 +28,7 @@ selectedHost = ""
 selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
-hostValues = ["Select a Host", "readallcomics.com", "mangakomi.io", "mangaread.org"] 
+hostValues = ["Select a Host", "readallcomics.com", "comicextra.me" , "mangakomi.io", "mangaread.org"] 
 formatValues = ["Select a Format", ".jpg", ".cbz", ".zip"]
 bookChapterNames = {}
 globalBookName = ''
@@ -52,6 +52,8 @@ def selectHost(choice):
        hostSelector.configure(values=hostValues)
        if choice == "readallcomics.com":
                   hostBase = "https://readallcomics.com/?story="
+       if choice == "comicextra.me":
+                  hostBase = "https://comicextra.me/search?keyword={}"
        if choice == "mangakomi.io":
                   hostBase = "https://mangakomi.io/?s={}&post_type=wp-manga"
        if choice == "mangaread.org":
@@ -197,7 +199,7 @@ def searchProcess():
             requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
             searchBookURL = hostBase + requestedBook + "&s=&type=comic"
             searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-      if selectedHost in ["mangakomi.io", "mangaread.org"]:
+      if selectedHost in ["mangakomi.io", "mangaread.org", "comicextra.me"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
 
@@ -251,7 +253,7 @@ def displayHistory():
         with open(jsonPath, "r") as jsonFile:
             data = json.load(jsonFile)
         
-        for book in data['books']:
+        for book in reversed(data['books']):
             bookLink = book.get('bookLink')  
             bookName = book.get('bookName')  
             historyHost = book.get('selectedHost')

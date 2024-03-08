@@ -1,3 +1,4 @@
+import select
 import requests
 from tkinter import filedialog
 from pathlib import Path
@@ -23,6 +24,12 @@ def scrapeCover(bookLink, session, selectedHost):
         for image in images:
             coverImage = image.attrs['src']
     
+    if selectedHost == "comicextra.me":
+        images = imageRequest.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[1]/div/img')
+        for image in images:
+            coverImage = image.attrs['src']
+
+
     if selectedHost == "mangakomi.io":  
         images = imageRequest.html.xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div/div[3]/div[1]/a/img')
         img_tag = images[0] 
@@ -52,7 +59,15 @@ def scrapeTitles(url, selectedHost, requestedBook):
              titleHref = child.attrs['href']
              titleName = child.text
              bookTitles[titleName] = titleHref
-        
+
+        if selectedHost == "comicextra.me":
+            parsedTitles = url.html.find('div.cartoon-box a')
+            for title in parsedTitles:
+                if "https://comicextra.me/comic/" in title.attrs['href'] and title.text:
+                    titleHref = title.attrs['href']
+                    titleName = title.text
+                    bookTitles[titleName] = titleHref
+
         if selectedHost == "mangakomi.io":
             links = url.html.find('.post-title a')
             for link in links:
@@ -78,17 +93,27 @@ def scrapeChapters(url, selectedHost):
   # Get all chapters within a book
     if selectedHost == "readallcomics.com":
         parsedChapters = url.html.xpath("/html/body/center[3]/div/div[2]/ul/li/a")
-        for  child in parsedChapters:
-             chapterName = child.text
-             chapterHref =  child.attrs['href']
+        for chapter in parsedChapters:
+             chapterName = chapter.text
+             chapterHref =  chapter.attrs['href']
              bookChapters[chapterName] = chapterHref
-    
+
+
+    if selectedHost == "comicextra.me":
+        issues = url.html.find('#list a')
+
+        for issue in issues:
+            chapterHref = issue.attrs['href']
+            chapterName = issue.text
+            bookChapters[chapterName] = chapterHref + "/full"
+      
+
     if selectedHost == "mangakomi.io":
-      chapters = url.html.find('li.wp-manga-chapter')
-      for chapter in chapters:
+        chapters = url.html.find('li.wp-manga-chapter')
+        for chapter in chapters:
              chapterHref = chapter.find('a', first=True).attrs['href']
              chapterName = chapter.find('a', first=True).text
-             bookChapters[chapterName] = chapterHref
+             bookChapters[chapterName] = chapterHref 
 
     if selectedHost == "mangaread.org":
         chapters = url.html.find('.wp-manga-chapter')
@@ -131,6 +156,16 @@ def scrapePages(chapterLink, session, selectedHost, bookName, downloads, isMassD
                         pageResponse = requests.get(src)
                         print(f"{chosenDir}/#{pageNum}.jpg")
                         imageContents.append(pageResponse.content)
+
+
+            if selectedHost == "comicextra.me":
+                images = chapterRequest.html.find('div.chapter-container img')
+                for image in images:
+                    pageNum += 1
+                    print(f"#{pageNum}: {src}")            
+                    src = image.attrs['src']
+                    pageResponse = requests.get(src) 
+                    imageContents.append(pageResponse.content)
 
 
             if selectedHost == "mangakomi.io":
