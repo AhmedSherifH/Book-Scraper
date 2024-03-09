@@ -13,7 +13,7 @@ import os
 import json
 
 
-root =  customtkinter.CTk()
+root = customtkinter.CTk()
 root.protocol("WM_DELETE_WINDOW", lambda: os.kill(os.getpid(), signal.SIGTERM))
 root.geometry("800x400")
 root.resizable(False, False)
@@ -139,11 +139,6 @@ def displayChapters(href, bookName, isHistory):
       # Empty Arrays and Frames
       bookChapterNames = {}
       globalBookName = bookName
-      for widget in bookChapters.winfo_children():
-        try:
-            widget.destroy()
-        except:
-            pass
 
       # Assigns Variables
       coverLink = href 
@@ -182,7 +177,7 @@ def displayChapters(href, bookName, isHistory):
       searchButton.place_forget()
       bookList.place_forget()
       historyList.place_forget()
-      historyText.place_forget()
+      historyFrame.place_forget()
       coverImageLabel.place(x=610, y=40)
       bookChapters.place(x=0, y=35) 
 
@@ -192,7 +187,7 @@ def displayChapters(href, bookName, isHistory):
 def searchProcess():
     # Empty Arrays and Assign Variables
     historyList.place_forget()
-    historyText.place_forget()
+    historyFrame.place_forget()
     bookTitles = {}
     searchBookURL = ""
 
@@ -210,11 +205,6 @@ def searchProcess():
       searchBookRequest = session.get(searchBookURL,
                                           headers={'User-Agent': 'Mozilla/5.0'})
       
-      for widget in bookList.winfo_children():
-            try:
-                  widget.destroy()
-            except:
-                  pass
       
       # Get all books that were found in the search
       bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
@@ -222,7 +212,7 @@ def searchProcess():
             bookButton = customtkinter.CTkButton(bookList, width=780, height=30, text=title, 
                                                       fg_color="#581845", command=lambda href=bookTitles[title], bookName = title, isHistory=False: 
                                                       (bookList.place_forget(), 
-                                                       threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start()))
+                                                       displayChaptersCheck(href, bookName, isHistory)))
             bookButton.pack()
 
       bookList.place(x=0, y=35)
@@ -232,13 +222,16 @@ def searchProcess():
 
 
 historyList = customtkinter.CTkScrollableFrame(root, width=770, height=340, fg_color="#242424")
-historyText = customtkinter.CTkLabel(root, 
-                                     image=historyLabelIcon,
+historyFrame = customtkinter.CTkFrame(root)
+historyImage = customtkinter.CTkLabel(historyFrame, image=historyLabelIcon, text="", fg_color="#242424")
+historyImage.grid(row=0, column=0)
+historyText = customtkinter.CTkLabel(historyFrame, 
                                      text="History:",
                                      font=('bold', 25),
-                                     anchor="center")
+                                     anchor="center",
+                                     fg_color="#242424")
+historyText.grid(row=0, column=2)
 
-historyText.place(x=20,y=50)
 
 returnToHistory = customtkinter.CTkButton(root, width=70, height=30, 
                                           fg_color="#581845", text="Back",
@@ -249,7 +242,7 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            formatSelector.place_forget(), 
                                                            compressionMethodMenu.place_forget(),
                                                            searchButton.place(x=700, y=5),
-                                                           historyText.place(x=20, y=50),
+                                                           historyFrame.place(x=20,y=45),
                                                            historyList.place(x=0, y=40)
                                                            ))
 
@@ -257,7 +250,8 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
 
 
 def displayHistory():
-    historyList.place(x=0, y=40)  
+    historyList.place(x=0, y=40) 
+    historyFrame.place(x=20,y=45) 
     
     # Check if the history file exists
     if not jsonPath.exists():
@@ -282,9 +276,7 @@ def displayHistory():
                                                             fg_color="#581845", 
                                                             command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
                                                             (selectHost(historyHost), historyList.place_forget(),
-                                                             threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start()))
-
-                  
+                                                             displayChaptersCheck(href, bookName, isHistory)))
                      bookNameButton.pack()
         else:
             emptyJsonButton = customtkinter.CTkButton(historyList, 
@@ -302,6 +294,8 @@ def saveBook(bookLink, bookName):
          data = json.load(jsonFile)
 
       newBook = { "bookLink": bookLink, "bookName": bookName, "selectedHost": selectedHost}
+      if len(data["books"]) >= 10:
+        data["books"].pop(0)  
       data["books"].append(newBook)
 
       # Write the updated data back to the JSON file
@@ -326,8 +320,16 @@ def searchProcessCheck():
             messagebox.showerror("Error", "Please select a host from the dropdown menu.")
       else: 
             bookList.place_forget()
+            for widget in bookList.winfo_children():
+                  if isinstance(widget, customtkinter.CTkButton):
+                        widget.destroy()
+
             threading.Thread(target=searchProcess).start()
 
+def displayChaptersCheck(href, bookName, isHistory):
+      for widget in bookChapters.winfo_children():
+            widget.destroy()
+      threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start()
 
 searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=searchProcessCheck)
 searchButton.place(x=700, y=5)
