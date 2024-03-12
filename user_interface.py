@@ -275,7 +275,7 @@ def displayHistory():
                                                             fg_color="#581845", 
                                                             command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
                                                             (selectHost(historyHost), historyList.place_forget(), historyFrame.place_forget(),
-                                                             displayChaptersCheck(href, bookName, isHistory)))
+                                                             displayChaptersCheck(href, name, isHistory)))
                      bookNameButton.pack()
         else:
             emptyJsonButton = customtkinter.CTkButton(historyList, 
