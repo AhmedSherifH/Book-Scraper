@@ -1,4 +1,6 @@
+from io import BytesIO
 import zipfile
+from PIL import Image
 
 compressionMethods = {"Stored": zipfile.ZIP_STORED,
                        "BZIP2": zipfile.ZIP_BZIP2,
@@ -16,9 +18,13 @@ def createZip(imageContent, outputZip, zipCompression):
             zipFile.writestr(f'{pageNum}.jpg', imageContent)
 
 def createJpg(imageContent, chosenDir):
-    for pageNum, image in enumerate(imageContent, 1):
+    for pageNum, page in enumerate(imageContent, 1):
         print(pageNum)
         with open(f"{chosenDir}/#{pageNum}.jpg", 'wb') as f:
-                f.write(image)
+                f.write(page)
 
-
+def createPdf(imageContent, outputPdf):
+    loadedPages = [ Image.open(BytesIO(page)) for page in imageContent ]
+    loadedPages[0].save(
+                    outputPdf, "PDF" ,resolution=100.0, save_all=True, append_images=loadedPages[1:])
+                           

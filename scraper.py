@@ -209,17 +209,13 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                 for page in imageContents:
                     compressedChapters.append(page)
                 if loopVerification == numberofLoops:
-                    createPdf(compressedChapters, f"{chosenDir}/{bookName}.pdf")
+                    createPdf(imageContents, f"{chosenDir}/{bookName}.pdf")
                     if len(compressedChapters) > 0:
                         compressedChapters = []
 
-
             if format == ".jpg":
                 createJpg(imageContents, chosenDir)
-            
-            
-                
-
+    
             bookDownloads.remove(bookName)
      except:
         messagebox.showerror("Error", "There was a problem while downloading. Make sure your directory path is correct.")
