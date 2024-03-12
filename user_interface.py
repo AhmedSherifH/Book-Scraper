@@ -1,3 +1,4 @@
+from tkinter.font import families
 import customtkinter
 from functools import *
 from requests_html import HTMLSession
@@ -128,12 +129,6 @@ def getAllChapters():
 def displayChapters(href, bookName, isHistory):
       global bookChapterNames
       global globalBookName
-
-      if not isHistory:
-            returnToList.place(x=700, y=5)
-            saveBook(href, bookName)
-      else:
-            returnToHistory.place(x=700, y=5)
       
       print(f"Displaying Chapters --> {href}, {bookName}")
       # Empty Arrays and Frames
@@ -180,6 +175,11 @@ def displayChapters(href, bookName, isHistory):
       historyFrame.place_forget()
       coverImageLabel.place(x=610, y=40)
       bookChapters.place(x=0, y=35) 
+      if not isHistory:
+            returnToList.place(x=700, y=5)
+            saveBook(href, bookName)
+      else:
+            returnToHistory.place(x=700, y=5)
 
 
      
@@ -225,12 +225,13 @@ historyList = customtkinter.CTkScrollableFrame(root, width=770, height=340, fg_c
 historyFrame = customtkinter.CTkFrame(root)
 historyImage = customtkinter.CTkLabel(historyFrame, image=historyLabelIcon, text="", fg_color="#242424")
 historyImage.grid(row=0, column=0)
+my_font = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=23)
 historyText = customtkinter.CTkLabel(historyFrame, 
                                      text="History:",
-                                     font=('bold', 25),
+                                     font=my_font,
                                      anchor="center",
                                      fg_color="#242424")
-historyText.grid(row=0, column=2)
+historyText.grid(row=0, column=4)
 
 
 returnToHistory = customtkinter.CTkButton(root, width=70, height=30, 
@@ -243,11 +244,9 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            compressionMethodMenu.place_forget(),
                                                            searchButton.place(x=700, y=5),
                                                            historyFrame.place(x=20,y=45),
-                                                           historyList.place(x=0, y=40)
+                                                           historyList.place(x=0, y=40),
+                                                           searchButton.place(x=700, y=5)
                                                            ))
-
-               
-
 
 def displayHistory():
     historyList.place(x=0, y=40) 
@@ -272,10 +271,10 @@ def displayHistory():
                      bookNameButton = customtkinter.CTkButton(historyList, 
                                                             width=500, 
                                                             height=30, 
-                                                            text=bookName, 
+                                                            text=f"{bookName} ({historyHost})", 
                                                             fg_color="#581845", 
                                                             command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
-                                                            (selectHost(historyHost), historyList.place_forget(),
+                                                            (selectHost(historyHost), historyList.place_forget(), historyFrame.place_forget(),
                                                              displayChaptersCheck(href, bookName, isHistory)))
                      bookNameButton.pack()
         else:
@@ -327,6 +326,8 @@ def searchProcessCheck():
             threading.Thread(target=searchProcess).start()
 
 def displayChaptersCheck(href, bookName, isHistory):
+      searchButton.place_forget()
+      returnToHistory.place_forget()
       for widget in bookChapters.winfo_children():
             widget.destroy()
       threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start()
