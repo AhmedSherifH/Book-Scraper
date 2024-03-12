@@ -1,7 +1,5 @@
-import select
 import requests
 from tkinter import filedialog
-from pathlib import Path
 from tkinter import messagebox
 from format_manager import *
 
@@ -128,7 +126,7 @@ def scrapeChapters(url, selectedHost):
         
     
           
-def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, format, numberofLoops, cbzVerification, zipCompression):
+def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, format, numberofLoops, loopVerification, zipCompression):
      pageNum = 0 
      imageContents = []
      global compressedChapters
@@ -193,7 +191,7 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                 for page in imageContents:
                     compressedChapters.append(page)
 
-                if cbzVerification == numberofLoops:
+                if loopVerification == numberofLoops:
                     createCbz(compressedChapters, f"{chosenDir}/{bookName}.cbz")
                     if len(compressedChapters) > 0:
                         compressedChapters = []
@@ -202,13 +200,25 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                 for page in imageContents:
                     compressedChapters.append(page)
 
-                if cbzVerification == numberofLoops:
+                if loopVerification == numberofLoops:
                     createZip(compressedChapters, f"{chosenDir}/{bookName}.zip", zipCompression)
                     if len(compressedChapters) > 0:
                         compressedChapters = []
- 
+                
+            if format == ".pdf":
+                for page in imageContents:
+                    compressedChapters.append(page)
+                if loopVerification == numberofLoops:
+                    createPdf(compressedChapters, f"{chosenDir}/{bookName}.pdf")
+                    if len(compressedChapters) > 0:
+                        compressedChapters = []
+
+
             if format == ".jpg":
                 createJpg(imageContents, chosenDir)
+            
+            
+                
 
             bookDownloads.remove(bookName)
      except:
