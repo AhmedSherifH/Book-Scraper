@@ -1,4 +1,4 @@
-from tkinter.font import families
+from reader import *
 import customtkinter
 from functools import *
 from requests_html import HTMLSession
@@ -6,7 +6,7 @@ from scraper import *
 import threading
 from PIL import Image
 from io import BytesIO
-from tkinter import PhotoImage, messagebox
+from tkinter import messagebox
 from tkinter import filedialog
 from pathlib import Path
 import signal
@@ -34,7 +34,7 @@ selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
 hostValues = ["Select a Host", "readallcomics.com", "comicextra.me" , "mangakomi.io", "mangaread.org"] 
-formatValues = ["Select a Format", ".jpg", ".cbz", ".zip", ".pdf"]
+formatValues = ["Select a Format", "Read", ".jpg", ".cbz", ".zip", ".pdf"]
 bookChapterNames = {}
 globalBookName = ''
 headers = {'User-Agent': 'Mozilla/5.0'}
@@ -81,13 +81,16 @@ def selectFormat(choice):
        
  
 
-def getPages(title, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification): 
+def getPages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification): 
       # Get all pages inside a chapter
-      if selectedFormat not in [".jpg", ".cbz", ".zip", ".pdf"]:
+      zipCompressionMethod = compressionMethodMenu.get()
+      if selectedFormat not in ["Read", ".jpg", ".cbz", ".zip", ".pdf"]:
             messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
-      else: 
-            zipCompressionMethod = compressionMethodMenu.get()
-            scrapePages(title, session, selectedHost, bookName, isMassDownload, directory, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
+      elif selectedFormat in ["Read"]:
+            imageContent = scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
+            createReaderWindow(imageContent)
+      elif selectedFormat in [".jpg", ".cbz", ".zip", ".pdf"]:
+            scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
 
 
 def getAllChapters():
@@ -122,7 +125,10 @@ def getAllChapters():
                   compressedVerification = compressedVerification + 1 
                   getPages(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, baseDirectory, numberofLoops, compressedVerification)
       
-      if selectedFormat not in [".jpg", ".cbz", ".zip", ".pdf"]:
+      elif selectedFormat in ["Read"]:
+            messagebox.showerror("Error", "This button cannot be used for the selected format.")
+
+      if selectedFormat not in ["Read", ".jpg", ".cbz", ".zip", ".pdf"]:
             messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
                    
                   
@@ -152,7 +158,6 @@ def displayChapters(href, bookName, isHistory):
                                                       threading.Thread(target=getPages, args=(title, session, selectedHost, 
                                                       bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start())
             chapterButton.pack()
-
 
       # Get Cover Display, If it throws an error: Ignore cover completely     
       try:   
@@ -216,6 +221,7 @@ def searchProcess():
             bookButton.pack()
 
       bookList.place(x=0, y=35)
+      searchButton.place(x=700, y=5)
     except: 
        messagebox.showerror("Error", "Please select a host from the dropdown menu.")
 
@@ -237,6 +243,7 @@ historyText.grid(row=0, column=4)
 returnToHistory = customtkinter.CTkButton(root, width=70, height=30, 
                                           fg_color="#581845", text="Back",
                                           command=lambda: (returnToHistory.place_forget(),
+                                                           showDownloads.place(x=700, y=360),
                                                            bookChapters.place_forget(), 
                                                            coverImageLabel.place_forget(),
                                                            downloadallChapters.place_forget(),
@@ -286,8 +293,6 @@ def displayHistory():
             emptyJsonButton.pack()
                                                       
                                                             
-      
-
 def saveBook(bookLink, bookName):
       with open("history.json", "r") as jsonFile:
          data = json.load(jsonFile)
@@ -315,9 +320,10 @@ bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_
 
 
 def searchProcessCheck():
-      if selectedHost not in ["readallcomics.com", "comicextra.me" , "mangakomi.io", "mangaread.org"]  :
+      if selectedHost not in ["readallcomics.com", "comicextra.me" , "mangakomi.io", "mangaread.org"]:
             messagebox.showerror("Error", "Please select a host from the dropdown menu.")
       else: 
+            searchButton.place_forget()
             bookList.place_forget()
             for widget in bookList.winfo_children():
                   if isinstance(widget, customtkinter.CTkButton):
@@ -326,6 +332,7 @@ def searchProcessCheck():
             threading.Thread(target=searchProcess).start()
 
 def displayChaptersCheck(href, bookName, isHistory):
+      showDownloads.place_forget()
       searchButton.place_forget()
       returnToHistory.place_forget()
       for widget in bookChapters.winfo_children():
@@ -335,17 +342,17 @@ def displayChaptersCheck(href, bookName, isHistory):
 searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=searchProcessCheck)
 searchButton.place(x=700, y=5)
 
-
-
-      
+showDownloads = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Downloads", command=getDownloads)
+showDownloads.place(x=700, y=360)
+ 
 downloadallChapters = customtkinter.CTkButton(master=root, image=downloadButtonIcon, text="Download All Chapters", width=170, fg_color="#581845", command=lambda: threading.Thread(target=getAllChapters).start())
 
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
-
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
                                        fg_color="#581845", text="Back",
                                        command=lambda: (bookList.place(x=0, y=35), returnToList.place_forget(),
+                                                        showDownloads.place(x=700, y=360),
                                                         bookChapters.place_forget(), searchButton.place(x=700, y=5), 
                                                         coverImageLabel.place_forget(),
                                                         downloadallChapters.place_forget(),
@@ -355,7 +362,6 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
 hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
 hostSelector.place(x=20, y=5)
                                    
-
 formatSelector = customtkinter.CTkOptionMenu(root, values=formatValues, fg_color="#581845",
                                               button_color="#581845", command=selectFormat, anchor="center")
 compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZIP2", "LZMA", "Deflate"], button_color="#581845",
