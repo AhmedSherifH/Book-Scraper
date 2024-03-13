@@ -32,7 +32,9 @@ def createReaderWindow(imageContent):
     controlFrame = customtkinter.CTkFrame(readerWindow)
     controlFrame.pack(side=BOTTOM)
 
-    pageLabel = customtkinter.CTkLabel(readerWindow, text="", image=None)
+    pageFrame = customtkinter.CTkScrollableFrame(readerWindow)
+    pageFrame.pack(anchor='center', fill="both", expand=True)
+    pageLabel = customtkinter.CTkLabel(pageFrame, text="", image=None)
     pageLabel.pack(anchor='center', fill="both", expand=True)
 
     leftButton = customtkinter.CTkButton(controlFrame, width=70, height=40, 
