@@ -4,12 +4,13 @@ from io import BytesIO
 from tkinter import BOTTOM, LEFT, RIGHT, TOP
 import customtkinter
 from PIL import Image
+from numpy import imag
 
 
 fgColor = "#581845"
 headers = {'User-Agent': 'Mozilla/5.0'}
 currentPage = 0
-pageSize = (425, 596)
+pageSize = (0 , 0)
 
 leftButtonImage = customtkinter.CTkImage(light_image=Image.open("./resources/left.png"),
                                             dark_image=Image.open("./resources/left.png"))
@@ -28,7 +29,7 @@ def createReaderWindow(imageContent):
     readerWindow.title("Book Scraper")
 
 
-    controlFrame = customtkinter.CTkFrame(readerWindow, width=590, height=100)
+    controlFrame = customtkinter.CTkFrame(readerWindow)
     controlFrame.pack(side=BOTTOM)
 
     pageLabel = customtkinter.CTkLabel(readerWindow, text="", image=None)
@@ -48,10 +49,18 @@ def createReaderWindow(imageContent):
                                           command= lambda pages = imageContent, pageLabel = pageLabel: getLastPage(pages, pageLabel))
     rightButton.pack(side=RIGHT)
 
-    zoomInButton = customtkinter.CTkButton(controlFrame, width=70, height=40, image=zoomInButtomImage, text="", fg_color=fgColor)
+    zoomInButton = customtkinter.CTkButton(controlFrame, width=70, height=40, 
+                                           image=zoomInButtomImage, 
+                                           text="", 
+                                           fg_color=fgColor,
+                                           command= lambda pageLabel = pageLabel, pages = imageContent: zoomIn(pageLabel, pages))
     zoomInButton.pack(side=LEFT)
 
-    zoomOutButton = customtkinter.CTkButton(controlFrame, width=70, height=40, image=zoomOutButtomImage, text="", fg_color=fgColor)
+    zoomOutButton = customtkinter.CTkButton(controlFrame, width=70, height=40, 
+                                            image=zoomOutButtomImage, 
+                                            text="",
+                                            fg_color=fgColor,
+                                            command= lambda pageLabel = pageLabel, pages= imageContent: zoomOut(pageLabel, pages))
     zoomOutButton.pack(side=RIGHT)
 
 
@@ -60,25 +69,49 @@ def createReaderWindow(imageContent):
 
 def getNextPage(pages, pageLabel):
     global currentPage
-    pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage+1])),
+    if currentPage < len(pages) - 1:
+        pass
+    else:
+        pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage+1])),
                               dark_image=Image.open(BytesIO(pages[currentPage+1])),
                               size=pageSize)))
-    currentPage += 1
+        currentPage += 1
     
 def getLastPage(pages, pageLabel):
     global currentPage
-    pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage-1])),
+    if currentPage > 0:
+        pass
+    else:
+        pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage-1])),
                               dark_image=Image.open(BytesIO(pages[currentPage-1])),
                               size=pageSize)))
-    currentPage -= 1
+        currentPage -= 1
 
+
+
+def zoomIn(pageLabel, pages):
+    global pageSize
+    pageSize = (pageSize[0]*1.5, pageSize[1]*1.5)
+    pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage])),
+                                                      dark_image=Image.open(BytesIO(pages[currentPage])),
+                                                      size=pageSize)))
+
+def zoomOut(pageLabel, pages):
+    global pageSize
+    pageSize = (pageSize[0]/1.5, pageSize[1]/1.5)
+    pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage])),
+                                                      dark_image=Image.open(BytesIO(pages[currentPage])),
+                                                      size=pageSize)))
 
 def pageDisplay(imageContent, pageLabel):
     global currentPage
+    global pageSize
+    firstPage = Image.open(BytesIO(imageContent[0]))
+    pageSize = ((firstPage.width), (firstPage.height))
     currentPage = 0
-    pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(imageContent[0])),
-                              dark_image=Image.open(BytesIO(imageContent[0])),
-                              size=pageSize)))
+    pageLabel.configure(image=(customtkinter.CTkImage(light_image=firstPage,
+                                                     dark_image=firstPage,
+                                                     size=pageSize)))
 
     
 
