@@ -1,3 +1,4 @@
+from email import message
 import requests
 from tkinter import filedialog
 from tkinter import messagebox
@@ -158,8 +159,8 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                 images = chapterRequest.html.find('div.chapter-container img')
                 for image in images:
                     pageNum += 1
-                    print(f"#{pageNum}: {src}")            
                     src = image.attrs['src']
+                    print(f"{chosenDir}/#{pageNum}.jpg")
                     pageResponse = requests.get(src) 
                     imageContents.append(pageResponse.content)
 
@@ -215,13 +216,24 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
 
             if format == ".jpg":
                 createJpg(imageContents, chosenDir)
+
+            if format == "Read":
+                print("Reading!")
+                return imageContents
+                
+
     
             bookDownloads.remove(bookName)
      except:
         messagebox.showerror("Error", "There was a problem while downloading. Make sure your directory path is correct.")
 
 
-    
+def getDownloads():
+    downloads = ", ".join(list(set(bookDownloads)))
+    if downloads == "":
+        messagebox.showinfo(title="Downloads", message=f"Nothing is being downloaded!")
+    else:
+        messagebox.showinfo(title="Downloads", message=f"You're currently downloading: {downloads}")
      
             
            
