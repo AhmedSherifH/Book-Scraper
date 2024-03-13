@@ -134,7 +134,7 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
      chapterRequest = session.get(chapterLink, headers=headers)
 
   # If isMassDownload is True, we don't ask for the directory because the user has already chosen the directory in user_interface.py
-     if isMassDownload == False:
+     if isMassDownload == False: 
         chosenDir = filedialog.askdirectory()
      else:
         chosenDir = directory
