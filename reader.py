@@ -1,6 +1,7 @@
 from cProfile import label
 from csv import reader
 from io import BytesIO
+from textwrap import fill
 from tkinter import BOTTOM, LEFT, RIGHT, TOP
 import customtkinter
 from PIL import Image
@@ -10,6 +11,8 @@ from numpy import imag
 fgColor = "#581845"
 headers = {'User-Agent': 'Mozilla/5.0'}
 currentPage = 0
+readingPage = 1
+pageLabelText = "Page {} of {}"
 pageSize = (0 , 0)
 
 leftButtonImage = customtkinter.CTkImage(light_image=Image.open("./resources/left.png"),
@@ -23,32 +26,45 @@ zoomOutButtomImage = customtkinter.CTkImage(light_image=Image.open("./resources/
                                       
 
 def createReaderWindow(imageContent):
+    global readingPage
     readerWindow = customtkinter.CTkToplevel()
     readerWindow.geometry("600x600")
     readerWindow.wm_iconbitmap("visual/bookscraper-icon.ico")
     readerWindow.title("Book Scraper")
+    labelFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=12)
+    readingPage = 1
 
 
     controlFrame = customtkinter.CTkFrame(readerWindow)
     controlFrame.pack(side=BOTTOM)
 
+    pageNumberDisplay = customtkinter.CTkLabel(controlFrame, width=70, height=40, 
+                                               text=pageLabelText.format("1", len(imageContent)), 
+                                               fg_color=fgColor,
+                                               font=labelFont)
+    pageNumberDisplay.pack(side=LEFT)
+
     pageFrame = customtkinter.CTkScrollableFrame(readerWindow)
     pageFrame.pack(anchor='center', fill="both", expand=True)
     pageLabel = customtkinter.CTkLabel(pageFrame, text="", image=None)
-    pageLabel.pack(anchor='center', fill="both", expand=True)
+    pageLabel.pack(anchor='center', fill="x")
 
     leftButton = customtkinter.CTkButton(controlFrame, width=70, height=40, 
                                           image=leftButtonImage,
                                           text="", 
                                           fg_color=fgColor,
-                                          command= lambda pages = imageContent, pageLabel = pageLabel: getNextPage(pages, pageLabel))
+                                          command= lambda pages = imageContent, 
+                                          pageLabel = pageLabel,
+                                          pageNumberDisplay = pageNumberDisplay: getLastPage(pages, pageLabel, pageNumberDisplay))
     leftButton.pack(side=LEFT)
 
     rightButton = customtkinter.CTkButton(controlFrame, width=70, height=40, 
                                           image=rightButtonImage,
                                           text="", 
                                           fg_color=fgColor,
-                                          command= lambda pages = imageContent, pageLabel = pageLabel: getLastPage(pages, pageLabel))
+                                          command= lambda pages = imageContent, 
+                                          pageLabel = pageLabel,
+                                          pageNumberDisplay = pageNumberDisplay: getNextPage(pages, pageLabel, pageNumberDisplay))
     rightButton.pack(side=RIGHT)
 
     zoomInButton = customtkinter.CTkButton(controlFrame, width=70, height=40, 
@@ -69,25 +85,33 @@ def createReaderWindow(imageContent):
     pageDisplay(imageContent, pageLabel)
 
 
-def getNextPage(pages, pageLabel):
+def getNextPage(pages, pageLabel, pageNumberDisplay):
     global currentPage
-    if currentPage < len(pages) - 1:
+    global readingPage
+    if currentPage == len(pages) - 1:
         pass
     else:
         pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage+1])),
                               dark_image=Image.open(BytesIO(pages[currentPage+1])),
                               size=pageSize)))
         currentPage += 1
+        readingPage += 1
+        pageNumberDisplay.configure(text=pageLabelText.format(readingPage, len(pages)))
+        print(currentPage)
     
-def getLastPage(pages, pageLabel):
+def getLastPage(pages, pageLabel, pageNumberDisplay):
     global currentPage
-    if currentPage > 0:
+    global readingPage
+    if currentPage == 0:
         pass
     else:
         pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage-1])),
                               dark_image=Image.open(BytesIO(pages[currentPage-1])),
                               size=pageSize)))
         currentPage -= 1
+        readingPage -= 1
+        pageNumberDisplay.configure(text=pageLabelText.format(readingPage, len(pages)))
+        print(currentPage)
 
 
 
@@ -109,7 +133,7 @@ def pageDisplay(imageContent, pageLabel):
     global currentPage
     global pageSize
     firstPage = Image.open(BytesIO(imageContent[0]))
-    pageSize = ((firstPage.width), (firstPage.height))
+    pageSize = ((firstPage.width / 2), (firstPage.height / 2))
     currentPage = 0
     pageLabel.configure(image=(customtkinter.CTkImage(light_image=firstPage,
                                                      dark_image=firstPage,

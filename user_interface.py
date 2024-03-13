@@ -231,10 +231,10 @@ historyList = customtkinter.CTkScrollableFrame(root, width=770, height=340, fg_c
 historyFrame = customtkinter.CTkFrame(root)
 historyImage = customtkinter.CTkLabel(historyFrame, image=historyLabelIcon, text="", fg_color="#242424")
 historyImage.grid(row=0, column=0)
-my_font = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=23)
+labelFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=23)
 historyText = customtkinter.CTkLabel(historyFrame, 
                                      text="History:",
-                                     font=my_font,
+                                     font=labelFont,
                                      anchor="center",
                                      fg_color="#242424")
 historyText.grid(row=0, column=4)
