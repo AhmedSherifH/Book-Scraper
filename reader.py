@@ -13,7 +13,7 @@ headers = {'User-Agent': 'Mozilla/5.0'}
 currentPage = 0
 readingPage = 1
 pageLabelText = "Page {} of {}"
-pageSize = (0 , 0)
+pageSize = (50 , 5000)
 
 leftButtonImage = customtkinter.CTkImage(light_image=Image.open("./resources/left.png"),
                                             dark_image=Image.open("./resources/left.png"))
@@ -91,8 +91,10 @@ def getNextPage(pages, pageLabel, pageNumberDisplay):
     if currentPage == len(pages) - 1:
         pass
     else:
-        pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage+1])),
-                              dark_image=Image.open(BytesIO(pages[currentPage+1])),
+        page = Image.open(BytesIO(pages[currentPage+1]))
+        pageSize = (page.width, page.height)
+        pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
+                              dark_image=page,
                               size=pageSize)))
         currentPage += 1
         readingPage += 1
@@ -105,8 +107,10 @@ def getLastPage(pages, pageLabel, pageNumberDisplay):
     if currentPage == 0:
         pass
     else:
-        pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage-1])),
-                              dark_image=Image.open(BytesIO(pages[currentPage-1])),
+        page = Image.open(BytesIO(pages[currentPage-1]))
+        pageSize = (page.width, page.height)
+        pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
+                              dark_image=page,
                               size=pageSize)))
         currentPage -= 1
         readingPage -= 1
@@ -117,40 +121,35 @@ def getLastPage(pages, pageLabel, pageNumberDisplay):
 
 def zoomIn(pageLabel, pages):
     global pageSize
-    pageSize = (pageSize[0]*1.5, pageSize[1]*1.5)
-    pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage])),
-                                                      dark_image=Image.open(BytesIO(pages[currentPage])),
+
+    page = Image.open(BytesIO(pages[currentPage]))
+    pageSize = (page.width / 0.7, page.height / 0.7)
+    page.thumbnail(pageSize, Image.ADAPTIVE)
+
+    pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
+                                                      dark_image=page,
                                                       size=pageSize)))
 
 def zoomOut(pageLabel, pages):
     global pageSize
-    pageSize = (pageSize[0]/1.5, pageSize[1]/1.5)
-    pageLabel.configure(image=(customtkinter.CTkImage(light_image=Image.open(BytesIO(pages[currentPage])),
-                                                      dark_image=Image.open(BytesIO(pages[currentPage])),
+    
+    page = Image.open(BytesIO(pages[currentPage]))
+    pageSize = (page.width * 0.7, page.height * 0.7)
+    page.thumbnail(pageSize, Image.ADAPTIVE)
+
+    pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
+                                                      dark_image=page,
                                                       size=pageSize)))
+    
 
 def pageDisplay(imageContent, pageLabel):
     global currentPage
     global pageSize
     firstPage = Image.open(BytesIO(imageContent[0]))
-    pageSize = ((firstPage.width / 2), (firstPage.height / 2))
+    pageSize = ((firstPage.width), (firstPage.height))
     currentPage = 0
     pageLabel.configure(image=(customtkinter.CTkImage(light_image=firstPage,
                                                      dark_image=firstPage,
                                                      size=pageSize)))
 
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
