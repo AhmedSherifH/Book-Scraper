@@ -2,6 +2,7 @@ from io import BytesIO
 from tkinter import BOTTOM, LEFT, RIGHT
 import customtkinter
 from PIL import Image
+from tkinter import filedialog
 
 
 resamplingMethods = {"Nearest": Image.NEAREST,
@@ -33,8 +34,14 @@ downloadImage = customtkinter.CTkImage(light_image=Image.open("./resources/downl
 def changeResamplingMethod(choice):
     global resamplingMethod
     resamplingMethod = resamplingMethods[choice] 
-    print(f"{choice} + {resamplingMethod}")
 
+def downloadPage(pages):
+    directory = filedialog.asksaveasfilename(defaultextension=".png",
+                                        filetypes=[("PNG", ".png"), ("JPG", ".jpg")])
+    imageToDownload = Image.open(BytesIO(pages[currentPage]))
+    imageToDownload.save(directory)
+
+    
 def createReaderWindow(imageContent):
     global readingPage
 
@@ -62,12 +69,12 @@ def createReaderWindow(imageContent):
                                                  command=changeResamplingMethod)
     resamplingMenu.pack(side='left', anchor='sw')
     
-
     downloadPageButton = customtkinter.CTkButton(controlFrame, width=70, height=40,
                                                  text="",
                                                  image=downloadImage,
                                                  fg_color=fgColor,
-                                                 font=labelFont)
+                                                 font=labelFont,
+                                                 command= lambda pages = imageContent: downloadPage(pages))
     downloadPageButton.pack(side='right', anchor='se')
 
     pageFrame = customtkinter.CTkScrollableFrame(readerWindow)
