@@ -18,10 +18,12 @@ Book Scraper is a **free and open source** program made with Python to download 
 
 
 ## Features
-- Different file formats to download Manga and comics in
+- Different file formats to download Manga and Comics in
   - .cbz, .zip, .pdf and .jpg file support
 - Different compression algorithms for .zip files
-  - Stored, Deflate, LZMA and BZIP2 algorithms 
+  - Stored, Deflate, LZMA and BZIP2 algorithms
+- Read Manga and Comics directly without downloading
+  - Resampling methods such as Nearest-Neighbor, Bicubic and Bilinear
 - Different hosts for both Manga and Comics
 - Download multiple chapters simultaneously
 - Lightweight and easy to use
