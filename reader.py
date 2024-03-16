@@ -1,19 +1,21 @@
-from cProfile import label
-from csv import reader
 from io import BytesIO
-from textwrap import fill
-from tkinter import BOTTOM, LEFT, RIGHT, TOP
+from tkinter import BOTTOM, LEFT, RIGHT
 import customtkinter
 from PIL import Image
-from numpy import imag
 
+
+resamplingMethods = {"Nearest": Image.NEAREST,
+                       "Bilinear": Image.BILINEAR,
+                       "Bicubic": Image.BICUBIC,
+                       "Lanczos": Image.LANCZOS,
+                       "Hamming": Image.HAMMING}
 
 fgColor = "#581845"
 headers = {'User-Agent': 'Mozilla/5.0'}
 currentPage = 0
 readingPage = 1
-pageLabelText = "Page {} of {}"
-pageSize = (50 , 5000)
+pageLabelText = "Page {} of {} "
+pageSize = (0 , 0)
 
 leftButtonImage = customtkinter.CTkImage(light_image=Image.open("./resources/left.png"),
                                             dark_image=Image.open("./resources/left.png"))
@@ -23,31 +25,50 @@ zoomInButtomImage = customtkinter.CTkImage(light_image=Image.open("./resources/z
                                                 dark_image=Image.open("./resources/zoom in.png"))
 zoomOutButtomImage = customtkinter.CTkImage(light_image=Image.open("./resources/zoom out.png"),
                                                 dark_image=Image.open("./resources/zoom out.png"))
+downloadImage = customtkinter.CTkImage(light_image=Image.open("./resources/download.png"),
+                                            dark_image=Image.open("./resources/download.png"))
+
                                       
 
 def createReaderWindow(imageContent):
     global readingPage
+
     readerWindow = customtkinter.CTkToplevel()
     readerWindow.geometry("600x600")
     readerWindow.wm_iconbitmap("visual/bookscraper-icon.ico")
     readerWindow.title("Book Scraper")
+
     labelFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=12)
     readingPage = 1
 
-
-    controlFrame = customtkinter.CTkFrame(readerWindow)
+    controlFrame = customtkinter.CTkFrame(readerWindow, width=10)
     controlFrame.pack(side=BOTTOM)
 
     pageNumberDisplay = customtkinter.CTkLabel(controlFrame, width=70, height=40, 
                                                text=pageLabelText.format("1", len(imageContent)), 
                                                fg_color=fgColor,
                                                font=labelFont)
-    pageNumberDisplay.pack(side=LEFT)
+    
+    resamplingMenu = customtkinter.CTkOptionMenu(controlFrame, width=70, height=40, 
+                                                 values=list(resamplingMethods.keys()),
+                                                 fg_color=fgColor,
+                                                 button_color=fgColor,
+                                                 font=labelFont)
+    resamplingMenu.pack(side='left', anchor='sw')
+    
+
+    downloadPageButton = customtkinter.CTkButton(controlFrame, width=70, height=40,
+                                                 text="",
+                                                 image=downloadImage,
+                                                 fg_color=fgColor,
+                                                 font=labelFont)
+    downloadPageButton.pack(side='right', anchor='se')
 
     pageFrame = customtkinter.CTkScrollableFrame(readerWindow)
     pageFrame.pack(anchor='center', fill="both", expand=True)
     pageLabel = customtkinter.CTkLabel(pageFrame, text="", image=None)
     pageLabel.pack(anchor='center', fill="x")
+
 
     leftButton = customtkinter.CTkButton(controlFrame, width=70, height=40, 
                                           image=leftButtonImage,
@@ -81,7 +102,8 @@ def createReaderWindow(imageContent):
                                             command= lambda pageLabel = pageLabel, pages= imageContent: zoomOut(pageLabel, pages))
     zoomOutButton.pack(side=RIGHT)
 
-
+    pageNumberDisplay.pack(side=RIGHT)
+                                            
     pageDisplay(imageContent, pageLabel)
 
 
@@ -124,7 +146,7 @@ def zoomIn(pageLabel, pages):
 
     page = Image.open(BytesIO(pages[currentPage]))
     pageSize = (page.width / 0.7, page.height / 0.7)
-    page.thumbnail(pageSize, Image.ADAPTIVE)
+    page.thumbnail(pageSize, Image.LANCZOS)
 
     pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
                                                       dark_image=page,
@@ -135,7 +157,7 @@ def zoomOut(pageLabel, pages):
     
     page = Image.open(BytesIO(pages[currentPage]))
     pageSize = (page.width * 0.7, page.height * 0.7)
-    page.thumbnail(pageSize, Image.ADAPTIVE)
+    page.thumbnail(pageSize, Image.LANCZOS)
 
     pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
                                                       dark_image=page,
