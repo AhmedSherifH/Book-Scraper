@@ -16,6 +16,7 @@ currentPage = 0
 readingPage = 1
 pageLabelText = "Page {} of {} "
 pageSize = (0 , 0)
+resamplingMethod = None
 
 leftButtonImage = customtkinter.CTkImage(light_image=Image.open("./resources/left.png"),
                                             dark_image=Image.open("./resources/left.png"))
@@ -28,7 +29,11 @@ zoomOutButtomImage = customtkinter.CTkImage(light_image=Image.open("./resources/
 downloadImage = customtkinter.CTkImage(light_image=Image.open("./resources/download.png"),
                                             dark_image=Image.open("./resources/download.png"))
 
-                                      
+
+def changeResamplingMethod(choice):
+    global resamplingMethod
+    resamplingMethod = resamplingMethods[choice] 
+    print(f"{choice} + {resamplingMethod}")
 
 def createReaderWindow(imageContent):
     global readingPage
@@ -53,7 +58,8 @@ def createReaderWindow(imageContent):
                                                  values=list(resamplingMethods.keys()),
                                                  fg_color=fgColor,
                                                  button_color=fgColor,
-                                                 font=labelFont)
+                                                 font=labelFont,
+                                                 command=changeResamplingMethod)
     resamplingMenu.pack(side='left', anchor='sw')
     
 
@@ -143,10 +149,11 @@ def getLastPage(pages, pageLabel, pageNumberDisplay):
 
 def zoomIn(pageLabel, pages):
     global pageSize
+    global resamplingMethod
 
     page = Image.open(BytesIO(pages[currentPage]))
     pageSize = (page.width / 0.7, page.height / 0.7)
-    page.thumbnail(pageSize, Image.LANCZOS)
+    page.thumbnail(pageSize, resamplingMethod)
 
     pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
                                                       dark_image=page,
@@ -154,10 +161,11 @@ def zoomIn(pageLabel, pages):
 
 def zoomOut(pageLabel, pages):
     global pageSize
-    
+    global resamplingMethod
+
     page = Image.open(BytesIO(pages[currentPage]))
     pageSize = (page.width * 0.7, page.height * 0.7)
-    page.thumbnail(pageSize, Image.LANCZOS)
+    page.thumbnail(pageSize, resamplingMethod)
 
     pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
                                                       dark_image=page,

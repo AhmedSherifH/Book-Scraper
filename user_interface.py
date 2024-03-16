@@ -43,8 +43,6 @@ jsonPath = Path('./history.json')
 
 
 
-
-
 def selectHost(choice):
       global selectedHost
       global hostBase
@@ -86,7 +84,11 @@ def getPages(chapterLink, session, selectedHost, bookName, isMassDownload, direc
       zipCompressionMethod = compressionMethodMenu.get()
       if selectedFormat not in ["Read", ".jpg", ".cbz", ".zip", ".pdf"]:
             messagebox.showerror("Error", "Please select the format you'd like to download the pages in.")
+      # isMassDownload is set to True to bypass asking for the directory
+      # directory variable is set to "directory" to avoid throwing an error
       elif selectedFormat in ["Read"]:
+            isMassDownload = True
+            directory = "directory"
             imageContent = scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
             createReaderWindow(imageContent)
       elif selectedFormat in [".jpg", ".cbz", ".zip", ".pdf"]:

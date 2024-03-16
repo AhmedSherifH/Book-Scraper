@@ -123,10 +123,7 @@ def scrapeChapters(url, selectedHost):
 
     return bookChapters
 
-
-        
-    
-          
+  
 def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, format, numberofLoops, loopVerification, zipCompression):
      pageNum = 0 
      imageContents = []
@@ -221,7 +218,6 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                 print("Reading!")
                 return imageContents
                 
-
     
             bookDownloads.remove(bookName)
      except:
