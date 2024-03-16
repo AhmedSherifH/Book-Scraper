@@ -215,9 +215,8 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                 createJpg(imageContents, chosenDir)
 
             if format == "Read":
-                print("Reading!")
+                bookDownloads.remove(bookName)
                 return imageContents
-                
     
             bookDownloads.remove(bookName)
      except:
