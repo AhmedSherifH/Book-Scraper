@@ -27,6 +27,8 @@ downloadButtonIcon = customtkinter.CTkImage(light_image=Image.open("./resources/
                                             dark_image=Image.open("./resources/download.png"))
 historyLabelIcon = customtkinter.CTkImage(light_image=Image.open("./resources/history.png"),
                                           dark_image=Image.open("./resources/history.png"))
+bookmarkIcon = customtkinter.CTkImage(light_image=Image.open("./resources/bookmark.png"),
+                                      dark_image=Image.open("./resources/bookmark.png"))
 
 
 selectedHost = ""
@@ -39,7 +41,8 @@ bookChapterNames = {}
 globalBookName = ''
 headers = {'User-Agent': 'Mozilla/5.0'}
 session = HTMLSession()
-jsonPath = Path('./cache/history.json')
+historyJsonPath = Path('./cache/history.json')
+#jsonPath = Path('./cache/history.json')
 os.makedirs('./cache', exist_ok=True)
 
 
@@ -176,6 +179,7 @@ def displayChapters(href, bookName, isHistory):
       # Manage Placement of Widgets
       downloadallChapters.place(x=608, y=300)
       formatSelector.place(x=624, y=330)
+      bookmarkButton.place(x=5, y=370)
       if selectedFormat == ".zip":
             compressionMethodMenu.place(x=624, y=360)
       searchButton.place_forget()
@@ -188,7 +192,7 @@ def displayChapters(href, bookName, isHistory):
             returnToList.place(x=700, y=5)
             os.makedirs(f'./cache/{selectedHost}', exist_ok=True)
             cover.save(f"./cache/{selectedHost}/{bookName}.png")
-            saveBook(href, bookName)
+            saveBookToHistory(href, bookName)
       else:
             returnToHistory.place(x=700, y=5)
 
@@ -251,7 +255,7 @@ historyText.grid(row=0, column=4)
 returnToHistory = customtkinter.CTkButton(root, width=70, height=30, 
                                           fg_color="#581845", text="Back",
                                           command=lambda: (returnToHistory.place_forget(),
-                                                           showDownloads.place(x=700, y=360),
+                                                           bookmarkButton.place_forget(),
                                                            bookChapters.place_forget(), 
                                                            coverImageLabel.place_forget(),
                                                            downloadallChapters.place_forget(),
@@ -260,7 +264,8 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            searchButton.place(x=700, y=5),
                                                            historyFrame.place(x=20,y=45),
                                                            historyList.place(x=150, y=40),
-                                                           searchButton.place(x=700, y=5)
+                                                           searchButton.place(x=700, y=5),
+                                                           showDownloads.place(x=700, y=360)
                                                            ))
 
 def displayHistory():
@@ -269,13 +274,13 @@ def displayHistory():
     historyFrame.place(x=20,y=45) 
     
     # Check if the history file exists
-    if not jsonPath.exists():
-        jsonPath.touch()
+    if not historyJsonPath.exists():
+        historyJsonPath.touch()
         base = {"books": []}
-        with open(jsonPath, 'w') as jsonFile:
+        with open(historyJsonPath, 'w') as jsonFile:
             json.dump(base, jsonFile, indent=4)  
     else:
-        with open(jsonPath, "r") as jsonFile:
+        with open(historyJsonPath, "r") as jsonFile:
             data = json.load(jsonFile)
         if data['books']:        
             for book in reversed(data['books']):
@@ -294,7 +299,6 @@ def displayHistory():
                                                                   text=f"{historyHost}",
                                                                   compound="top",
                                                                   font=coverFont,
-                                                         #         text=f"{bookName} ({historyHost})", 
                                                                   fg_color="#581845", 
                                                                   command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
                                                                   (selectHost(historyHost), historyList.place_forget(), historyFrame.place_forget(),
@@ -302,14 +306,37 @@ def displayHistory():
                         bookNameButton.pack()
         else:
             emptyJsonButton = customtkinter.CTkButton(historyList, 
-                                                      width=500, 
+                                                      width=170, 
                                                       height=30, 
-                                                      text="Select a host from the top left and start searching for books!", 
+                                                      text="History is empty!", 
                                                       fg_color="#581845")
             emptyJsonButton.pack()
                                                       
                                                             
-def saveBook(bookLink, bookName):
+def saveBookToHistory(bookLink, bookName):
+      print("Saving")
+      with open("./cache/history.json", "r") as jsonFile:
+         data = json.load(jsonFile)
+
+      newBook = { "bookLink": bookLink, "bookName": bookName, "selectedHost": selectedHost}
+      if len(data["books"]) >= 3:
+        bookNameToRemove = data["books"][0].get('bookName')
+        bookHostToRemove = data["books"][0].get('selectedHost')
+        os.remove(f"./cache/{bookHostToRemove}/{bookNameToRemove}.png")
+        data["books"].pop(0)  
+
+      for book in data["books"]:
+            if book == newBook:
+                  return
+
+      data["books"].append(newBook)
+      # Write the updated data back to the JSON file
+      with open("./cache/history.json", "w") as jsonFile:
+            json.dump(data, jsonFile, indent=4) 
+
+displayHistory()
+
+def saveBookToBookmark(bookLink, bookName):
       with open("./cache/history.json", "r") as jsonFile:
          data = json.load(jsonFile)
 
@@ -322,8 +349,6 @@ def saveBook(bookLink, bookName):
       with open("./cache/history.json", "w") as jsonFile:
             json.dump(data, jsonFile, indent=4)
 
-
-displayHistory()
 
 # Manage placement of widgets 
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
@@ -365,12 +390,15 @@ downloadallChapters = customtkinter.CTkButton(master=root, image=downloadButtonI
 
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
+bookmarkButton = customtkinter.CTkButton(master=root, image=bookmarkIcon, text="Bookmark", width=70, fg_color="#581845")#, command=displayHistory)
+
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
                                        fg_color="#581845", text="Back",
                                        command=lambda: (bookList.place(x=0, y=35), returnToList.place_forget(),
                                                         showDownloads.place(x=700, y=360),
                                                         bookChapters.place_forget(), searchButton.place(x=700, y=5), 
                                                         coverImageLabel.place_forget(),
+                                                        bookmarkButton.place_forget(),
                                                         downloadallChapters.place_forget(),
                                                         formatSelector.place_forget(), 
                                                         compressionMethodMenu.place_forget()))
