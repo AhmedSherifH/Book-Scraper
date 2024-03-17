@@ -39,7 +39,9 @@ bookChapterNames = {}
 globalBookName = ''
 headers = {'User-Agent': 'Mozilla/5.0'}
 session = HTMLSession()
-jsonPath = Path('./history.json')
+jsonPath = Path('./cache/history.json')
+os.makedirs('./cache', exist_ok=True)
+
 
 
 
@@ -88,7 +90,7 @@ def getPages(chapterLink, session, selectedHost, bookName, isMassDownload, direc
       # directory variable is set to "directory" to avoid throwing an error
       elif selectedFormat in ["Read"]:
             isMassDownload = True
-            directory = "directory"
+            directory = "directory" 
             imageContent = scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
             createReaderWindow(imageContent)
       elif selectedFormat in [".jpg", ".cbz", ".zip", ".pdf"]:
@@ -166,7 +168,7 @@ def displayChapters(href, bookName, isHistory):
             coverLink = scrapeCover(coverLink, session, selectedHost)
             coverResponse = requests.get(coverLink)
             cover = Image.open(BytesIO(coverResponse.content))
-            coverImage = customtkinter.CTkImage(light_image=cover, dark_image=cover,size= (166, 256))
+            coverImage = customtkinter.CTkImage(light_image=cover, dark_image=cover,size=(166, 256))
             coverImageLabel.configure(image=coverImage)
       except:
             messagebox.showerror("Error", "Couldn't load cover image.")
@@ -184,6 +186,8 @@ def displayChapters(href, bookName, isHistory):
       bookChapters.place(x=0, y=35) 
       if not isHistory:
             returnToList.place(x=700, y=5)
+            os.makedirs(f'./cache/{selectedHost}', exist_ok=True)
+            cover.save(f"./cache/{selectedHost}/{bookName}.png")
             saveBook(href, bookName)
       else:
             returnToHistory.place(x=700, y=5)
@@ -229,7 +233,9 @@ def searchProcess():
 
 
 
-historyList = customtkinter.CTkScrollableFrame(root, width=770, height=340, fg_color="#242424")
+historyList = customtkinter.CTkScrollableFrame(root, width=200, height=340, 
+                                               fg_color="#242424")
+                                               
 historyFrame = customtkinter.CTkFrame(root)
 historyImage = customtkinter.CTkLabel(historyFrame, image=historyLabelIcon, text="", fg_color="#242424")
 historyImage.grid(row=0, column=0)
@@ -253,12 +259,13 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            compressionMethodMenu.place_forget(),
                                                            searchButton.place(x=700, y=5),
                                                            historyFrame.place(x=20,y=45),
-                                                           historyList.place(x=0, y=40),
+                                                           historyList.place(x=150, y=40),
                                                            searchButton.place(x=700, y=5)
                                                            ))
 
 def displayHistory():
-    historyList.place(x=0, y=40) 
+    coverFont = customtkinter.CTkFont(family="Arial MT Bold", size=14)
+    historyList.place(x=150, y=40) 
     historyFrame.place(x=20,y=45) 
     
     # Check if the history file exists
@@ -277,15 +284,22 @@ def displayHistory():
                   historyHost = book.get('selectedHost')
                   
                   if bookLink and bookName:
-                     bookNameButton = customtkinter.CTkButton(historyList, 
-                                                            width=500, 
-                                                            height=30, 
-                                                            text=f"{bookName} ({historyHost})", 
-                                                            fg_color="#581845", 
-                                                            command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
-                                                            (selectHost(historyHost), historyList.place_forget(), historyFrame.place_forget(),
-                                                             displayChaptersCheck(href, name, isHistory)))
-                     bookNameButton.pack()
+                    if os.path.exists(f"./cache/{historyHost}/{bookName}.png"):
+                        coverImage = Image.open(f"./cache/{historyHost}/{bookName}.png")
+                        bookNameButton = customtkinter.CTkButton(historyList, 
+                                                                  width=170, 
+                                                                  height=30, 
+                                                                  image=customtkinter.CTkImage(light_image=coverImage
+                                                                                               ,dark_image=coverImage,size=(166, 256)),
+                                                                  text=f"{historyHost}",
+                                                                  compound="top",
+                                                                  font=coverFont,
+                                                         #         text=f"{bookName} ({historyHost})", 
+                                                                  fg_color="#581845", 
+                                                                  command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
+                                                                  (selectHost(historyHost), historyList.place_forget(), historyFrame.place_forget(),
+                                                                  displayChaptersCheck(href, name, isHistory)))
+                        bookNameButton.pack()
         else:
             emptyJsonButton = customtkinter.CTkButton(historyList, 
                                                       width=500, 
@@ -296,7 +310,7 @@ def displayHistory():
                                                       
                                                             
 def saveBook(bookLink, bookName):
-      with open("history.json", "r") as jsonFile:
+      with open("./cache/history.json", "r") as jsonFile:
          data = json.load(jsonFile)
 
       newBook = { "bookLink": bookLink, "bookName": bookName, "selectedHost": selectedHost}
@@ -305,7 +319,7 @@ def saveBook(bookLink, bookName):
       data["books"].append(newBook)
 
       # Write the updated data back to the JSON file
-      with open("history.json", "w") as jsonFile:
+      with open("./cache/history.json", "w") as jsonFile:
             json.dump(data, jsonFile, indent=4)
 
 
