@@ -42,7 +42,10 @@ globalBookName = ''
 headers = {'User-Agent': 'Mozilla/5.0'}
 session = HTMLSession()
 historyJsonPath = Path('./cache/history/history.json')
+bookmarksJsonPath = Path('./cache/bookmark/bookmarks.json')
 os.makedirs('./cache/history', exist_ok=True)
+os.makedirs('./cache/bookmark', exist_ok=True)
+
 
 
 
@@ -154,7 +157,7 @@ def displayChapters(href, bookName, isHistory):
       bookIndividualRequest = session.get(href, headers=headers)
       numberofLoops = 0
       cbzVerification = 0
-  
+      
 
       # Get all Chapters in a book
       bookChapterNames = scrapeChapters(bookIndividualRequest, selectedHost)
@@ -175,15 +178,19 @@ def displayChapters(href, bookName, isHistory):
       except:
             messagebox.showerror("Error", "Couldn't load cover image.")
 
+      bookmarkButton.configure(command=lambda cover=cover, href=href, bookName=bookName: saveBookmark(cover, href, bookName))
       # Manage Placement of Widgets
       downloadallChapters.place(x=608, y=300)
       formatSelector.place(x=624, y=330)
+      bookmarkButton.place(x=5, y=370)
       if selectedFormat == ".zip":
             compressionMethodMenu.place(x=624, y=360)
       searchButton.place_forget()
       bookList.place_forget()
       historyList.place_forget()
       historyFrame.place_forget()
+      bookmarkList.place_forget()
+      bookmarkFrame.place_forget()
       coverImageLabel.place(x=610, y=40)
       bookChapters.place(x=0, y=35) 
       if not isHistory:
@@ -201,6 +208,8 @@ def searchProcess():
     # Empty Arrays and Assign Variables
     historyList.place_forget()
     historyFrame.place_forget()
+    bookmarkList.place_forget()
+    bookmarkFrame.place_forget()
     bookTitles = {}
     searchBookURL = ""
 
@@ -241,7 +250,7 @@ historyList = customtkinter.CTkScrollableFrame(root, width=200, height=340,
 historyFrame = customtkinter.CTkFrame(root)
 historyImage = customtkinter.CTkLabel(historyFrame, image=historyLabelIcon, text="", fg_color="#242424")
 historyImage.grid(row=0, column=0)
-labelFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=23)
+labelFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=14)
 historyText = customtkinter.CTkLabel(historyFrame, 
                                      text="History:",
                                      font=labelFont,
@@ -254,21 +263,24 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                           fg_color="#581845", text="Back",
                                           command=lambda: (returnToHistory.place_forget(),
                                                            bookChapters.place_forget(), 
+                                                           bookmarkButton.place_forget(),
                                                            coverImageLabel.place_forget(),
                                                            downloadallChapters.place_forget(),
                                                            formatSelector.place_forget(), 
                                                            compressionMethodMenu.place_forget(),
                                                            searchButton.place(x=700, y=5),
-                                                           historyFrame.place(x=20,y=45),
-                                                           historyList.place(x=150, y=40),
+                                                           historyFrame.place(x=60, y=45),
+                                                           historyList.place(x=130, y=40),
+                                                           bookmarkList.place(x=470, y=40),
+                                                           bookmarkFrame.place(x=370,y=45), 
                                                            searchButton.place(x=700, y=5),
                                                            showDownloads.place(x=700, y=360)
                                                            ))
 
 def displayHistory():
     coverFont = customtkinter.CTkFont(family="Arial MT Bold", size=14)
-    historyList.place(x=150, y=40) 
-    historyFrame.place(x=20,y=45) 
+    historyList.place(x=130, y=40) 
+    historyFrame.place(x=60,y=45) 
     
     # Check if the history file exists
     if not historyJsonPath.exists():
@@ -276,17 +288,16 @@ def displayHistory():
         base = {"books": []}
         with open(historyJsonPath, 'w') as jsonFile:
             json.dump(base, jsonFile, indent=4)  
-    else:
-        with open(historyJsonPath, "r") as jsonFile:
+    with open(historyJsonPath, "r") as jsonFile:
             data = json.load(jsonFile)
-        if data['books']:        
-            for book in reversed(data['books']):
-                  bookLink = book.get('bookLink')  
-                  bookName = book.get('bookName')  
-                  historyHost = book.get('selectedHost')
+    if data['books']:        
+      for book in reversed(data['books']):
+            bookLink = book.get('bookLink')  
+            bookName = book.get('bookName')  
+            historyHost = book.get('selectedHost')
                   
-                  if bookLink and bookName:
-                    if os.path.exists(f"./cache/history/{historyHost}/{bookName}.png"):
+            if bookLink and bookName:
+                  if os.path.exists(f"./cache/history/{historyHost}/{bookName}.png"):
                         coverImage = Image.open(f"./cache/history/{historyHost}/{bookName}.png")
                         bookNameButton = customtkinter.CTkButton(historyList, 
                                                                   width=170, 
@@ -299,9 +310,10 @@ def displayHistory():
                                                                   fg_color="#581845", 
                                                                   command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
                                                                   (selectHost(historyHost), historyList.place_forget(), historyFrame.place_forget(),
-                                                                  displayChaptersCheck(href, name, isHistory)))
+                                                                   bookmarkList.place_forget(), bookmarkFrame.place_forget(),
+                                                                   displayChaptersCheck(href, name, isHistory)))
                         bookNameButton.pack()
-        else:
+    if len(data['books']) == 0:
             emptyJsonButton = customtkinter.CTkButton(historyList, 
                                                       width=170, 
                                                       height=30, 
@@ -316,7 +328,7 @@ def saveBookToHistory(bookLink, bookName):
          data = json.load(jsonFile)
 
       newBook = { "bookLink": bookLink, "bookName": bookName, "selectedHost": selectedHost}
-      if len(data["books"]) >= 3:
+      if len(data["books"]) >= 10:
         bookNameToRemove = data["books"][0].get('bookName')
         bookHostToRemove = data["books"][0].get('selectedHost')
         os.remove(f"./cache/history/{bookHostToRemove}/{bookNameToRemove}.png")
@@ -334,14 +346,88 @@ def saveBookToHistory(bookLink, bookName):
 displayHistory()
 
 
-# Manage placement of widgets 
-searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
-searchBar.place(x=180, y=5)
-searchBar.bind('<Return>', lambda event: "break")
- 
+bookmarkList = customtkinter.CTkScrollableFrame(root, width=200, height=340, 
+                                               fg_color="#242424")
+                                               
+bookmarkFrame = customtkinter.CTkFrame(root)
+bookmarkImage = customtkinter.CTkLabel(bookmarkFrame, image=bookmarkIcon, text="", fg_color="#242424")
+bookmarkImage.grid(row=0, column=0)
+bookmarkText = customtkinter.CTkLabel(bookmarkFrame, 
+                                     text="Bookmarks:",
+                                     font=labelFont,
+                                     anchor="center",
+                                     fg_color="#242424")
+bookmarkText.grid(row=0, column=4)
 
-bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424")
-bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
+def displayBookmarks():
+    bookmarkList.place(x=470, y=40) 
+    bookmarkFrame.place(x=370,y=45) 
+    coverFont = customtkinter.CTkFont(family="Arial MT Bold", size=14)
+
+    if not bookmarksJsonPath.exists():
+        bookmarksJsonPath.touch()
+        base = {"books": []}
+        with open(bookmarksJsonPath, 'w') as jsonFile:
+            json.dump(base, jsonFile, indent=4)  
+    with open(bookmarksJsonPath, "r") as jsonFile:
+            data = json.load(jsonFile)
+    if data['books']:        
+      for book in reversed(data['books']):
+            bookLink = book.get('bookLink')  
+            bookName = book.get('bookName')  
+            historyHost = book.get('selectedHost')
+                  
+            if bookLink and bookName:
+                  if os.path.exists(f"./cache/bookmark/{historyHost}/{bookName}.png"):
+                        coverImage = Image.open(f"./cache/bookmark/{historyHost}/{bookName}.png")
+                        bookNameButton = customtkinter.CTkButton(bookmarkList, 
+                                                                  width=170, 
+                                                                  height=30, 
+                                                                  image=customtkinter.CTkImage(light_image=coverImage
+                                                                                               ,dark_image=coverImage,size=(166, 256)),
+                                                                  text=f"{historyHost}",
+                                                                  compound="top",
+                                                                  font=coverFont,
+                                                                  fg_color="#581845", 
+                                                                  command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
+                                                                  (selectHost(historyHost), bookmarkFrame.place_forget(), bookmarkList.place_forget(),
+                                                                   historyFrame.place_forget(), historyList.place_forget(),
+                                                                   displayChaptersCheck(href, name, isHistory)))
+                        bookNameButton.pack()
+    if len(data['books']) == 0:
+            emptyJsonButton = customtkinter.CTkButton(bookmarkList, 
+                                                      width=170, 
+                                                      height=30, 
+                                                      text="No bookmarks!", 
+                                                      fg_color="#581845")
+            emptyJsonButton.pack()
+
+
+
+def saveBookmark(cover, link, name):
+      with open("./cache/bookmark/bookmarks.json", "r") as jsonFile:
+         data = json.load(jsonFile)
+
+      os.makedirs(f'./cache/bookmark/{selectedHost}', exist_ok=True)
+      cover.save(f"./cache/bookmark/{selectedHost}/{name}.png")
+
+      newBook = { "bookLink": link, "bookName": name, "selectedHost": selectedHost}
+      if len(data["books"]) >= 10:
+        bookNameToRemove = data["books"][0].get('bookName')
+        bookHostToRemove = data["books"][0].get('selectedHost')
+        os.remove(f"./cache/bookmark/{bookHostToRemove}/{bookNameToRemove}.png")
+        data["books"].pop(0)  
+
+      for book in data["books"]:
+            if book == newBook:
+                  return
+
+      data["books"].append(newBook)
+      # Write the updated data back to the JSON file
+      with open("./cache/bookmark/bookmarks.json", "w") as jsonFile:
+            json.dump(data, jsonFile, indent=4) 
+
+displayBookmarks()
 
 
 def searchProcessCheck():
@@ -364,6 +450,7 @@ def displayChaptersCheck(href, bookName, isHistory):
             widget.destroy()
       threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start()
 
+
 searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=searchProcessCheck)
 searchButton.place(x=700, y=5)
 
@@ -383,6 +470,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         coverImageLabel.place_forget(),
                                                         downloadallChapters.place_forget(),
                                                         formatSelector.place_forget(), 
+                                                        bookmarkButton.place_forget(),
                                                         compressionMethodMenu.place_forget()))
 
 hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
@@ -393,7 +481,15 @@ formatSelector = customtkinter.CTkOptionMenu(root, values=formatValues, fg_color
 compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZIP2", "LZMA", "Deflate"], button_color="#581845",
                                                     fg_color="#581845", anchor="center")
                                          
+searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
+searchBar.place(x=180, y=5)
+searchBar.bind('<Return>', lambda event: "break")
+ 
 
+bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424")
+bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
+
+bookmarkButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Bookmark", image=bookmarkIcon)
 
 
 root.mainloop() 
