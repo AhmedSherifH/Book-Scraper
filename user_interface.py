@@ -35,6 +35,7 @@ selectedHost = ""
 selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
+bookmarkedBooks = []
 hostValues = ["Select a Host", "readallcomics.com", "comicextra.me" , "mangakomi.io", "mangaread.org"] 
 formatValues = ["Select a Format", "Read", ".jpg", ".cbz", ".zip", ".pdf"]
 bookChapterNames = {}
@@ -178,7 +179,10 @@ def displayChapters(href, bookName, isHistory):
       except:
             messagebox.showerror("Error", "Couldn't load cover image.")
 
-      bookmarkButton.configure(command=lambda cover=cover, href=href, bookName=bookName: saveBookmark(cover, href, bookName))
+      if href not in bookmarkedBooks:
+            bookmarkButton.configure(text="Bookmark", command=lambda cover=cover, href=href, bookName=bookName: saveBookmark(cover, href, bookName))
+      else: 
+            bookmarkButton.configure(text="Bookmarked" , command=lambda cover=cover, href=href, bookName=bookName: removeBookmark(cover, href, bookName))
       # Manage Placement of Widgets
       downloadallChapters.place(x=608, y=300)
       formatSelector.place(x=624, y=330)
@@ -271,8 +275,9 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            searchButton.place(x=700, y=5),
                                                            historyFrame.place(x=60, y=45),
                                                            historyList.place(x=130, y=40),
-                                                           bookmarkList.place(x=470, y=40),
-                                                           bookmarkFrame.place(x=370,y=45), 
+                                                 #          bookmarkList.place(x=470, y=40),
+                                                 #          bookmarkFrame.place(x=370,y=45), 
+                                                           displayBookmarks(),
                                                            searchButton.place(x=700, y=5),
                                                            showDownloads.place(x=700, y=360)
                                                            ))
@@ -360,6 +365,8 @@ bookmarkText = customtkinter.CTkLabel(bookmarkFrame,
 bookmarkText.grid(row=0, column=4)
 
 def displayBookmarks():
+    for widget in bookmarkList.winfo_children():
+        widget.destroy()
     bookmarkList.place(x=470, y=40) 
     bookmarkFrame.place(x=370,y=45) 
     coverFont = customtkinter.CTkFont(family="Arial MT Bold", size=14)
@@ -377,6 +384,8 @@ def displayBookmarks():
             bookName = book.get('bookName')  
             historyHost = book.get('selectedHost')
                   
+            bookmarkedBooks.append(bookLink)
+            
             if bookLink and bookName:
                   if os.path.exists(f"./cache/bookmark/{historyHost}/{bookName}.png"):
                         coverImage = Image.open(f"./cache/bookmark/{historyHost}/{bookName}.png")
@@ -426,6 +435,26 @@ def saveBookmark(cover, link, name):
       # Write the updated data back to the JSON file
       with open("./cache/bookmark/bookmarks.json", "w") as jsonFile:
             json.dump(data, jsonFile, indent=4) 
+
+def removeBookmark(cover, link, name):
+
+      selectedHost = ""
+      bookmarkedBooks.remove(link)
+
+      with open(bookmarksJsonPath, "r") as jsonFile:
+            data = json.load(jsonFile)
+
+      for book in data["books"]:
+            if book["bookLink"] == link:
+                  selectedHost = book["selectedHost"]
+                  data["books"].remove(book)
+                  break
+            
+      os.remove(f"./cache/bookmark/{selectedHost}/{name}.png")
+      with open(bookmarksJsonPath, "w") as jsonFile:
+            json.dump(data, jsonFile, indent=4)      
+
+
 
 displayBookmarks()
 
