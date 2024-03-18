@@ -25,6 +25,7 @@ Book Scraper is a **free and open source** program made with Python to download 
 - Read Manga and Comics directly without downloading
   - Resampling methods such as Nearest-Neighbor, Bicubic and Bilinear
 - Different hosts for both Manga and Comics
+- Bookmark books and have them displayed in the homepage for easy access 
 - Download multiple chapters simultaneously
 - Lightweight and easy to use
 
