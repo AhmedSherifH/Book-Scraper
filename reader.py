@@ -34,6 +34,7 @@ downloadImage = customtkinter.CTkImage(light_image=Image.open("./resources/downl
 def changeResamplingMethod(choice):
     global resamplingMethod
     resamplingMethod = resamplingMethods[choice] 
+    print(resamplingMethod)
 
 def downloadPage(pages):
     directory = filedialog.asksaveasfilename(defaultextension=".png",
@@ -123,14 +124,18 @@ def createReaderWindow(imageContent):
 def getNextPage(pages, pageLabel, pageNumberDisplay):
     global currentPage
     global readingPage
+    global resamplingMethod
+
     if currentPage == len(pages) - 1:
         pass
     else:
         page = Image.open(BytesIO(pages[currentPage+1]))
         pageSize = (page.width, page.height)
+        page.resize((page.width, page.height), resamplingMethod)
         pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
                               dark_image=page,
                               size=pageSize)))
+                             
         currentPage += 1
         readingPage += 1
         pageNumberDisplay.configure(text=pageLabelText.format(readingPage, len(pages)))
@@ -139,14 +144,18 @@ def getNextPage(pages, pageLabel, pageNumberDisplay):
 def getLastPage(pages, pageLabel, pageNumberDisplay):
     global currentPage
     global readingPage
+    global resamplingMethod
+
     if currentPage == 0:
         pass
     else:
         page = Image.open(BytesIO(pages[currentPage-1]))
+        page.resize((page.width, page.height), resamplingMethod)
         pageSize = (page.width, page.height)
         pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
                               dark_image=page,
                               size=pageSize)))
+                              
         currentPage -= 1
         readingPage -= 1
         pageNumberDisplay.configure(text=pageLabelText.format(readingPage, len(pages)))
@@ -160,11 +169,11 @@ def zoomIn(pageLabel, pages):
 
     page = Image.open(BytesIO(pages[currentPage]))
     pageSize = (page.width / 0.7, page.height / 0.7)
-    page.thumbnail(pageSize, resamplingMethod)
-
+    page.resize((page.width, page.height), resamplingMethod)
     pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
                                                       dark_image=page,
                                                       size=pageSize)))
+                                                      
 
 def zoomOut(pageLabel, pages):
     global pageSize
@@ -172,8 +181,7 @@ def zoomOut(pageLabel, pages):
 
     page = Image.open(BytesIO(pages[currentPage]))
     pageSize = (page.width * 0.7, page.height * 0.7)
-    page.thumbnail(pageSize, resamplingMethod)
-
+    page.resize((page.width, page.height), resamplingMethod)
     pageLabel.configure(image=(customtkinter.CTkImage(light_image=page,
                                                       dark_image=page,
                                                       size=pageSize)))
@@ -183,6 +191,7 @@ def pageDisplay(imageContent, pageLabel):
     global currentPage
     global pageSize
     firstPage = Image.open(BytesIO(imageContent[0]))
+    firstPage.resize((firstPage.width, firstPage.height), Image.NEAREST)
     pageSize = ((firstPage.width), (firstPage.height))
     currentPage = 0
     pageLabel.configure(image=(customtkinter.CTkImage(light_image=firstPage,
