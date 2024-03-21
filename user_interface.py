@@ -31,6 +31,8 @@ bookmarkIcon = customtkinter.CTkImage(light_image=Image.open("./resources/bookma
                                       dark_image=Image.open("./resources/bookmark.png"))
 loadingIcon = customtkinter.CTkImage(light_image=Image.open("./resources/loading.png"),
                                       dark_image=Image.open("./resources/loading.png"))
+infoIcon = customtkinter.CTkImage(light_image=Image.open("./resources/info.png"),
+                                      dark_image=Image.open("./resources/info.png"))
 
 # Global variables
 selectedHost = ""
@@ -84,7 +86,7 @@ def selectFormat(choice):
             formatSelector.configure(values=formatValues)
             # Only show the compression method menu if the selected format is .zip
             if selectedFormat == ".zip":
-                  compressionMethodMenu.place(x=624, y=360)
+                  compressionMethodMenu.place(x=480, y=368)
             else:
                   compressionMethodMenu.place_forget()
        
@@ -199,11 +201,10 @@ def displayChapters(href, bookName, isHistory):
 
       # Manage Placement of Widgets
       loadingFrame.place_forget()
-      downloadallChapters.place(x=608, y=300)
-      formatSelector.place(x=624, y=330)
-      bookmarkButton.place(x=5, y=370)
-      if selectedFormat == ".zip":
-            compressionMethodMenu.place(x=624, y=360)
+      displayInformationButton.place(x=609, y=301)
+      downloadallChapters.place(x=608, y=336)
+      formatSelector.place(x=624, y=368)
+      bookmarkButton.place(x=5, y=365)
       searchButton.place_forget()
       bookList.place_forget()
       historyList.place_forget()
@@ -273,6 +274,7 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            downloadallChapters.place_forget(),
                                                            formatSelector.place_forget(), 
                                                            compressionMethodMenu.place_forget(),
+                                                           displayInformationButton.place_forget(),
                                                            searchButton.place(x=700, y=5),
                                                            historyFrame.place(x=60, y=45),
                                                            historyList.place(x=130, y=40),
@@ -509,6 +511,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         coverImageLabel.place_forget(),
                                                         downloadallChapters.place_forget(),
                                                         formatSelector.place_forget(), 
+                                                        displayInformationButton.place_forget(),
                                                         bookmarkButton.place_forget(),
                                                         compressionMethodMenu.place_forget()))
 
@@ -529,6 +532,7 @@ bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_col
 bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
 
 bookmarkButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Bookmark", image=bookmarkIcon)
+displayInformationButton = customtkinter.CTkButton(master=root, width=170, height=30, fg_color="#581845", text="Information", image=infoIcon)
 
 loadingFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=25)
 loadingFrame = customtkinter.CTkFrame(master=root)

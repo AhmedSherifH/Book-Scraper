@@ -1,4 +1,3 @@
-from email import message
 import requests
 from tkinter import filedialog
 from tkinter import messagebox
@@ -38,6 +37,10 @@ def scrapeCover(bookLink, session, selectedHost):
 
     return coverImage
     
+def scrapeInformation(bookLink, session, selectedHost):
+    pass
+    
+
 
 def scrapeTitles(url, selectedHost, requestedBook): 
     requestedBook = requestedBook.replace(" ", "-")
