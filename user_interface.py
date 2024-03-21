@@ -1,3 +1,6 @@
+from warnings import showwarning
+
+from click import command
 from reader import *
 import customtkinter
 from functools import *
@@ -40,7 +43,7 @@ selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
 bookmarkedBooks = []
-hostValues = ["Select a Host", "readallcomics.com", "comicextra.me" , "mangakomi.io", "mangaread.org"] 
+hostValues = ["Select a Host", "readallcomics.com", "comicextra.org" , "mangakomi.io", "mangaread.org"] 
 formatValues = ["Select a Format", "Read", ".jpg", ".cbz", ".zip", ".pdf"]
 bookChapterNames = {}
 globalBookName = ''
@@ -69,8 +72,8 @@ def selectHost(choice):
        match choice:
             case "readallcomics.com":
                   hostBase = "https://readallcomics.com/?story="
-            case "comicextra.me":
-                  hostBase = "https://comicextra.me/search?keyword={}"
+            case "comicextra.org":
+                  hostBase = "https://comicextra.org/search?keyword={}"
             case "mangakomi.io":
                   hostBase = "https://mangakomi.io/?s={}&post_type=wp-manga"
             case "mangaread.org":
@@ -159,6 +162,7 @@ def displayChapters(href, bookName, isHistory):
       numberofLoops = 0
       cbzVerification = 0
       bookChapterNames = {}
+      information = {}
       globalBookName = bookName
 
       print(f"Displaying Chapters --> {href}, {bookName}")
@@ -173,6 +177,10 @@ def displayChapters(href, bookName, isHistory):
                                                       bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start())
             chapterButton.pack()
 
+      information = scrapeInformation(href, session, selectedHost)
+      information["Number of Chapters"] = len(bookChapterNames)
+
+      displayInformationButton.configure(command = lambda: displayInformation(information))
 
       # Get Cover Display, If it throws an error: Ignore cover completely     
       try:   
@@ -229,13 +237,12 @@ def searchProcess():
             requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
             searchBookURL = hostBase + requestedBook + "&s=&type=comic"
             searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-      if selectedHost in ["mangakomi.io", "mangaread.org", "comicextra.me"]:
+      if selectedHost in ["mangakomi.io", "mangaread.org", "comicextra.org"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
 
       searchBookRequest = session.get(searchBookURL,
                                           headers={'User-Agent': 'Mozilla/5.0'})
-      
       
       # Get all titles that include the same keywords as the ones entered by the user
       bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
@@ -470,8 +477,18 @@ def removeBookmark(link, name):
 displayBookmarks()
 
 
+def displayInformation(information):
+      title = information['Title']
+      genres = information['Genres']
+      author = information['Author/Publisher']
+      description = information['Description']
+      numberOfChapters = information['Number of Chapters']
+
+      messagebox.showinfo(title="Information", message=f"Title: {title}\nGenres: {genres}\nAuthor/Publisher: {author}\nDescription: {description}\nNumber of Chapters: {numberOfChapters}")
+
+
 def searchProcessCheck():
-      if selectedHost not in ["readallcomics.com", "comicextra.me" , "mangakomi.io", "mangaread.org"]:
+      if selectedHost not in ["readallcomics.com", "comicextra.org" , "mangakomi.io", "mangaread.org"]:
             messagebox.showerror("Error", "Please select a host from the dropdown menu.")
       else: 
             searchButton.place_forget()
@@ -533,7 +550,7 @@ bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_
 
 bookmarkButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Bookmark", image=bookmarkIcon)
 displayInformationButton = customtkinter.CTkButton(master=root, width=170, height=30, fg_color="#581845", text="Information", image=infoIcon)
-
+                                                
 loadingFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=25)
 loadingFrame = customtkinter.CTkFrame(master=root)
 loadingText = customtkinter.CTkLabel(loadingFrame, text="Loading...", font=loadingFont, fg_color="#242424")

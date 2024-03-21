@@ -20,7 +20,7 @@ def scrapeCover(bookLink, session, selectedHost):
             for image in images:
                 coverImage = image.attrs['src']
         
-        case "comicextra.me":
+        case "comicextra.org":
             images = imageRequest.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[1]/div/img')
             for image in images:
                 coverImage = image.attrs['src']
@@ -38,9 +38,28 @@ def scrapeCover(bookLink, session, selectedHost):
     return coverImage
     
 def scrapeInformation(bookLink, session, selectedHost):
-    pass
-    
+    information = {}
+    request = session.get(bookLink, headers=headers)
+    genresList = []
 
+    match selectedHost:
+        case "readallcomics.com":
+            information['Title'] = request.html.xpath('/html/body/center[3]/div/h1/b')[0].text
+            information['Author/Publisher'] = request.html.xpath('/html/body/center[3]/div/div[1]/p/strong[2]')[0].text
+            information['Genres'] = request.html.xpath('/html/body/center[3]/div/div[1]/p/strong[1]')[0].text
+            information["Description"] = "No description available"
+        case "comicextra.org":
+            information["Title"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/h1/span')[0].text
+            information["Author/Publisher"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/div/dl/dd[4]')[0].text
+            genres = request.html.find('.movie-dd')[0]
+            genreLinks = genres.find('a')
+            for link in genreLinks:
+                genre = link.text
+                print(genre)
+                genresList.append(genre)
+            information["Genres"] = ", ".join(genresList)
+            information["Description"] = (request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/article/div[2]/text()')[0]).replace('\n', '')
+    return information
 
 def scrapeTitles(url, selectedHost, requestedBook): 
     requestedBook = requestedBook.replace(" ", "-")
@@ -55,12 +74,13 @@ def scrapeTitles(url, selectedHost, requestedBook):
              titleName = child.text
              bookTitles[titleName] = titleHref
 
-        case "comicextra.me":
+        case "comicextra.org":
             parsedTitles = url.html.find('div.cartoon-box a')
             for title in parsedTitles:
-                if "https://comicextra.me/comic/" in title.attrs['href'] and title.text:
+                if "https://comicextra.org/comic/" in title.attrs['href'] and title.text:
                     titleHref = title.attrs['href']
                     titleName = title.text
+                    print(titleName)
                     bookTitles[titleName] = titleHref
 
         case "mangakomi.io":
@@ -70,14 +90,12 @@ def scrapeTitles(url, selectedHost, requestedBook):
                 titleName = link.text
                 bookTitles[titleName] = titleHref
 
-        
         case "mangaread.org":
             h3_elements = url.html.find('h3.h4 a')
             for h3 in h3_elements:
                 titleHref = h3.attrs['href']
                 titleName = h3.text
                 bookTitles[titleName] = titleHref
-        
     return bookTitles
 
 
@@ -94,7 +112,7 @@ def scrapeChapters(url, selectedHost):
                 chapterHref =  chapter.attrs['href']
                 bookChapters[chapterName] = chapterHref
 
-        case "comicextra.me":
+        case "comicextra.org":
             issues = url.html.find('#list a')
             for issue in issues:
                 chapterHref = issue.attrs['href']
@@ -146,7 +164,7 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                             print(f"{chosenDir}/#{pageNum}.jpg")
                             imageContents.append(pageResponse.content)
 
-                case "comicextra.me":
+                case "comicextra.org":
                     images = chapterRequest.html.find('div.chapter-container img')
                     for image in images:
                         pageNum += 1
