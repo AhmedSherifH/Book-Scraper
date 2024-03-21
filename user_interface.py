@@ -29,6 +29,8 @@ historyLabelIcon = customtkinter.CTkImage(light_image=Image.open("./resources/hi
                                           dark_image=Image.open("./resources/history.png"))
 bookmarkIcon = customtkinter.CTkImage(light_image=Image.open("./resources/bookmark.png"),
                                       dark_image=Image.open("./resources/bookmark.png"))
+loadingIcon = customtkinter.CTkImage(light_image=Image.open("./resources/loading.png"),
+                                      dark_image=Image.open("./resources/loading.png"))
 
 # Global variables
 selectedHost = ""
@@ -169,6 +171,7 @@ def displayChapters(href, bookName, isHistory):
                                                       bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start())
             chapterButton.pack()
 
+
       # Get Cover Display, If it throws an error: Ignore cover completely     
       try:   
             coverLink = scrapeCover(coverLink, session, selectedHost)
@@ -195,6 +198,7 @@ def displayChapters(href, bookName, isHistory):
             returnToHistory.place(x=700, y=5)
 
       # Manage Placement of Widgets
+      loadingFrame.place_forget()
       downloadallChapters.place(x=608, y=300)
       formatSelector.place(x=624, y=330)
       bookmarkButton.place(x=5, y=370)
@@ -302,8 +306,6 @@ def displayHistory():
                   if os.path.exists(f"./cache/history/{historyHost}/{bookName}.png"):
                         coverImage = Image.open(f"./cache/history/{historyHost}/{bookName}.png")
                         bookNameButton = customtkinter.CTkButton(historyList, 
-                                                                  width=170, 
-                                                                  height=30, 
                                                                   image=customtkinter.CTkImage(light_image=coverImage
                                                                                                ,dark_image=coverImage,size=(166, 256)),
                                                                   text=f"{historyHost}",
@@ -398,8 +400,7 @@ def displayBookmarks():
                   if os.path.exists(f"./cache/bookmark/{historyHost}/{bookName}.png"):
                         coverImage = Image.open(f"./cache/bookmark/{historyHost}/{bookName}.png")
                         bookNameButton = customtkinter.CTkButton(bookmarkList, 
-                                                                  width=170, 
-                                                                  height=30, 
+
                                                                   image=customtkinter.CTkImage(light_image=coverImage
                                                                                                ,dark_image=coverImage,size=(166, 256)),
                                                                   text=f"{historyHost}",
@@ -483,6 +484,7 @@ def displayChaptersCheck(href, bookName, isHistory):
       showDownloads.place_forget()
       searchButton.place_forget()
       returnToHistory.place_forget()
+      loadingFrame.place(x=350, y=170)
       for widget in bookChapters.winfo_children():
             widget.destroy()
       threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start()
@@ -528,6 +530,13 @@ bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_
 
 bookmarkButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Bookmark", image=bookmarkIcon)
 
+loadingFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=25)
+loadingFrame = customtkinter.CTkFrame(master=root)
+loadingText = customtkinter.CTkLabel(loadingFrame, text="Loading...", font=loadingFont, fg_color="#242424")
+loadingImage = customtkinter.CTkLabel(loadingFrame, text="", image=loadingIcon, fg_color="#242424")
+loadingImage.grid(row=0, column=0)
+loadingText.grid(row=0, column=4)
+                                     
 
 root.mainloop() 
 
