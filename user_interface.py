@@ -496,6 +496,7 @@ def searchProcessCheck():
             for widget in bookList.winfo_children():
                   if isinstance(widget, customtkinter.CTkButton):
                         widget.destroy()
+
             threading.Thread(target=searchProcess).start()
             
 

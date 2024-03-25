@@ -48,6 +48,7 @@ def scrapeInformation(bookLink, session, selectedHost):
             information['Author/Publisher'] = request.html.xpath('/html/body/center[3]/div/div[1]/p/strong[2]')[0].text
             information['Genres'] = request.html.xpath('/html/body/center[3]/div/div[1]/p/strong[1]')[0].text
             information["Description"] = "No description available"
+
         case "comicextra.org":
             information["Title"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/h1/span')[0].text
             information["Author/Publisher"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/div/dl/dd[4]')[0].text
@@ -55,10 +56,36 @@ def scrapeInformation(bookLink, session, selectedHost):
             genreLinks = genres.find('a')
             for link in genreLinks:
                 genre = link.text
-                print(genre)
                 genresList.append(genre)
             information["Genres"] = ", ".join(genresList)
             information["Description"] = (request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/article/div[2]/text()')[0]).replace('\n', '')
+
+        case "mangakomi.io":
+            information['Title'] = request.html.xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div/div[2]/h1')[0].text
+            authors = request.html.find('.author-content')
+            if authors:
+                for author in authors:
+                        information['Author/Publisher'] = author.text
+            else:
+                information['Author/Publisher'] = "N/A"
+            genreLinks = request.html.find('.genres-content')
+            for link in genreLinks:
+                genre = link.text
+                genresList.append(genre)
+            information["Genres"] = ", ".join(genresList)
+            information['Description'] = request.html.xpath('/html/body/div[1]/div/div/div/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/div[1]')[0].text
+
+        case "mangaread.org":
+            information['Title'] = request.html.xpath('/html/body/div[1]/div/div[2]/div/div[1]/div/div/div/div[2]/h1')[0].text
+            information['Author/Publisher'] = request.html.xpath('/html/body/div[1]/div/div[2]/div/div[1]/div/div/div/div[3]/div[2]/div/div[1]/div[6]/div[2]/div/a')[0].text
+            genreLinks = request.html.find('.genres-content')
+            for genreLink in genreLinks:
+                genre = genreLink.text
+                genresList.append(genre)
+            information['Genres'] = ", ".join(genresList)
+            information['Description'] = (request.html.xpath('/html/body/div[1]/div/div[2]/div/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/div[1]')[0].text).replace('\n', '')
+
+
     return information
 
 def scrapeTitles(url, selectedHost, requestedBook): 
