@@ -105,7 +105,7 @@ def getPages(chapterLink, session, selectedHost, bookName, isMassDownload, direc
             # Directory variable is set to "directory" to avoid throwing an error
             directory = "directory" 
             imageContent = scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
-            createReaderWindow(imageContent)
+            createReaderWindow(imageContent, bookName)
 
       elif selectedFormat in [".jpg", ".cbz", ".zip", ".pdf"]:
             scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, selectedFormat, numberofLoops, cbzVerification, zipCompressionMethod)
@@ -466,7 +466,6 @@ def removeBookmark(link, name):
       for book in data["books"]:
             if book["bookLink"] == link:
                   # The bookLink contains both the host and the name of the book so we're using it to check for duplicates
-                  # eg. https://mangakomi.io/manga/chainsaw-man 
                   selectedHost = book["selectedHost"]
                   data["books"].remove(book)
                   break

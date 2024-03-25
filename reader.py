@@ -43,13 +43,13 @@ def downloadPage(pages):
     imageToDownload.save(directory)
 
     
-def createReaderWindow(imageContent):
+def createReaderWindow(imageContent, bookName):
     global readingPage
 
     readerWindow = customtkinter.CTkToplevel()
     readerWindow.geometry("600x600")
     readerWindow.wm_iconbitmap("visual/bookscraper-icon.ico")
-    readerWindow.title("Book Scraper")
+    readerWindow.title(bookName)
 
     labelFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=12)
     readingPage = 1
