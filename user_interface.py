@@ -1,6 +1,3 @@
-from warnings import showwarning
-
-from click import command
 from reader import *
 import customtkinter
 from functools import *

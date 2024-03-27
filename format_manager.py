@@ -24,6 +24,7 @@ def createJpg(imageContent, chosenDir):
                 f.write(page)
 
 def createPdf(imageContent, outputPdf):
+    imageContent = reversed(imageContent)
     loadedPages = [ Image.open(BytesIO(page)) for page in imageContent ]
     loadedPages[0].save(
                     outputPdf, "PDF" ,resolution=100.0, save_all=True, append_images=loadedPages[1:])

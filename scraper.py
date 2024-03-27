@@ -236,7 +236,6 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                 case ".zip":
                     for page in imageContents:
                         compressedChapters.append(page)
-
                     if loopVerification == numberofLoops:
                         createZip(compressedChapters, f"{chosenDir}/{bookName}.zip", zipCompression)
                         if len(compressedChapters) > 0:
@@ -246,7 +245,7 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                     for page in imageContents:
                         compressedChapters.append(page)
                     if loopVerification == numberofLoops:
-                        createPdf(imageContents, f"{chosenDir}/{bookName}.pdf")
+                        createPdf(compressedChapters, f"{chosenDir}/{bookName}.pdf")
                         if len(compressedChapters) > 0:
                             compressedChapters = []
 
