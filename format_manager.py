@@ -25,7 +25,6 @@ def createJpg(imageContent, chosenDir):
 
 def createPdf(imageContent, outputPdf):
     loadedPages = []
-    imageContent = reversed(imageContent)
     for page in imageContent:
         if page:
             loadedPages.append(Image.open(BytesIO(page)))
