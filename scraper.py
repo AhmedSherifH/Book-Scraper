@@ -12,7 +12,6 @@ compressedChapters = []
 def scrapeCover(bookLink, session, selectedHost): 
     coverImage = ""
     imageRequest = session.get(bookLink, headers=headers)
-
    # Get coverImage from the website source code, xpath differs across different websites
     match selectedHost:
         case "readallcomics.com":
@@ -34,7 +33,6 @@ def scrapeCover(bookLink, session, selectedHost):
             images = imageRequest.html.xpath('/html/body/div[1]/div/div[2]/div/div[1]/div/div/div/div[3]/div[1]/a/img')
             img_tag = images[0] 
             coverImage = img_tag.attrs['src']
-
     return coverImage
     
 def scrapeInformation(bookLink, session, selectedHost):
@@ -84,14 +82,11 @@ def scrapeInformation(bookLink, session, selectedHost):
                 genresList.append(genre)
             information['Genres'] = ", ".join(genresList)
             information['Description'] = (request.html.xpath('/html/body/div[1]/div/div[2]/div/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/div[1]')[0].text).replace('\n', '')
-
-
     return information
 
 def scrapeTitles(url, selectedHost, requestedBook): 
     requestedBook = requestedBook.replace(" ", "-")
     bookTitles = {}
-
    # Retrieve all book titles that contain the same words as those entered by the user
     match selectedHost:
         case "readallcomics.com":
@@ -129,7 +124,6 @@ def scrapeTitles(url, selectedHost, requestedBook):
 
 def scrapeChapters(url, selectedHost):    
     bookChapters = {}
-
   # Get all chapters within a book
     match selectedHost: 
         case "readallcomics.com":
@@ -159,7 +153,6 @@ def scrapeChapters(url, selectedHost):
                 chapterName = chapter.find('a', first=True).text
                 chapterHref = chapter.find('a', first=True).attrs['href']
                 bookChapters[chapterName] = chapterHref
-
     return bookChapters
 
   
@@ -168,7 +161,6 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
      imageContents = []
      global compressedChapters
      chapterRequest = session.get(chapterLink, headers=headers)
-
   # If isMassDownload is True, we don't ask for the directory because the user has already chosen the directory in user_interface.py
      if isMassDownload == False: 
         chosenDir = filedialog.askdirectory()
@@ -199,7 +191,6 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                         print(f"{chosenDir}/#{pageNum}.jpg")
                         pageResponse = requests.get(src) 
                         imageContents.append(pageResponse.content)
-
 
                 case "mangakomi.io":
                     images = chapterRequest.html.xpath('//img')  
