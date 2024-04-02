@@ -251,11 +251,11 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                 
                 case "mangakatana.com":
 
-                    thzq_script = chapterRequest.html.find('script', containing='var thzq=')[0].text
-                    thzq_start = thzq_script.find('var thzq=')
-                    thzq_end = thzq_script.find('];function kxat', thzq_start) + 1
-                    thzq_array = thzq_script[thzq_start:thzq_end]
-                    pageLinks = thzq_array.replace('var thzq=', '').split(',')
+                    thzqScript = chapterRequest.html.find('script', containing='var thzq=')[0].text
+                    thzqStart = thzqScript.find('var thzq=')
+                    thzqEnd = thzqScript.find('];function kxat', thzqStart) + 1
+                    thzqArray = thzqScript[thzqStart:thzqEnd]
+                    pageLinks = thzqArray.replace('var thzq=', '').split(',')
                     for pageLink in pageLinks:
                         pageLink = pageLink.replace("[", "",).replace(",", "").replace("'", "").replace("]", "")
                         print(pageLink)
