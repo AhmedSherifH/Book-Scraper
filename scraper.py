@@ -87,6 +87,19 @@ def scrapeInformation(bookLink, session, selectedHost):
                 genresList.append(genre)
             information['Genres'] = ", ".join(genresList)
             information['Description'] = (request.html.xpath('/html/body/div[1]/div/div[2]/div/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/div[1]')[0].text).replace('\n', '')
+
+        case "mangakatana.com":
+            information['Title'] = request.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[2]/div/h1')[0].text
+            information['Author/Publisher'] = request.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[2]/div/ul/li[2]/div[2]/a')[0].text
+            genreLinks = request.html.find('div.genres a.text_0')
+            if genreLinks:
+                #genres = genreLinks.find('a.text_0')
+                for genre in genreLinks:
+                    genreName = genre.text
+                    genresList.append(genreName)
+            information['Genres'] = ", ".join(genresList)
+            information['Description'] = request.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[3]/p/text()[1]')[0]
+
     return information
 
 def scrapeTitles(url, selectedHost, requestedBook): 
