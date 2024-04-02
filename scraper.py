@@ -113,11 +113,21 @@ def scrapeTitles(url, selectedHost, requestedBook):
                 bookTitles[titleName] = titleHref
 
         case "mangaread.org":
-            h3_elements = url.html.find('h3.h4 a')
-            for h3 in h3_elements:
+            h3Elements = url.html.find('h3.h4 a')
+            for h3 in h3Elements:
                 titleHref = h3.attrs['href']
                 titleName = h3.text
                 bookTitles[titleName] = titleHref
+        
+        case "mangakatana.com":
+            requestedBookList = url.html.xpath('//*[@id="book_list"]//div[@class="item"]')
+            for item in requestedBookList:
+                titleClass = item.find('h3.title', first=True)
+                if titleClass:
+                    titleHref = titleClass.find('a', first=True).attrs['href']
+                    titleName = titleClass.find('a', first=True).text
+                    bookTitles[titleName] = titleHref
+
     return bookTitles
 
 
