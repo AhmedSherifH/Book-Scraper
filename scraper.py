@@ -33,6 +33,11 @@ def scrapeCover(bookLink, session, selectedHost):
             images = imageRequest.html.xpath('/html/body/div[1]/div/div[2]/div/div[1]/div/div/div/div[3]/div[1]/a/img')
             img_tag = images[0] 
             coverImage = img_tag.attrs['src']
+
+        case "mangakatana.com":
+            images = imageRequest.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[1]/div/img')
+            img_tag = images[0] 
+            coverImage = img_tag.attrs['src']
     return coverImage
     
 def scrapeInformation(bookLink, session, selectedHost):
@@ -163,6 +168,14 @@ def scrapeChapters(url, selectedHost):
                 chapterName = chapter.find('a', first=True).text
                 chapterHref = chapter.find('a', first=True).attrs['href']
                 bookChapters[chapterName] = chapterHref
+        
+        case "mangakatana.com":
+            chapters = url.html.find('div.chapter')
+            for chapter in chapters:
+                chapterName = chapter.find('a', first=True).text
+                chapterHref = chapter.find('a', first=True).attrs['href']
+                bookChapters[chapterName] = chapterHref
+        
     return bookChapters
 
   
