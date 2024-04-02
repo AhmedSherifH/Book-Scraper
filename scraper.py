@@ -93,7 +93,6 @@ def scrapeInformation(bookLink, session, selectedHost):
             information['Author/Publisher'] = request.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[2]/div/ul/li[2]/div[2]/a')[0].text
             genreLinks = request.html.find('div.genres a.text_0')
             if genreLinks:
-                #genres = genreLinks.find('a.text_0')
                 for genre in genreLinks:
                     genreName = genre.text
                     genresList.append(genreName)
@@ -249,6 +248,23 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                         print(f"#{pageNum}: {src}")            
                         pageResponse = requests.get(src) 
                         imageContents.append(pageResponse.content)
+                
+                case "mangakatana.com":
+
+                    thzq_script = chapterRequest.html.find('script', containing='var thzq=')[0].text
+                    thzq_start = thzq_script.find('var thzq=')
+                    thzq_end = thzq_script.find('];function kxat', thzq_start) + 1
+                    thzq_array = thzq_script[thzq_start:thzq_end]
+                    pageLinks = thzq_array.replace('var thzq=', '').split(',')
+                    for pageLink in pageLinks:
+                        pageLink = pageLink.replace("[", "",).replace(",", "").replace("'", "").replace("]", "")
+                        print(pageLink)
+                        if pageLink:
+                            pageResponse = requests.get(pageLink) 
+                            imageContents.append(pageResponse.content)
+                    
+
+
 
             match format: 
                 case ".cbz":
