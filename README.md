@@ -29,7 +29,7 @@ Book Scraper is a **free and open source** program made with Python to download 
 - Download multiple chapters simultaneously
 - Lightweight and easy to use
 
-# Installation and Usage
+## Installation and Usage
 * Install the required libraries for the progran:
   - Create a python virtual environment:
     `python -m venv .venv`
