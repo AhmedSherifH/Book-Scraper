@@ -1,6 +1,7 @@
 __pycache__
 history.json
-./cache
+./cache/*
 .vscode/*
 .venv
 .venv/*
+cache/bookmark/bookmarks.json

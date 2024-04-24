@@ -73,7 +73,7 @@ def scrapeInformation(bookLink, session, selectedHost):
                 information['Author/Publisher'] = "N/A"
             genreLinks = request.html.find('.genres-content')
             for link in genreLinks:
-                genre = link.text
+                genre = (link.text).replace(",", "\n")
                 genresList.append(genre)
             information['Genres'] = "\n".join(genresList)
             information['Description'] = request.html.xpath('/html/body/div[1]/div/div/div/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/div[1]')[0].text
