@@ -88,7 +88,7 @@ def selectFormat(choice):
             formatSelector.configure(values=formatValues)
             # Only show the compression method menu if the selected format is .zip
             if selectedFormat == ".zip":
-                  compressionMethodMenu.place(x=480, y=368)
+                  compressionMethodMenu.place(x=5, y=362)
             else:
                   compressionMethodMenu.place_forget()
        
@@ -173,7 +173,6 @@ def displayChapters(href, bookName, isHistory):
       information = scrapeInformation(href, session, selectedHost)
       information["Number of Chapters"] = len(bookChapterNames)
 
-      displayInformationButton.configure(command = lambda: displayInformation(information))
 
       # Get Cover Display, If it throws an error: Ignore cover completely     
       try:   
@@ -187,9 +186,9 @@ def displayChapters(href, bookName, isHistory):
 
       # Change the function and text of the bookmark button depending on whether the book is bookmarked or not
       if href not in bookmarkedBooks:
-            bookmarkButton.configure(text="Bookmark", command=lambda cover=cover, href=href, bookName=bookName: saveBookmark(cover, href, bookName))
+            bookmarkButton.configure(command=lambda cover=cover, href=href, bookName=bookName: saveBookmark(cover, href, bookName))
       else: 
-            bookmarkButton.configure(text="Bookmarked" , command=lambda cover=cover, href=href, bookName=bookName: removeBookmark(href, bookName))
+            bookmarkButton.configure(command=lambda cover=cover, href=href, bookName=bookName: removeBookmark(href, bookName))
 
       # If the book was accessed via history, don't save it to history again; display the return to history button 
       if not isHistory:
@@ -202,18 +201,24 @@ def displayChapters(href, bookName, isHistory):
 
       # Manage Placement of Widgets
       loadingFrame.place_forget()
-      displayInformationButton.place(x=609, y=301)
-      downloadallChapters.place(x=608, y=336)
-      formatSelector.place(x=624, y=368)
-      bookmarkButton.place(x=5, y=365)
+      informationDisplay.place(x=180, y=40)
+      informationName.configure(text=f"{information['Title']}")
+      informationAuthor.configure(text=f"By: {information['Author/Publisher']}")
+      informationGenres.configure(text=f"Genres: {information['Genres']}")        
+      informationName.pack()
+      informationAuthor.pack()
+      informationGenres.pack()
+      downloadallChapters.place(x=5, y=300)
+      formatSelector.place(x=45, y=330)
+      bookmarkButton.place(x=5, y=330)
       searchButton.place_forget()
       bookList.place_forget()
       historyList.place_forget()
       historyFrame.place_forget()
       bookmarkList.place_forget()
       bookmarkFrame.place_forget()
-      coverImageLabel.place(x=610, y=40)
-      bookChapters.place(x=0, y=35) 
+      coverImageLabel.place(x=10, y=40)
+      bookChapters.place(x=400 , y=35) 
 
 
 def searchProcess():
@@ -271,10 +276,10 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            bookChapters.place_forget(), 
                                                            bookmarkButton.place_forget(),
                                                            coverImageLabel.place_forget(),
+                                                           informationDisplay.place_forget(),
                                                            downloadallChapters.place_forget(),
                                                            formatSelector.place_forget(), 
                                                            compressionMethodMenu.place_forget(),
-                                                           displayInformationButton.place_forget(),
                                                            searchButton.place(x=700, y=5),
                                                            historyFrame.place(x=60, y=45),
                                                            historyList.place(x=130, y=40),
@@ -504,14 +509,14 @@ def generateChapterButtons(bookChapters, session, selectedHost, bookName, isMass
                                             command = lambda chapterName: getChapterFromOptionMenu(chapterName, session, selectedHost,
                                                                                                    bookName, isMassDownload, directory,
                                                                                                    numberofLoops, cbzVerification, bookChapterNames))
-            
                   chapterSelect.pack()
             else:
                   for chapterName in bookChapterNames:
-                        chapterButton = customtkinter.CTkButton(bookChapters, width=500, height=30, text=chapterName,
-                                                      fg_color="#581845", command = lambda title=bookChapterNames[chapterName], bookName=bookName: 
-                                                      threading.Thread(target=getPages, args=(title, session, selectedHost, 
-                                                      bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start())
+                        chapterButton = customtkinter.CTkButton(bookChapters, width=300, height=20, text=chapterName,
+                                                               border_spacing=5, border_color="#000000",
+                                                               fg_color="#581845", command = lambda title=bookChapterNames[chapterName], bookName=bookName: 
+                                                               threading.Thread(target=getPages, args=(title, session, selectedHost, 
+                                                               bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start())
                         chapterButton.pack()
 
 def getChapterFromOptionMenu(chapterName, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification, bookChapterNames):
@@ -546,16 +551,16 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         showDownloads.place(x=700, y=360),
                                                         bookChapters.place_forget(), searchButton.place(x=700, y=5), 
                                                         coverImageLabel.place_forget(),
+                                                        informationDisplay.place_forget(),
                                                         downloadallChapters.place_forget(),
                                                         formatSelector.place_forget(), 
-                                                        displayInformationButton.place_forget(),
                                                         bookmarkButton.place_forget(),
                                                         compressionMethodMenu.place_forget()))
 
-hostSelector = customtkinter.CTkOptionMenu(root, values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
-hostSelector.place(x=20, y=5)
+hostSelector = customtkinter.CTkOptionMenu(root, width=170 ,values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
+hostSelector.place(x=8, y=5)
                                    
-formatSelector = customtkinter.CTkOptionMenu(root, values=formatValues, fg_color="#581845",
+formatSelector = customtkinter.CTkOptionMenu(root, width=100, height=30, values=formatValues, fg_color="#581845",
                                               button_color="#581845", command=selectFormat, anchor="center")
 compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZIP2", "LZMA", "Deflate"], button_color="#581845",
                                                     fg_color="#581845", anchor="center")
@@ -566,9 +571,9 @@ searchBar.bind('<Return>', lambda event: "break")
  
 
 bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424")
-bookChapters = customtkinter.CTkScrollableFrame(root, width=570, height=320, fg_color="#242424")
+bookChapters = customtkinter.CTkScrollableFrame(root, width=350, height=360, fg_color="#242424")
 
-bookmarkButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Bookmark", image=bookmarkIcon)
+bookmarkButton = customtkinter.CTkButton(master=root, text="", width=30, height=30, fg_color="#581845", image=bookmarkIcon)
 displayInformationButton = customtkinter.CTkButton(master=root, width=170, height=30, fg_color="#581845", text="Information", image=infoIcon)
                                                 
 loadingFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=25)
@@ -578,6 +583,10 @@ loadingImage = customtkinter.CTkLabel(loadingFrame, text="", image=loadingIcon, 
 loadingImage.grid(row=0, column=0)
 loadingText.grid(row=0, column=4)
                                      
+informationDisplay = customtkinter.CTkFrame(root, fg_color="#242424")
+informationName = customtkinter.CTkLabel(informationDisplay, text="Book Name", font=labelFont)
+informationAuthor = customtkinter.CTkLabel(informationDisplay, text="Author", font=labelFont)
+informationGenres = customtkinter.CTkLabel(informationDisplay, text="Genres", font=labelFont)
 
 root.mainloop() 
 
