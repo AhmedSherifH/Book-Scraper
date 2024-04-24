@@ -33,6 +33,10 @@ loadingIcon = customtkinter.CTkImage(light_image=Image.open("./resources/loading
                                       dark_image=Image.open("./resources/loading.png"))
 infoIcon = customtkinter.CTkImage(light_image=Image.open("./resources/info.png"),
                                       dark_image=Image.open("./resources/info.png"))
+authorIcon = customtkinter.CTkImage(light_image=Image.open("./resources/author.png"),
+                                      dark_image=Image.open("./resources/author.png"))
+genresIcon = customtkinter.CTkImage(light_image=Image.open("./resources/genres.png"),
+                                      dark_image=Image.open("./resources/genres.png"))
 
 # Global variables
 selectedHost = ""
@@ -207,7 +211,9 @@ def displayChapters(href, bookName, isHistory):
       informationGenres.configure(text=f"Genres: {information['Genres']}")        
       informationName.pack()
       informationAuthor.pack()
+      informationAuthorIcon.place(x=0, y=30)
       informationGenres.pack()
+      informationGenresIcon.place(x=15, y=50)
       downloadallChapters.place(x=5, y=300)
       formatSelector.place(x=45, y=330)
       bookmarkButton.place(x=5, y=330)
@@ -494,7 +500,6 @@ def searchProcessCheck():
             for widget in bookList.winfo_children():
                   if isinstance(widget, customtkinter.CTkButton):
                         widget.destroy()
-
             threading.Thread(target=searchProcess).start()
             
 
@@ -566,7 +571,7 @@ compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZI
                                                     fg_color="#581845", anchor="center")
                                          
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
-searchBar.place(x=180, y=5)
+searchBar.place(x=185, y=5)
 searchBar.bind('<Return>', lambda event: "break")
  
 
@@ -584,9 +589,11 @@ loadingImage.grid(row=0, column=0)
 loadingText.grid(row=0, column=4)
                                      
 informationDisplay = customtkinter.CTkFrame(root, fg_color="#242424")
-informationName = customtkinter.CTkLabel(informationDisplay, text="Book Name", font=labelFont)
+informationName = customtkinter.CTkLabel(informationDisplay, text="Book Name", font= customtkinter.CTkFont(family="Arial Rounded MT Bold", size=25))
 informationAuthor = customtkinter.CTkLabel(informationDisplay, text="Author", font=labelFont)
+informationAuthorIcon = customtkinter.CTkLabel(informationDisplay, image=authorIcon, text="")
 informationGenres = customtkinter.CTkLabel(informationDisplay, text="Genres", font=labelFont)
+informationGenresIcon = customtkinter.CTkLabel(informationDisplay, image=genresIcon, text="")
 
 root.mainloop() 
 

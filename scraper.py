@@ -60,7 +60,7 @@ def scrapeInformation(bookLink, session, selectedHost):
             for link in genreLinks:
                 genre = link.text
                 genresList.append(genre)
-            information["Genres"] = ", ".join(genresList)
+            information['Genres'] = "\n".join(genresList)
             information["Description"] = (request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/article/div[2]/text()')[0]).replace('\n', '')
 
         case "mangakomi.io":
@@ -75,7 +75,7 @@ def scrapeInformation(bookLink, session, selectedHost):
             for link in genreLinks:
                 genre = link.text
                 genresList.append(genre)
-            information["Genres"] = ", ".join(genresList)
+            information['Genres'] = "\n".join(genresList)
             information['Description'] = request.html.xpath('/html/body/div[1]/div/div/div/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/div[1]')[0].text
 
         case "mangaread.org":
@@ -83,9 +83,9 @@ def scrapeInformation(bookLink, session, selectedHost):
             information['Author/Publisher'] = request.html.xpath('/html/body/div[1]/div/div[2]/div/div[1]/div/div/div/div[3]/div[2]/div/div[1]/div[6]/div[2]/div/a')[0].text
             genreLinks = request.html.find('.genres-content')
             for genreLink in genreLinks:
-                genre = genreLink.text
+                genre = (genreLink.text).replace(',', "\n")
                 genresList.append(genre)
-            information['Genres'] = ", ".join(genresList)
+            information['Genres'] = "\n".join(genresList)
             information['Description'] = (request.html.xpath('/html/body/div[1]/div/div[2]/div/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/div[1]')[0].text).replace('\n', '')
 
         case "mangakatana.com":
@@ -95,8 +95,8 @@ def scrapeInformation(bookLink, session, selectedHost):
             if genreLinks:
                 for genre in genreLinks:
                     genreName = genre.text
-                    genresList.append(f"{genreName} \n")
-            information['Genres'] = ", ".join(genresList)
+                    genresList.append(f"{genreName}")
+            information['Genres'] = "\n".join(genresList)
             information['Description'] = request.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[3]/p/text()[1]')[0]
 
     return information
