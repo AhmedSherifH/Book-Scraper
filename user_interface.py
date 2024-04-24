@@ -495,7 +495,17 @@ def searchProcessCheck():
 
 def generateChapterButtons(bookChapters, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification):
             if len(bookChapterNames) > 200:
-                  pass
+                  chapterNames = list(bookChapterNames.keys())
+                  chapterSelectPlaceholderText = customtkinter.StringVar(value="Select a chapter from this drop-down list.")
+                  chapterSelect = customtkinter.CTkOptionMenu(bookChapters, width=500, height=30, 
+                                            values=chapterNames,
+                                            fg_color="#581845", button_color="#581845", 
+                                            variable=chapterSelectPlaceholderText,                  
+                                            command = lambda chapterName: getChapterFromOptionMenu(chapterName, session, selectedHost,
+                                                                                                   bookName, isMassDownload, directory,
+                                                                                                   numberofLoops, cbzVerification, bookChapterNames))
+            
+                  chapterSelect.pack()
             else:
                   for chapterName in bookChapterNames:
                         chapterButton = customtkinter.CTkButton(bookChapters, width=500, height=30, text=chapterName,
@@ -504,6 +514,11 @@ def generateChapterButtons(bookChapters, session, selectedHost, bookName, isMass
                                                       bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start())
                         chapterButton.pack()
 
+def getChapterFromOptionMenu(chapterName, session, selectedHost, bookName, isMassDownload, directory, numberofLoops, cbzVerification, bookChapterNames):
+      title = bookChapterNames[chapterName]
+      threading.Thread(target=getPages, args=(title, session, selectedHost, 
+                                              bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start()
+      
 def displayChaptersCheck(href, bookName, isHistory):
       showDownloads.place_forget()
       searchButton.place_forget()
