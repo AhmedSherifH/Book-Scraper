@@ -15,7 +15,7 @@ def scrapeCover(bookLink, session, selectedHost):
    # Get coverImage from the website source code, xpath differs across different websites
     match selectedHost:
         case "readallcomics.com":
-            images = imageRequest.html.xpath('/html/body/center[3]/div/p/img')
+            images = imageRequest.html.xpath('/html/body/center[3]/center/center[1]/div/p/img')
             for image in images:
                 coverImage = image.attrs['src']
         
@@ -47,9 +47,9 @@ def scrapeInformation(bookLink, session, selectedHost):
 
     match selectedHost:
         case "readallcomics.com":
-            information['Title'] = request.html.xpath('/html/body/center[3]/div/h1/b')[0].text
-            information['Author/Publisher'] = request.html.xpath('/html/body/center[3]/div/div[1]/p/strong[2]')[0].text
-            information['Genres'] = request.html.xpath('/html/body/center[3]/div/div[1]/p/strong[1]')[0].text
+            information['Title'] = request.html.xpath('/html/body/center[3]/center/center[1]/div/h1/b')[0].text
+            information['Author/Publisher'] = request.html.xpath('/html/body/center[3]/center/center[1]/div/div[1]/p/strong[2]')[0].text
+            information['Genres'] = request.html.xpath('/html/body/center[3]/center/center[1]/div/div[1]/p/strong[1]')[0].text
             information["Description"] = "No description available"
 
         case "comicextra.org":
@@ -107,11 +107,12 @@ def scrapeTitles(url, selectedHost, requestedBook):
    # Retrieve all book titles that contain the same words as those entered by the user
     match selectedHost:
         case "readallcomics.com":
-            parsedTitles = url.html.xpath("/html/body/div[2]/div/div/ul/li/a")
+            parsedTitles = url.html.xpath("/html/body/section/div/div/div/ul/li/a") #
             for child in parsedTitles:
              titleHref = child.attrs['href']
              titleName = child.text
-             bookTitles[titleName] = titleHref
+             print(titleName)
+             bookTitles[titleName] = titleHref      
 
         case "comicextra.org":
             parsedTitles = url.html.find('div.cartoon-box a')
@@ -154,7 +155,7 @@ def scrapeChapters(url, selectedHost):
   # Get all chapters within a book
     match selectedHost: 
         case "readallcomics.com":
-            parsedChapters = url.html.xpath("/html/body/center[3]/div/div[2]/ul/li/a")
+            parsedChapters = url.html.xpath("/html/body/center[3]/center/center[1]/div/div[2]/ul/li/a")
             for chapter in parsedChapters:
                 chapterName = chapter.text
                 chapterHref =  chapter.attrs['href']
