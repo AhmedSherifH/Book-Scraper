@@ -205,15 +205,10 @@ def displayChapters(href, bookName, isHistory):
 
       # Manage Placement of Widgets
       loadingFrame.place_forget()
-      informationDisplay.place(x=200, y=40)
-      informationName.configure(text=f"{information['Title']}")
-      informationAuthor.configure(text=f"By: {information['Author/Publisher']}")
-      informationGenres.configure(text=f"Genres: {information['Genres']}")        
-      informationName.pack()
-      informationAuthor.pack()
-      informationAuthorIcon.place(x=180, y=68)
-      informationGenres.pack()
-      informationGenresIcon.place(x=180, y=90)
+      informationDisplay.place(x=180, y=40)
+      informationLabel.configure(text=f"{information['Title']} \n Number of Chapters: {information['Number of Chapters']} chapters \n Author/Publisher: {information['Author/Publisher']} \n Genres: {information['Genres']}")
+      
+      informationLabel.pack()
       downloadallChapters.place(x=5, y=300)
       formatSelector.place(x=45, y=330)
       bookmarkButton.place(x=5, y=330)
@@ -283,8 +278,8 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            bookmarkButton.place_forget(),
                                                            coverImageLabel.place_forget(),
                                                            informationDisplay.place_forget(),
-                                                           informationAuthorIcon.place_forget(),
-                                                           informationGenresIcon.place_forget(),
+                                           #                informationAuthorIcon.place_forget(),
+                                            #               informationGenresIcon.place_forget(),
                                                            downloadallChapters.place_forget(),
                                                            formatSelector.place_forget(), 
                                                            compressionMethodMenu.place_forget(),
@@ -559,8 +554,6 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         bookChapters.place_forget(), searchButton.place(x=700, y=5), 
                                                         coverImageLabel.place_forget(),
                                                         informationDisplay.place_forget(),
-                                                        informationAuthorIcon.place_forget(),
-                                                        informationGenresIcon.place_forget(),
                                                         downloadallChapters.place_forget(),
                                                         formatSelector.place_forget(), 
                                                         bookmarkButton.place_forget(),
@@ -593,11 +586,7 @@ loadingImage.grid(row=0, column=0)
 loadingText.grid(row=0, column=4)
                                      
 informationDisplay = customtkinter.CTkFrame(root, fg_color="#242424")
-informationName = customtkinter.CTkLabel(informationDisplay, text="Book Name", font= customtkinter.CTkFont(family="Arial Rounded MT Bold", size=25))
-informationAuthor = customtkinter.CTkLabel(informationDisplay, text="Author", font=labelFont)
-informationAuthorIcon = customtkinter.CTkLabel(root, image=authorIcon, text="")
-informationGenres = customtkinter.CTkLabel(informationDisplay, text="Genres", font=labelFont)
-informationGenresIcon = customtkinter.CTkLabel(root, image=genresIcon, text="")
+informationLabel = customtkinter.CTkLabel(informationDisplay, text="Book Name", font= customtkinter.CTkFont(family="Arial Rounded MT Bold", size=12), wraplength=220)
 
 root.mainloop() 
 
