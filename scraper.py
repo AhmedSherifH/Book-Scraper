@@ -19,7 +19,7 @@ def scrapeCover(bookLink, session, selectedHost):
             for image in images:
                 coverImage = image.attrs['src']
         
-        case "comicextra.org":
+        case "comixextra.com":
             images = imageRequest.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[1]/div/img')
             for image in images:
                 coverImage = image.attrs['src']
@@ -52,7 +52,7 @@ def scrapeInformation(bookLink, session, selectedHost):
             information['Genres'] = request.html.xpath('/html/body/center[3]/center/center[1]/div/div[1]/p/strong[1]')[0].text
             information["Description"] = "No description available"
 
-        case "comicextra.org":
+        case "comixextra.com":
             information["Title"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/h1/span')[0].text
             information["Author/Publisher"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/div/dl/dd[4]')[0].text
             genres = request.html.find('.movie-dd')[0]
@@ -114,10 +114,10 @@ def scrapeTitles(url, selectedHost, requestedBook):
              print(titleName)
              bookTitles[titleName] = titleHref      
 
-        case "comicextra.org":
+        case "comixextra.com":
             parsedTitles = url.html.find('div.cartoon-box a')
             for title in parsedTitles:
-                if "https://comicextra.org/comic/" in title.attrs['href'] and title.text:
+                if "https://comixextra.com/comic/" in title.attrs['href'] and title.text:
                     titleHref = title.attrs['href']
                     titleName = title.text
                     print(titleName)
@@ -155,13 +155,13 @@ def scrapeChapters(url, selectedHost):
   # Get all chapters within a book
     match selectedHost: 
         case "readallcomics.com":
-            parsedChapters = url.html.xpath("/html/body/center[3]/center/center[1]/div/div[2]/ul/li/a")
+            parsedChapters = url.html.xpath("/html/body/center[3]/center/center[1]/div/div[2]/ul/li/a") 
             for chapter in parsedChapters:
                 chapterName = chapter.text
                 chapterHref =  chapter.attrs['href']
                 bookChapters[chapterName] = chapterHref
 
-        case "comicextra.org":
+        case "comicextra.com":
             issues = url.html.find('#list a')
             for issue in issues:
                 chapterHref = issue.attrs['href']
@@ -219,7 +219,7 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                             print(f"{chosenDir}/#{pageNum}.jpg")
                             imageContents.append(pageResponse.content)
 
-                case "comicextra.org":
+                case "comixextra.com":
                     images = chapterRequest.html.find('div.chapter-container img')
                     for image in images:
                         pageNum += 1

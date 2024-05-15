@@ -44,7 +44,7 @@ selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
 bookmarkedBooks = []
-hostValues = ["Select a Host", "readallcomics.com", "comicextra.org" , "mangakomi.io", "mangaread.org", "mangakatana.com"] 
+hostValues = ["Select a Host", "readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com"] 
 formatValues = ["Select a Format", "Read", ".jpg", ".cbz", ".zip", ".pdf"]
 bookChapterNames = {}
 globalBookName = ''
@@ -73,8 +73,8 @@ def selectHost(choice):
        match choice:
             case "readallcomics.com":
                   hostBase = "https://readallcomics.com/?story="
-            case "comicextra.org":
-                  hostBase = "https://comicextra.org/search?keyword={}"
+            case "comixextra.com":
+                  hostBase = "https://comixextra.com/search?keyword={}"
             case "mangakomi.io":
                   hostBase = "https://mangakomi.io/?s={}&post_type=wp-manga"
             case "mangaread.org":
@@ -236,7 +236,7 @@ def searchProcess():
             requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
             searchBookURL = hostBase + requestedBook + "&s=&type=comic"
             searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-      if selectedHost in ["mangakomi.io", "mangaread.org", "comicextra.org", "mangakatana.com"]:
+      if selectedHost in ["mangakomi.io", "mangaread.org", "comixextra.com", "mangakatana.com"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
 
@@ -363,8 +363,7 @@ def saveBookToHistory(bookLink, bookName):
 displayHistory()
 
 # Create Bookmark widgets
-bookmarkList = customtkinter.CTkScrollableFrame(root, width=200, height=340, 
-                                               fg_color="#242424")                                 
+bookmarkList = customtkinter.CTkScrollableFrame(root, width=200, height=340, fg_color="#242424")                                 
 bookmarkFrame = customtkinter.CTkFrame(root)
 bookmarkImage = customtkinter.CTkLabel(bookmarkFrame, image=bookmarkIcon, 
                                        text="", fg_color="#242424")
@@ -410,7 +409,6 @@ def displayBookmarks():
                   if os.path.exists(f"./cache/bookmark/{historyHost}/{bookName}.png"):
                         coverImage = Image.open(f"./cache/bookmark/{historyHost}/{bookName}.png")
                         bookNameButton = customtkinter.CTkButton(bookmarkList, 
-
                                                                   image=customtkinter.CTkImage(light_image=coverImage
                                                                                                ,dark_image=coverImage,size=(166, 256)),
                                                                   text=f"{historyHost}",
@@ -488,7 +486,7 @@ def displayInformation(information):
 
 
 def searchProcessCheck():
-      if selectedHost not in ["readallcomics.com", "comicextra.org" , "mangakomi.io", "mangaread.org", "mangakatana.com"]:
+      if selectedHost not in ["readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com"]:
             searchButton.place_forget()
             messagebox.showerror("Error", "Please select a host from the dropdown menu.")
       else: 
