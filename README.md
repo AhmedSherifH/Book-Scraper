@@ -48,6 +48,7 @@ Book Scraper is a **free and open source** program made with Python to download 
 * ~~Display what's currently being downloaded~~
 * ~~An integrated book reader within the application~~
 * ~~Display book information (e.g, release date, number of chapters)~~
+* Implement 20 websites in total
   
 
 ## Notes
