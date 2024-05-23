@@ -38,6 +38,11 @@ def scrapeCover(bookLink, session, selectedHost):
             images = imageRequest.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[1]/div/img')
             img_tag = images[0] 
             coverImage = img_tag.attrs['src']
+
+        case "mangakakalot.tv":
+            images = imageRequest.html.find('div.manga-info-pic', first=True)
+            coverImage = "https://ww8.mangakakalot.tv/" + (images.find('img', first=True).attrs.get('src'))
+
     return coverImage
     
 def scrapeInformation(bookLink, session, selectedHost):
@@ -99,6 +104,16 @@ def scrapeInformation(bookLink, session, selectedHost):
             information['Genres'] = "\n".join(genresList)
             information['Description'] = request.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[3]/p/text()[1]')[0]
 
+        case "mangakakalot.tv":
+            information['Title'] = request.html.xpath('/html/body/div[1]/div[2]/div[1]/div[3]/ul/li[1]/h1')[0].text
+            information['Author/Publisher'] = request.html.xpath('/html/body/div[1]/div[2]/div[1]/div[3]/ul/li[2]/a')[0].text
+            genres = request.html.find('li', containing='Genres :')[0].find('a[rel="nofollow"]')
+            for genre in genres:
+                genreName = genre.text
+                genresList.append(f"{genreName}")
+            information['Genres'] = "\n".join(genresList)
+            information['Description'] = request.html.xpath('/html/body/div[1]/div[2]/div[1]/div[4]/text()')
+
     return information
 
 def scrapeTitles(url, selectedHost, requestedBook): 
@@ -145,6 +160,16 @@ def scrapeTitles(url, selectedHost, requestedBook):
                     titleHref = titleClass.find('a', first=True).attrs['href']
                     titleName = titleClass.find('a', first=True).text
                     bookTitles[titleName] = titleHref
+        
+        case "mangakakalot.tv":
+            requestedBookList = url.html.find('.story_item')
+            for book in requestedBookList:
+                aTag = book.find('a', first=True)
+                imgTag = aTag.find('img', first=True)
+                if imgTag:
+                    titleName = imgTag.attrs.get('alt', '')
+                    titleHref = "https://ww8.mangakakalot.tv/" + aTag.attrs.get('href', '')
+                    bookTitles[titleName] = titleHref
 
     return bookTitles
 
@@ -188,7 +213,16 @@ def scrapeChapters(url, selectedHost):
                 chapterName = chapter.find('a', first=True).text
                 chapterHref = chapter.find('a', first=True).attrs['href']
                 bookChapters[chapterName] = chapterHref
-        
+
+        case "mangakakalot.tv":
+            chapters= url.html.find('div.row')
+            for chapter in chapters:
+                aTag = chapter.find('a', first=True)
+                if aTag:
+                    chapterHref = aTag.attrs.get('href')
+                    chapterName = aTag.attrs.get('title')
+                    bookChapters[chapterName] = "https://ww8.mangakakalot.tv/" + chapterHref
+
     return bookChapters
 
   
@@ -251,7 +285,6 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                         imageContents.append(pageResponse.content)
                 
                 case "mangakatana.com":
-
                     thzqScript = chapterRequest.html.find('script', containing='var thzq=')[0].text
                     thzqStart = thzqScript.find('var thzq=')
                     thzqEnd = thzqScript.find('];function kxat', thzqStart) + 1
@@ -264,9 +297,21 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                             pageResponse = requests.get(pageLink) 
                             imageContents.append(pageResponse.content)
                     
+                case "mangakakalot.tv":
+                    pages = chapterRequest.html.find('div.vung-doc img')
+                    for div in pages:
+                        pageNum += 1
+                        if div.attrs.get('data-src'):
+                            page = div.attrs.get('data-src')
+                            print(f"#{pageNum}: {page}")          
+                            pageResponse = requests.get(page) 
+                            imageContents.append(pageResponse.content)  
 
+                    
+#                     [img.attrs.get('data-src') for img in image_tags if img.attrs.get('data-src')]
 
-
+                    
+                
             match format: 
                 case ".cbz":
                     for page in imageContents:

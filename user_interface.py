@@ -44,7 +44,7 @@ selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
 bookmarkedBooks = []
-hostValues = ["Select a Host", "readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com"] 
+hostValues = ["Select a Host", "readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv"] 
 formatValues = ["Select a Format", "Read", ".jpg", ".cbz", ".zip", ".pdf"]
 bookChapterNames = {}
 globalBookName = ''
@@ -81,6 +81,8 @@ def selectHost(choice):
                   hostBase = "https://www.mangaread.org/?s={}&post_type=wp-manga"
             case "mangakatana.com":
                    hostBase = "https://mangakatana.com/?search={}&search_by=book_name"
+            case "mangakakalot.tv":
+                   hostBase = "https://ww8.mangakakalot.tv/search/{}"
       
 def selectFormat(choice):
       global selectedFormat
@@ -139,9 +141,9 @@ def getAllChapters():
 
             for bookChapter in bookChapterNames:
                   directory = f"{baseDirectory}/#{folderNum}"
-                  threading.Thread(target=getPages, args=(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory, numberofLoops, compressedVerification)).start()
                   folderNum = folderNum - 1
-
+                  getPages(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory, numberofLoops, compressedVerification)
+            #threading.Thread(target=getPages, args=(bookChapterNames[bookChapter], session, selectedHost, globalBookName, isMassDownload, directory, numberofLoops, compressedVerification)).start()
       # A .cbz file is only made after compressedVerification = numberofLoops, where numberofLoops equals the number of chapters found in a book
       elif selectedFormat in [".zip", ".cbz", ".pdf"]:
             numberofLoops = len(bookChapterNames)
@@ -156,7 +158,6 @@ def getAllChapters():
 def displayChapters(href, bookName, isHistory):
       global bookChapterNames
       global globalBookName
-      
       coverLink = href 
       isMassDownload = False
       directory = ''
@@ -236,7 +237,7 @@ def searchProcess():
             requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
             searchBookURL = hostBase + requestedBook + "&s=&type=comic"
             searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-      if selectedHost in ["mangakomi.io", "mangaread.org", "comixextra.com", "mangakatana.com"]:
+      if selectedHost in ["mangakomi.io", "mangaread.org", "comixextra.com", "mangakatana.com", "mangakakalot.tv"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
 
@@ -278,8 +279,6 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            bookmarkButton.place_forget(),
                                                            coverImageLabel.place_forget(),
                                                            informationDisplay.place_forget(),
-                                           #                informationAuthorIcon.place_forget(),
-                                            #               informationGenresIcon.place_forget(),
                                                            downloadallChapters.place_forget(),
                                                            formatSelector.place_forget(), 
                                                            compressionMethodMenu.place_forget(),
@@ -486,7 +485,7 @@ def displayInformation(information):
 
 
 def searchProcessCheck():
-      if selectedHost not in ["readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com"]:
+      if selectedHost not in ["readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv"]:
             searchButton.place_forget()
             messagebox.showerror("Error", "Please select a host from the dropdown menu.")
       else: 
