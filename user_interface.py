@@ -326,6 +326,7 @@ def displayHistory():
                                                                    bookmarkList.place_forget(), bookmarkFrame.place_forget(),
                                                                    displayChaptersCheck(href, name, isHistory)))
                         bookNameButton.pack()
+                        
     if len(data['books']) == 0:
             # Display a button if the history is empty (Keys inside JSON = 0)
             emptyJsonButton = customtkinter.CTkButton(historyList, 
@@ -472,16 +473,6 @@ def removeBookmark(link, name):
       with open(bookmarksJsonPath, "w") as jsonFile:
             json.dump(data, jsonFile, indent=4)      
 displayBookmarks()
-
-
-def displayInformation(information):
-      title = information['Title']
-      genres = information['Genres']
-      author = information['Author/Publisher']
-      description = information['Description']
-      numberOfChapters = information['Number of Chapters']
-
-      messagebox.showinfo(title="Information", message=f"Title: {title}\nGenres: {genres}\nAuthor/Publisher: {author}\nDescription: {description}\nNumber of Chapters: {numberOfChapters}")
 
 
 def searchProcessCheck():

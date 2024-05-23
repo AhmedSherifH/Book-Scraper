@@ -14,7 +14,7 @@ def scrapeCover(bookLink, session, selectedHost):
    # Get coverImage from the website source code, xpath differs across different websites
     match selectedHost:
         case "readallcomics.com":
-            images = imageRequest.html.xpath('/html/body/center[3]/center/center[1]/div/p/img')
+            images = imageRequest.html.xpath('/html/body/center[4]/center/center[1]/div/p/img')
             for image in images:
                 coverImage = image.attrs['src']
         
@@ -51,10 +51,9 @@ def scrapeInformation(bookLink, session, selectedHost):
 
     match selectedHost:
         case "readallcomics.com":
-            information['Title'] = request.html.xpath('/html/body/center[3]/center/center[1]/div/h1/b')[0].text
-            information['Author/Publisher'] = request.html.xpath('/html/body/center[3]/center/center[1]/div/div[1]/p/strong[2]')[0].text
-            information['Genres'] = request.html.xpath('/html/body/center[3]/center/center[1]/div/div[1]/p/strong[1]')[0].text
-            information["Description"] = "No description available"
+            information['Title'] = request.html.xpath('/html/body/center[4]/center/center[1]/div/h1/b')[0].text
+            information['Author/Publisher'] = request.html.xpath('/html/body/center[4]/center/center[1]/div/div[1]/p/strong[2]')[0].text
+            information['Genres'] = request.html.xpath('/html/body/center[4]/center/center[1]/div/div[1]/p/strong[1]')[0].text
 
         case "comixextra.com":
             information["Title"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/h1/span')[0].text
@@ -65,7 +64,6 @@ def scrapeInformation(bookLink, session, selectedHost):
                 genre = link.text
                 genresList.append(genre)
             information['Genres'] = "\n".join(genresList)
-            information["Description"] = (request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/article/div[2]/text()')[0]).replace('\n', '')
 
         case "mangakomi.io":
             information['Title'] = request.html.xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div/div[2]/h1')[0].text
@@ -80,7 +78,6 @@ def scrapeInformation(bookLink, session, selectedHost):
                 genre = (link.text).replace(",", "\n")
                 genresList.append(genre)
             information['Genres'] = "\n".join(genresList)
-            information['Description'] = request.html.xpath('/html/body/div[1]/div/div/div/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/div[1]')[0].text
 
         case "mangaread.org":
             information['Title'] = request.html.xpath('/html/body/div[1]/div/div[2]/div/div[1]/div/div/div/div[2]/h1')[0].text
@@ -90,7 +87,6 @@ def scrapeInformation(bookLink, session, selectedHost):
                 genre = (genreLink.text).replace(',', "\n")
                 genresList.append(genre)
             information['Genres'] = "\n".join(genresList)
-            information['Description'] = (request.html.xpath('/html/body/div[1]/div/div[2]/div/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/div[1]')[0].text).replace('\n', '')
 
         case "mangakatana.com":
             information['Title'] = request.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[2]/div/h1')[0].text
@@ -101,7 +97,6 @@ def scrapeInformation(bookLink, session, selectedHost):
                     genreName = genre.text
                     genresList.append(f"{genreName}")
             information['Genres'] = "\n".join(genresList)
-            information['Description'] = request.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[3]/p/text()[1]')[0]
 
         case "mangakakalot.tv":
             information['Title'] = request.html.xpath('/html/body/div[1]/div[2]/div[1]/div[3]/ul/li[1]/h1')[0].text
@@ -111,7 +106,6 @@ def scrapeInformation(bookLink, session, selectedHost):
                 genreName = genre.text
                 genresList.append(f"{genreName}")
             information['Genres'] = "\n".join(genresList)
-            information['Description'] = request.html.xpath('/html/body/div[1]/div[2]/div[1]/div[4]/text()')
 
     return information
 
@@ -177,10 +171,10 @@ def scrapeChapters(url, selectedHost):
   # Get all chapters within a book
     match selectedHost: 
         case "readallcomics.com":
-            parsedChapters = url.html.xpath("/html/body/center[3]/center/center[1]/div/div[2]/ul/li/a") 
+            parsedChapters = url.html.xpath("//ul[@class='list-story']/li/a")
             for chapter in parsedChapters:
                 chapterName = chapter.text
-                chapterHref =  chapter.attrs['href']
+                chapterHref = chapter.attrs['href']
                 bookChapters[chapterName] = chapterHref
 
         case "comicextra.com":
