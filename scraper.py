@@ -8,7 +8,6 @@ issueHref = ''
 bookDownloads = []
 compressedChapters = []
 
-
 def scrapeCover(bookLink, session, selectedHost): 
     coverImage = ""
     imageRequest = session.get(bookLink, headers=headers)
@@ -173,8 +172,6 @@ def scrapeTitles(url, selectedHost, requestedBook):
 
     return bookTitles
 
-
-
 def scrapeChapters(url, selectedHost):    
     bookChapters = {}
   # Get all chapters within a book
@@ -225,7 +222,6 @@ def scrapeChapters(url, selectedHost):
 
     return bookChapters
 
-  
 def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, directory, format, numberofLoops, loopVerification, zipCompression):
      pageNum = 0 
      imageContents = []
@@ -306,11 +302,6 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                             print(f"#{pageNum}: {page}")          
                             pageResponse = requests.get(page) 
                             imageContents.append(pageResponse.content)  
-
-                    
-#                     [img.attrs.get('data-src') for img in image_tags if img.attrs.get('data-src')]
-
-                    
                 
             match format: 
                 case ".cbz":
