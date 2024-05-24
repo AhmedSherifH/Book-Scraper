@@ -206,7 +206,7 @@ def displayChapters(href, bookName, isHistory):
 
       # Manage Placement of Widgets
       loadingFrame.place_forget()
-      informationDisplay.place(x=180, y=40)
+      informationDisplay.place(x=200, y=40)
       informationLabel.configure(text=f"{information['Title']} \n Number of Chapters: {information['Number of Chapters']} chapters \n Author/Publisher: {information['Author/Publisher']} \n Genres: {information['Genres']}")
       
       informationLabel.pack()
