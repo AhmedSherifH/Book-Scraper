@@ -177,7 +177,7 @@ def scrapeChapters(url, selectedHost):
                 chapterHref = chapter.attrs['href']
                 bookChapters[chapterName] = chapterHref
 
-        case "comicextra.com":
+        case "comixextra.com":
             issues = url.html.find('#list a')
             for issue in issues:
                 chapterHref = issue.attrs['href']
