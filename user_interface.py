@@ -33,10 +33,6 @@ loadingIcon = customtkinter.CTkImage(light_image=Image.open("./resources/loading
                                       dark_image=Image.open("./resources/loading.png"))
 infoIcon = customtkinter.CTkImage(light_image=Image.open("./resources/info.png"),
                                       dark_image=Image.open("./resources/info.png"))
-authorIcon = customtkinter.CTkImage(light_image=Image.open("./resources/author.png"),
-                                      dark_image=Image.open("./resources/author.png"))
-genresIcon = customtkinter.CTkImage(light_image=Image.open("./resources/genres.png"),
-                                      dark_image=Image.open("./resources/genres.png"))
 homeIcon = customtkinter.CTkImage(light_image=Image.open("./resources/home.png"),
                                       dark_image=Image.open("./resources/home.png"))
 
