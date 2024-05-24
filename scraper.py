@@ -41,6 +41,11 @@ def scrapeCover(bookLink, session, selectedHost):
         case "mangakakalot.tv":
             images = imageRequest.html.find('div.manga-info-pic', first=True)
             coverImage = "https://ww8.mangakakalot.tv/" + (images.find('img', first=True).attrs.get('src'))
+        
+        case "rawkuma.com":
+            images = imageRequest.html.xpath('/html/body/div[3]/div/div[1]/article/div[2]/div[1]/div[1]/div[1]/img')
+            coverImage = images[0].attrs['src']
+            print(coverImage)
 
     return coverImage
     
@@ -63,7 +68,7 @@ def scrapeInformation(bookLink, session, selectedHost):
             for link in genreLinks:
                 genre = link.text
                 genresList.append(genre)
-            information['Genres'] = "\n".join(genresList)
+            information['Genres'] = ", ".join(genresList)
 
         case "mangakomi.io":
             information['Title'] = request.html.xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div/div[2]/h1')[0].text
@@ -75,18 +80,18 @@ def scrapeInformation(bookLink, session, selectedHost):
                 information['Author/Publisher'] = "N/A"
             genreLinks = request.html.find('.genres-content')
             for link in genreLinks:
-                genre = (link.text).replace(",", "\n")
+                genre = (link.text)
                 genresList.append(genre)
-            information['Genres'] = "\n".join(genresList)
+            information['Genres'] = ", ".join(genresList)
 
         case "mangaread.org":
             information['Title'] = request.html.xpath('/html/body/div[1]/div/div[2]/div/div[1]/div/div/div/div[2]/h1')[0].text
             information['Author/Publisher'] = request.html.xpath('/html/body/div[1]/div/div[2]/div/div[1]/div/div/div/div[3]/div[2]/div/div[1]/div[6]/div[2]/div/a')[0].text
             genreLinks = request.html.find('.genres-content')
             for genreLink in genreLinks:
-                genre = (genreLink.text).replace(',', "\n")
+                genre = (genreLink.text)
                 genresList.append(genre)
-            information['Genres'] = "\n".join(genresList)
+            information['Genres'] = ", ".join(genresList)
 
         case "mangakatana.com":
             information['Title'] = request.html.xpath('/html/body/div[3]/div/div/div[1]/div/div[2]/div/h1')[0].text
@@ -96,7 +101,7 @@ def scrapeInformation(bookLink, session, selectedHost):
                 for genre in genreLinks:
                     genreName = genre.text
                     genresList.append(f"{genreName}")
-            information['Genres'] = "\n".join(genresList)
+            information['Genres'] = ", ".join(genresList)
 
         case "mangakakalot.tv":
             information['Title'] = request.html.xpath('/html/body/div[1]/div[2]/div[1]/div[3]/ul/li[1]/h1')[0].text
@@ -105,7 +110,16 @@ def scrapeInformation(bookLink, session, selectedHost):
             for genre in genres:
                 genreName = genre.text
                 genresList.append(f"{genreName}")
-            information['Genres'] = "\n".join(genresList)
+            information['Genres'] = ", ".join(genresList)
+        
+        case "rawkuma.com":
+            information['Title'] = request.html.xpath('/html/body/div[3]/div/div[1]/article/div[2]/div[1]/div[2]/h1')[0].text
+            information['Author/Publisher'] = request.html.xpath('/html/body/div[3]/div/div[1]/article/div[2]/div[1]/div[2]/div[4]/div[2]/span')[0].text
+            genres = request.html.find(".mgen a")
+            for element in genres: 
+                genre = element.text
+                genresList.append(genre)
+            information['Genres'] = ", ".join(genresList)
 
     return information
 
@@ -164,6 +178,14 @@ def scrapeTitles(url, selectedHost, requestedBook):
                     titleHref = "https://ww8.mangakakalot.tv/" + aTag.attrs.get('href', '')
                     bookTitles[titleName] = titleHref
 
+        case "rawkuma.com":
+            requestedBookList = url.html.find('.postbody .bsx')
+            for book in requestedBookList:
+                anchor = book.find('a', first=True)
+                titleName = anchor.attrs.get('title')
+                titleHref = anchor.attrs.get('href')
+                bookTitles[titleName] = titleHref
+
     return bookTitles
 
 def scrapeChapters(url, selectedHost):    
@@ -206,13 +228,22 @@ def scrapeChapters(url, selectedHost):
                 bookChapters[chapterName] = chapterHref
 
         case "mangakakalot.tv":
-            chapters= url.html.find('div.row')
+            chapters = url.html.find('div.row')
             for chapter in chapters:
                 aTag = chapter.find('a', first=True)
                 if aTag:
                     chapterHref = aTag.attrs.get('href')
                     chapterName = aTag.attrs.get('title')
                     bookChapters[chapterName] = "https://ww8.mangakakalot.tv/" + chapterHref
+        
+        case "rawkuma.com":
+            chapters = url.html.find('.eph-num a')
+            for chapter in chapters:
+                aTag = chapter.find('a', first=True)
+                chapterHref = aTag.attrs.get('href')
+                chapterName = aTag.find('.chapternum', first=True).text
+                bookChapters[chapterName] = chapterHref
+
 
     return bookChapters
 
@@ -296,6 +327,15 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                             print(f"#{pageNum}: {page}")          
                             pageResponse = requests.get(page) 
                             imageContents.append(pageResponse.content)  
+
+                case "rawkuma.com":
+                    pages = chapterRequest.html.find('#readerarea img')
+                    for page in pages:
+                        pageNum += 1
+                        image = page.attrs['src']
+                        print(f"#{pageNum}: {image}")          
+                        pageResponse = requests.get(image)
+                        imageContents.append(pageResponse.content)
                 
             match format: 
                 case ".cbz":

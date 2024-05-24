@@ -42,7 +42,7 @@ selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
 bookmarkedBooks = []
-hostValues = ["Select a Host", "readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv"] 
+hostValues = ["Select a Host", "readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv", "rawkuma.com"] 
 formatValues = ["Select a Format", "Read", ".jpg", ".cbz", ".zip", ".pdf"]
 bookChapterNames = {}
 globalBookName = ''
@@ -81,6 +81,9 @@ def selectHost(choice):
                    hostBase = "https://mangakatana.com/?search={}&search_by=book_name"
             case "mangakakalot.tv":
                    hostBase = "https://ww8.mangakakalot.tv/search/{}"
+            case "rawkuma.com":
+                   hostBase = "https://rawkuma.com/?s={}"
+            
       
 def selectFormat(choice):
       global selectedFormat
@@ -237,10 +240,11 @@ def searchProcess():
             requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
             searchBookURL = hostBase + requestedBook + "&s=&type=comic"
             searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
-      if selectedHost in ["mangakomi.io", "mangaread.org", "comixextra.com", "mangakatana.com", "mangakakalot.tv"]:
+      if selectedHost in ["mangakomi.io", "mangaread.org", "comixextra.com", "mangakatana.com", "mangakakalot.tv", "rawkuma.com"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
 
+      print(searchBookURL)
       searchBookRequest = session.get(searchBookURL,
                                           headers={'User-Agent': 'Mozilla/5.0'})
       
@@ -482,7 +486,7 @@ displayBookmarks()
 
 
 def searchProcessCheck():
-      if selectedHost not in ["readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv"]:
+      if selectedHost not in ["readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv", "rawkuma.com"]:
             searchButton.place_forget()
             messagebox.showerror("Error", "Please select a host from the dropdown menu.")
       else: 
