@@ -37,6 +37,8 @@ authorIcon = customtkinter.CTkImage(light_image=Image.open("./resources/author.p
                                       dark_image=Image.open("./resources/author.png"))
 genresIcon = customtkinter.CTkImage(light_image=Image.open("./resources/genres.png"),
                                       dark_image=Image.open("./resources/genres.png"))
+homeIcon = customtkinter.CTkImage(light_image=Image.open("./resources/home.png"),
+                                      dark_image=Image.open("./resources/home.png"))
 
 # Global variables
 selectedHost = ""
@@ -168,6 +170,7 @@ def displayChapters(href, bookName, isHistory):
       information = {}
       globalBookName = bookName
 
+      homeButton.place_forget()
       print(f"Displaying Chapters --> {href}, {bookName}")
 
       # Call scrapeChapters function from scraper.py to get all chapters in a book
@@ -228,6 +231,7 @@ def searchProcess():
     historyFrame.place_forget()
     bookmarkList.place_forget()
     bookmarkFrame.place_forget()
+    homeButton.place_forget()
     bookTitles = {}
     searchBookURL = ""
 
@@ -255,6 +259,7 @@ def searchProcess():
 
       bookList.place(x=0, y=35)
       searchButton.place(x=700, y=5)
+      homeButton.place(x=20, y=360)
     except: 
        messagebox.showerror("Error", "Please select a host from the dropdown menu.")
 
@@ -291,6 +296,11 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            ))
 
 def displayHistory():
+    for widget in historyList.winfo_children():
+        # Destroy the children of the bookmarkList widget
+        # Once they're destroyed, they'll be readded again after loading the data from the JSON file
+        # This is done to update bookmarkList after a book has been added or removed
+        widget.destroy()
     historyList.place(x=130, y=40) 
     historyFrame.place(x=60,y=45) 
     
@@ -534,6 +544,12 @@ downloadallChapters = customtkinter.CTkButton(master=root, image=downloadButtonI
 
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
+def returnToHome():
+    homeButton.place_forget()
+    bookList.place_forget()
+    displayBookmarks()
+    displayHistory()
+homeButton = customtkinter.CTkButton(master=root, text="", width=30, height=30, fg_color="#581845", image=homeIcon, command=returnToHome)
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
                                        fg_color="#581845", text="Back",
@@ -545,7 +561,8 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         downloadallChapters.place_forget(),
                                                         formatSelector.place_forget(), 
                                                         bookmarkButton.place_forget(),
-                                                        compressionMethodMenu.place_forget()))
+                                                        compressionMethodMenu.place_forget(),
+                                                        homeButton.place(x=20, y=360)))
 
 hostSelector = customtkinter.CTkOptionMenu(root, width=170 ,values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
 hostSelector.place(x=8, y=5)
