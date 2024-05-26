@@ -17,10 +17,11 @@ import json
 root = customtkinter.CTk()
 root.protocol("WM_DELETE_WINDOW", lambda: os.kill(os.getpid(), signal.SIGTERM))
 root.geometry("800x400")
-root.resizable(False, False)
+root.resizable(False, False)  
 root.iconbitmap("visual/bookscraper-icon.ico")
 root.title("Book Scraper")
 
+fgColor = fgColor
 
 # The images for the buttons
 downloadButtonIcon = customtkinter.CTkImage(light_image=Image.open("./resources/download.png"),
@@ -252,7 +253,7 @@ def searchProcess():
       bookTitles = scrapeTitles(searchBookRequest, selectedHost, requestedBook)
       for title in bookTitles:
             bookButton = customtkinter.CTkButton(bookList, width=780, height=30, text=title, 
-                                                      fg_color="#581845", command=lambda href=bookTitles[title], bookName = title, isHistory=False: 
+                                                      fg_color=fgColor, command=lambda href=bookTitles[title], bookName = title, isHistory=False: 
                                                       (bookList.place_forget(), 
                                                        displayChaptersCheck(href, bookName, isHistory)))
             bookButton.pack()
@@ -278,7 +279,7 @@ historyText = customtkinter.CTkLabel(historyFrame,
                                      fg_color="#242424")
 historyText.grid(row=0, column=4)
 returnToHistory = customtkinter.CTkButton(root, width=70, height=30, 
-                                          fg_color="#581845", text="Back",
+                                          fg_color=fgColor, text="Back",
                                           command=lambda: (returnToHistory.place_forget(),
                                                            bookChapters.place_forget(), 
                                                            bookmarkButton.place_forget(),
@@ -330,7 +331,7 @@ def displayHistory():
                                                                   text=f"{historyHost}",
                                                                   compound="top",
                                                                   font=labelFont,
-                                                                  fg_color="#581845", 
+                                                                  fg_color=fgColor, 
                                                                   command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
                                                                   (selectHost(historyHost), historyList.place_forget(), historyFrame.place_forget(),
                                                                    bookmarkList.place_forget(), bookmarkFrame.place_forget(),
@@ -343,7 +344,7 @@ def displayHistory():
                                                       width=170, 
                                                       height=30, 
                                                       text="History is empty!", 
-                                                      fg_color="#581845")
+                                                      fg_color=fgColor)
             emptyJsonButton.pack()
                                                       
                                                   
@@ -424,7 +425,7 @@ def displayBookmarks():
                                                                   text=f"{historyHost}",
                                                                   compound="top",
                                                                   font=labelFont,
-                                                                  fg_color="#581845", 
+                                                                  fg_color=fgColor, 
                                                                   command=lambda href=bookLink, name=bookName, isHistory=True, historyHost=historyHost:                                                          
                                                                   (selectHost(historyHost), bookmarkFrame.place_forget(), bookmarkList.place_forget(),
                                                                    historyFrame.place_forget(), historyList.place_forget(),
@@ -436,7 +437,7 @@ def displayBookmarks():
                                                       width=170, 
                                                       height=30, 
                                                       text="No bookmarks!", 
-                                                      fg_color="#581845")
+                                                      fg_color=fgColor)
             emptyJsonButton.pack()
 
 
@@ -504,7 +505,7 @@ def generateChapterButtons(bookChapters, session, selectedHost, bookName, isMass
                   chapterSelectPlaceholderText = customtkinter.StringVar(value="Select a chapter from this drop-down list.")
                   chapterSelect = customtkinter.CTkOptionMenu(bookChapters, width=500, height=30, 
                                             values=chapterNames,
-                                            fg_color="#581845", button_color="#581845", 
+                                            fg_color=fgColor, button_color=fgColor, 
                                             variable=chapterSelectPlaceholderText,                  
                                             command = lambda chapterName: getChapterFromOptionMenu(chapterName, session, selectedHost,
                                                                                                    bookName, isMassDownload, directory,
@@ -514,7 +515,7 @@ def generateChapterButtons(bookChapters, session, selectedHost, bookName, isMass
                   for chapterName in bookChapterNames:
                         chapterButton = customtkinter.CTkButton(bookChapters, width=300, height=20, text=chapterName,
                                                                border_spacing=5, border_color="#000000",
-                                                               fg_color="#581845", command = lambda title=bookChapterNames[chapterName], bookName=bookName: 
+                                                               fg_color=fgColor, command = lambda title=bookChapterNames[chapterName], bookName=bookName: 
                                                                threading.Thread(target=getPages, args=(title, session, selectedHost, 
                                                                bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start())
                         chapterButton.pack()
@@ -534,13 +535,13 @@ def displayChaptersCheck(href, bookName, isHistory):
       threading.Thread(target=displayChapters, args=(href, bookName, isHistory)).start()
 
 
-searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Search", command=searchProcessCheck)
+searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color=fgColor, text="Search", command=searchProcessCheck)
 searchButton.place(x=700, y=5)
 
-showDownloads = customtkinter.CTkButton(master=root, width=70, height=30, fg_color="#581845", text="Downloads", command=getDownloads)
+showDownloads = customtkinter.CTkButton(master=root, width=70, height=30, fg_color=fgColor, text="Downloads", command=getDownloads)
 showDownloads.place(x=700, y=360)
  
-downloadallChapters = customtkinter.CTkButton(master=root, image=downloadButtonIcon, text="Download All Chapters", width=170, fg_color="#581845", command=lambda: threading.Thread(target=getAllChapters).start())
+downloadallChapters = customtkinter.CTkButton(master=root, image=downloadButtonIcon, text="Download All Chapters", width=170, fg_color=fgColor, command=lambda: threading.Thread(target=getAllChapters).start())
 
 coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 
@@ -549,10 +550,10 @@ def returnToHome():
     bookList.place_forget()
     displayBookmarks()
     displayHistory()
-homeButton = customtkinter.CTkButton(master=root, text="", width=30, height=30, fg_color="#581845", image=homeIcon, command=returnToHome)
+homeButton = customtkinter.CTkButton(master=root, text="Home", width=30, height=30, fg_color=fgColor, image=homeIcon, command=returnToHome)
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
-                                       fg_color="#581845", text="Back",
+                                       fg_color=fgColor, text="Back",
                                        command=lambda: (bookList.place(x=0, y=35), returnToList.place_forget(),
                                                         showDownloads.place(x=700, y=360),
                                                         bookChapters.place_forget(), searchButton.place(x=700, y=5), 
@@ -564,13 +565,13 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         compressionMethodMenu.place_forget(),
                                                         homeButton.place(x=20, y=360)))
 
-hostSelector = customtkinter.CTkOptionMenu(root, width=170 ,values=hostValues, fg_color="#581845", button_color="#581845", command=selectHost)
+hostSelector = customtkinter.CTkOptionMenu(root, width=170 ,values=hostValues, fg_color=fgColor, button_color=fgColor, command=selectHost)
 hostSelector.place(x=8, y=5)
                                    
-formatSelector = customtkinter.CTkOptionMenu(root, width=100, height=30, values=formatValues, fg_color="#581845",
-                                              button_color="#581845", command=selectFormat, anchor="center")
-compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZIP2", "LZMA", "Deflate"], button_color="#581845",
-                                                    fg_color="#581845", anchor="center")
+formatSelector = customtkinter.CTkOptionMenu(root, width=100, height=30, values=formatValues, fg_color=fgColor,
+                                              button_color=fgColor, command=selectFormat, anchor="center")
+compressionMethodMenu = customtkinter.CTkOptionMenu(root, values=["Stored", "BZIP2", "LZMA", "Deflate"], button_color=fgColor,
+                                                    fg_color=fgColor, anchor="center")
                                          
 searchBar = customtkinter.CTkTextbox(master=root, width=500, height=30)
 searchBar.place(x=185, y=5)
@@ -580,8 +581,8 @@ searchBar.bind('<Return>', lambda event: "break")
 bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_color="#242424")
 bookChapters = customtkinter.CTkScrollableFrame(root, width=350, height=360, fg_color="#242424")
 
-bookmarkButton = customtkinter.CTkButton(master=root, text="", width=30, height=30, fg_color="#581845", image=bookmarkIcon)
-displayInformationButton = customtkinter.CTkButton(master=root, width=170, height=30, fg_color="#581845", text="Information", image=infoIcon)
+bookmarkButton = customtkinter.CTkButton(master=root, text="", width=30, height=30, fg_color=fgColor, image=bookmarkIcon)
+displayInformationButton = customtkinter.CTkButton(master=root, width=170, height=30, fg_color=fgColor, text="Information", image=infoIcon)
                                                 
 loadingFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=25)
 loadingFrame = customtkinter.CTkFrame(master=root)

@@ -113,7 +113,7 @@ def scrapeInformation(bookLink, session, selectedHost):
             information['Genres'] = ", ".join(genresList)
         
         case "rawkuma.com":
-            information['Title'] = request.html.xpath('/html/body/div[3]/div/div[1]/article/div[2]/div[1]/div[2]/h1')[0].text
+            information['Title'] = request.html.find('h1.entry-title[itemprop="name"]', first=True).text
             information['Author/Publisher'] = request.html.xpath('/html/body/div[3]/div/div[1]/article/div[2]/div[1]/div[2]/div[4]/div[2]/span')[0].text
             genres = request.html.find(".mgen a")
             for element in genres: 
