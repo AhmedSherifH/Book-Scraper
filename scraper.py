@@ -7,6 +7,8 @@ headers = {'User-Agent': 'Mozilla/5.0'}
 issueHref = ''
 bookDownloads = []
 compressedChapters = []
+charsToRemove = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
+
 
 def scrapeCover(bookLink, session, selectedHost): 
     coverImage = ""
@@ -336,7 +338,10 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                         print(f"#{pageNum}: {image}")          
                         pageResponse = requests.get(image)
                         imageContents.append(pageResponse.content)
-                
+            
+            for char in charsToRemove:
+                bookName = bookName.replace(char, '')
+
             match format: 
                 case ".cbz":
                     for page in imageContents:

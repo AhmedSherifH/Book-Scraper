@@ -28,5 +28,4 @@ def createPdf(imageContent, outputPdf):
     for page in reversed(imageContent):
         if page:
             loadedPages.append(Image.open(BytesIO(page)))
-
     loadedPages[0].save(outputPdf, "PDF" ,resolution=100.0, save_all=True, append_images=loadedPages[1:])                           

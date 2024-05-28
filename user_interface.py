@@ -210,7 +210,7 @@ def displayChapters(href, bookName, isHistory):
       # Manage Placement of Widgets
       loadingFrame.place_forget()
       informationDisplay.place(x=200, y=40)
-      informationLabel.configure(text=f"{information['Title']} \n Number of Chapters: {information['Number of Chapters']} chapters \n Author/Publisher: {information['Author/Publisher']} \n Genres: {information['Genres']}")
+      informationLabel.configure(text=f"{information['Title']} \n Number of Chapters: {information['Number of Chapters']} chapter(s) \n Author/Publisher: {information['Author/Publisher']} \n Genres: {information['Genres']}")
       
       informationLabel.pack()
       downloadallChapters.place(x=5, y=300)
@@ -541,16 +541,17 @@ searchButton.place(x=700, y=5)
 showDownloads = customtkinter.CTkButton(master=root, width=70, height=30, fg_color=fgColor, text="Downloads", command=getDownloads)
 showDownloads.place(x=700, y=360)
  
-downloadallChapters = customtkinter.CTkButton(master=root, image=downloadButtonIcon, text="Download All Chapters", width=170, fg_color=fgColor, command=lambda: threading.Thread(target=getAllChapters).start())
-
-coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
-
 def returnToHome():
     homeButton.place_forget()
     bookList.place_forget()
     displayBookmarks()
     displayHistory()
 homeButton = customtkinter.CTkButton(master=root, text="Home", width=30, height=30, fg_color=fgColor, image=homeIcon, command=returnToHome)
+
+downloadallChapters = customtkinter.CTkButton(master=root, image=downloadButtonIcon, text="Download All Chapters", width=170, fg_color=fgColor, command=lambda: threading.Thread(target=getAllChapters).start())
+
+coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
+
 
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
                                        fg_color=fgColor, text="Back",
@@ -582,7 +583,6 @@ bookList = customtkinter.CTkScrollableFrame(root, width=770, height=300 , fg_col
 bookChapters = customtkinter.CTkScrollableFrame(root, width=350, height=360, fg_color="#242424")
 
 bookmarkButton = customtkinter.CTkButton(master=root, text="", width=30, height=30, fg_color=fgColor, image=bookmarkIcon)
-displayInformationButton = customtkinter.CTkButton(master=root, width=170, height=30, fg_color=fgColor, text="Information", image=infoIcon)
                                                 
 loadingFont = customtkinter.CTkFont(family="Arial Rounded MT Bold", size=25)
 loadingFrame = customtkinter.CTkFrame(master=root)
