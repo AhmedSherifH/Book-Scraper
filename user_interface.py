@@ -231,7 +231,7 @@ def searchProcess():
     historyFrame.place_forget()
     bookmarkList.place_forget()
     bookmarkFrame.place_forget()
-    homeButton.place_forget()
+    contextMenu.place_forget()
     bookTitles = {}
     searchBookURL = ""
 
@@ -260,7 +260,7 @@ def searchProcess():
 
       bookList.place(x=0, y=35)
       searchButton.place(x=700, y=5)
-      homeButton.place(x=20, y=360)
+      contextMenu.place(x=20, y=360)
     except: 
        messagebox.showerror("Error", "Please select a host from the dropdown menu.")
 
@@ -292,8 +292,7 @@ returnToHistory = customtkinter.CTkButton(root, width=70, height=30,
                                                            historyFrame.place(x=60, y=45),
                                                            historyList.place(x=130, y=40),
                                                            displayBookmarks(),
-                                                           searchButton.place(x=700, y=5),
-                                                           showDownloads.place(x=700, y=360)
+                                                           searchButton.place(x=700, y=5)                                                           
                                                            ))
 
 def displayHistory():
@@ -526,7 +525,7 @@ def getChapterFromOptionMenu(chapterName, session, selectedHost, bookName, isMas
                                               bookName, isMassDownload, directory, numberofLoops, cbzVerification)).start()
       
 def displayChaptersCheck(href, bookName, isHistory):
-      showDownloads.place_forget()
+      contextMenu.place_forget()
       searchButton.place_forget()
       returnToHistory.place_forget()
       loadingFrame.place(x=350, y=170)
@@ -538,15 +537,20 @@ def displayChaptersCheck(href, bookName, isHistory):
 searchButton = customtkinter.CTkButton(master=root, width=70, height=30, fg_color=fgColor, text="Search", command=searchProcessCheck)
 searchButton.place(x=700, y=5)
 
-showDownloads = customtkinter.CTkButton(master=root, width=70, height=30, fg_color=fgColor, text="Downloads", command=getDownloads)
-showDownloads.place(x=700, y=360)
  
 def returnToHome():
-    homeButton.place_forget()
+    contextMenu.place_forget()
     bookList.place_forget()
     displayBookmarks()
     displayHistory()
-homeButton = customtkinter.CTkButton(master=root, text="Home", width=30, height=30, fg_color=fgColor, image=homeIcon, command=returnToHome)
+
+
+contextMenu = customtkinter.CTkFrame(master=root, width=150, height=30, fg_color="#242424")
+showDownloads = customtkinter.CTkButton(master=contextMenu, width=70, height=30, fg_color=fgColor, text="Downloads", command=getDownloads, image=downloadButtonIcon)
+homeButton = customtkinter.CTkButton(master=contextMenu, text="Home", width=30, height=30, fg_color=fgColor, image=homeIcon, command=returnToHome)
+showDownloads.pack(side="right", padx=570)
+homeButton.pack(side="left")
+
 
 downloadallChapters = customtkinter.CTkButton(master=root, image=downloadButtonIcon, text="Download All Chapters", width=170, fg_color=fgColor, command=lambda: threading.Thread(target=getAllChapters).start())
 
@@ -556,7 +560,6 @@ coverImageLabel = customtkinter.CTkLabel(root, text="", image=None)
 returnToList = customtkinter.CTkButton(master=root, width=70, height=30, 
                                        fg_color=fgColor, text="Back",
                                        command=lambda: (bookList.place(x=0, y=35), returnToList.place_forget(),
-                                                        showDownloads.place(x=700, y=360),
                                                         bookChapters.place_forget(), searchButton.place(x=700, y=5), 
                                                         coverImageLabel.place_forget(),
                                                         informationDisplay.place_forget(),
@@ -564,7 +567,7 @@ returnToList = customtkinter.CTkButton(master=root, width=70, height=30,
                                                         formatSelector.place_forget(), 
                                                         bookmarkButton.place_forget(),
                                                         compressionMethodMenu.place_forget(),
-                                                        homeButton.place(x=20, y=360)))
+                                                        contextMenu.place(x=20, y=360)))
 
 hostSelector = customtkinter.CTkOptionMenu(root, width=170 ,values=hostValues, fg_color=fgColor, button_color=fgColor, command=selectHost)
 hostSelector.place(x=8, y=5)
