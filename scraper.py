@@ -16,10 +16,8 @@ def scrapeCover(bookLink, session, selectedHost):
    # Get coverImage from the website source code, xpath differs across different websites
     match selectedHost:
         case "readallcomics.com":
-            images = imageRequest.html.xpath('/html/body/center[4]/center/center[1]/div/p/img')
-            for image in images:
-                coverImage = image.attrs['src']
-        
+            coverImage = imageRequest.html.find('div.description-archive img', first=True).attrs['src']
+                    
         case "comixextra.com":
             images = imageRequest.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[1]/div/img')
             for image in images:
@@ -58,9 +56,9 @@ def scrapeInformation(bookLink, session, selectedHost):
 
     match selectedHost:
         case "readallcomics.com":
-            information['Title'] = request.html.xpath('/html/body/center[4]/center/center[1]/div/h1/b')[0].text
-            information['Author/Publisher'] = request.html.xpath('/html/body/center[4]/center/center[1]/div/div[1]/p/strong[2]')[0].text
-            information['Genres'] = request.html.xpath('/html/body/center[4]/center/center[1]/div/div[1]/p/strong[1]')[0].text
+            information['Title'] = request.html.find('div.description-archive > h1', first=True).text
+            information['Author/Publisher'] = request.html.find('div.b strong:nth-of-type(2)', first=True).text
+            information['Genres'] = request.html.find('div.b strong:nth-of-type(1)', first=True).text
 
         case "comixextra.com":
             information["Title"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/h1/span')[0].text
