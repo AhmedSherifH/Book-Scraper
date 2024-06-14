@@ -36,6 +36,8 @@ infoIcon = customtkinter.CTkImage(light_image=Image.open("./resources/info.png")
                                       dark_image=Image.open("./resources/info.png"))
 homeIcon = customtkinter.CTkImage(light_image=Image.open("./resources/home.png"),
                                       dark_image=Image.open("./resources/home.png"))
+checkmarkIcon = customtkinter.CTkImage(light_image=Image.open("./resources/checkmark.png"),
+                                      dark_image=Image.open("./resources/checkmark.png"))
 
 # Global variables
 selectedHost = ""
