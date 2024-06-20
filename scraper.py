@@ -46,7 +46,12 @@ def scrapeCover(bookLink, session, selectedHost):
             images = imageRequest.html.xpath('/html/body/div[3]/div/div[1]/article/div[2]/div[1]/div[1]/div[1]/img')
             coverImage = images[0].attrs['src']
             print(coverImage)
-
+        
+        case "mangaweebs.org":
+            images = imageRequest.html.find('.summary_image img', first=True)
+            print(images)
+            coverImage = images.attrs.get('src')
+            print(coverImage)
     return coverImage
     
 def scrapeInformation(bookLink, session, selectedHost):
@@ -120,6 +125,16 @@ def scrapeInformation(bookLink, session, selectedHost):
                 genre = element.text
                 genresList.append(genre)
             information['Genres'] = ", ".join(genresList)
+        
+        case "mangaweebs.org":
+            information['Title'] = request.html.xpath('/html/body/div[1]/div/div[1]/div/div[1]/div/div/div/div[2]/h1')[0].text
+            information['Author/Publisher'] = "N/A"
+            genres = request.html.find('.genres-content a')
+            for element in genres:
+                genre = element.text
+                genresList.append(genre)
+            information['Genres'] = ", ".join(genresList)
+
 
     return information
 
@@ -186,6 +201,14 @@ def scrapeTitles(url, selectedHost, requestedBook):
                 titleHref = anchor.attrs.get('href')
                 bookTitles[titleName] = titleHref
 
+        case "mangaweebs.org":
+            requestedBookList = url.html.find('.row.c-tabs-item__content')
+            for book in requestedBookList:
+                bookElement = book.find('a', first=True)
+                titleName = bookElement.attrs.get('title')
+                titleHref = bookElement.attrs.get('href')
+                bookTitles[titleName] = titleHref
+
     return bookTitles
 
 def scrapeChapters(url, selectedHost):    
@@ -244,6 +267,12 @@ def scrapeChapters(url, selectedHost):
                 chapterName = aTag.find('.chapternum', first=True).text
                 bookChapters[chapterName] = chapterHref
 
+        case "mangaweebs.org":
+            chapters = url.html.find('.wp-manga-chapter')
+            for chapter in chapters:
+                chapterName = chapter.find('a', first=True).text
+                chapterHref = chapter.find('a', first=True).attrs['href']
+                bookChapters[chapterName] = chapterHref
 
     return bookChapters
 
@@ -336,6 +365,16 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
                         print(f"#{pageNum}: {image}")          
                         pageResponse = requests.get(image)
                         imageContents.append(pageResponse.content)
+
+                case "mangaweebs.org":
+                    pages = chapterRequest.html.find('img.wp-manga-chapter-img')
+                    for page in pages:
+                        pageNum += 1
+                        image = page.attrs['src']
+                        print(f"#{pageNum}: {image}")          
+                        pageResponse = requests.get(image)
+                        imageContents.append(pageResponse.content)
+
             
             for char in charsToRemove:
                 bookName = bookName.replace(char, '')
