@@ -14,10 +14,7 @@ def scrapeCover(bookLink, session, selectedHost):
     coverImage = ""
     imageRequest = session.get(bookLink, headers=headers)
    # Get coverImage from the website source code, xpath differs across different websites
-    match selectedHost:
-        case "readallcomics.com":
-            coverImage = imageRequest.html.find('div.description-archive img', first=True).attrs['src']
-                    
+    match selectedHost:                    
         case "comixextra.com":
             images = imageRequest.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[1]/div/img')
             for image in images:
@@ -60,11 +57,6 @@ def scrapeInformation(bookLink, session, selectedHost):
     genresList = []
 
     match selectedHost:
-        case "readallcomics.com":
-            information['Title'] = request.html.find('div.description-archive > h1', first=True).text
-            information['Author/Publisher'] = request.html.find('div.b strong:nth-of-type(2)', first=True).text
-            information['Genres'] = request.html.find('div.b strong:nth-of-type(1)', first=True).text
-
         case "comixextra.com":
             information["Title"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/h1/span')[0].text
             information["Author/Publisher"] = request.html.xpath('/html/body/main/div/div/div/div[1]/div[1]/div[1]/div[1]/div/div[2]/div/dl/dd[4]')[0].text
@@ -142,15 +134,7 @@ def scrapeTitles(url, selectedHost, requestedBook):
     requestedBook = requestedBook.replace(" ", "-")
     bookTitles = {}
    # Retrieve all book titles that contain the same words as those entered by the user
-    match selectedHost:
-        case "readallcomics.com":
-            parsedTitles = url.html.xpath("/html/body/section/div/div/div/ul/li/a") #
-            for child in parsedTitles:
-             titleHref = child.attrs['href']
-             titleName = child.text
-             print(titleName)
-             bookTitles[titleName] = titleHref      
-
+    match selectedHost:  
         case "comixextra.com":
             parsedTitles = url.html.find('div.cartoon-box a')
             for title in parsedTitles:
@@ -214,14 +198,7 @@ def scrapeTitles(url, selectedHost, requestedBook):
 def scrapeChapters(url, selectedHost):    
     bookChapters = {}
   # Get all chapters within a book
-    match selectedHost: 
-        case "readallcomics.com":
-            parsedChapters = url.html.xpath("//ul[@class='list-story']/li/a")
-            for chapter in parsedChapters:
-                chapterName = chapter.text
-                chapterHref = chapter.attrs['href']
-                bookChapters[chapterName] = chapterHref
-
+    match selectedHost:
         case "comixextra.com":
             issues = url.html.find('#list a')
             for issue in issues:
@@ -293,16 +270,6 @@ def scrapePages(chapterLink, session, selectedHost, bookName, isMassDownload, di
             bookDownloads.append(bookName)
 
             match selectedHost:
-                case "readallcomics.com":                       
-                    images = chapterRequest.html.xpath('.//img')                     
-                    for pageNum, image in enumerate(images, 1):
-                            if pageNum == 1:
-                                continue
-                            src = image.attrs['src']
-                            pageResponse = requests.get(src)
-                            print(f"{chosenDir}/#{pageNum}.jpg")
-                            imageContents.append(pageResponse.content)
-
                 case "comixextra.com":
                     images = chapterRequest.html.find('div.chapter-container img')
                     for image in images:

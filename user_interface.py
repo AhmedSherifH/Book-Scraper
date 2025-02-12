@@ -45,7 +45,7 @@ selectedFormat = ""
 oddChars = [" ", ":", "/","?", "(", ")"]
 hostBase = ""
 bookmarkedBooks = []
-hostValues = ["Select a Host", "readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv", "rawkuma.com", "mangaweebs.org"] 
+hostValues = ["Select a Host", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv", "rawkuma.com", "mangaweebs.org"] 
 formatValues = ["Select a Format", "Read", ".jpg", ".cbz", ".zip", ".pdf"]
 bookChapterNames = {}
 globalBookName = ''
@@ -72,8 +72,6 @@ def selectHost(choice):
       
        hostSelector.configure(values=hostValues)
        match choice:
-            case "readallcomics.com":
-                  hostBase = "https://readallcomics.com/?story="
             case "comixextra.com":
                   hostBase = "https://comixextra.com/search?keyword={}"
             case "mangakomi.io":
@@ -240,10 +238,6 @@ def searchProcess():
 
     try:
       # Set searchBookURL according to the selected host, and get the text entered in the search bar
-      if selectedHost == "readallcomics.com":
-            requestedBook = searchBar.get("0.0", "end").replace(' ', "-").replace('\n', "")
-            searchBookURL = hostBase + requestedBook + "&s=&type=comic"
-            searchBookURL = searchBookURL.replace("\n", "").replace(" ", "")  
       if selectedHost in ["mangakomi.io", "mangaread.org", "comixextra.com", "mangakatana.com", "mangakakalot.tv", "rawkuma.com", "mangaweebs.org"]:
             requestedBook = searchBar.get("0.0", "end").replace(' ', "+").replace('\n', "")
             searchBookURL = hostBase.format(requestedBook)
@@ -489,7 +483,7 @@ displayBookmarks()
 
 
 def searchProcessCheck():
-      if selectedHost not in ["readallcomics.com", "comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv", "rawkuma.com", "mangaweebs.org"]:
+      if selectedHost not in ["comixextra.com" , "mangakomi.io", "mangaread.org", "mangakatana.com", "mangakakalot.tv", "rawkuma.com", "mangaweebs.org"]:
             searchButton.place_forget()
             messagebox.showerror("Error", "Please select a host from the dropdown menu.")
       else: 
